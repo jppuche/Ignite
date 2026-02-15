@@ -1,0 +1,27 @@
+name: Quality Gates
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  quality:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      {{CI_SETUP}}
+
+      - name: Typecheck
+        run: {{CMD_TYPECHECK}}
+
+      - name: Lint
+        run: {{CMD_LINT}}
+
+      - name: Test
+        run: {{CMD_TEST}}
+
+      - name: Build
+        run: {{CMD_BUILD}}

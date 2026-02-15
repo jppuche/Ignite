@@ -1,0 +1,12 @@
+# Claude Code local settings (not for sharing)
+.claude/settings.local.json
+
+# Security audit logs
+.claude/security/audit-*.log
+
+# Local project memory
+*.local.md
+
+# OS
+.DS_Store
+Thumbs.db

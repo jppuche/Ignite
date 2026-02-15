@@ -82,7 +82,7 @@ graph LR
 - **Workflow structure** — CLAUDE.md, docs, 5 specialized agents, context-aware rules — adapted to your stack
 - **Quality gates** — automated typecheck + lint + test enforcement before every commit
 - **Session memory** — mistakes are recorded and patterns graduate to permanent memory. Your Claude Code learns from past errors and gets better every session
-- **Security framework** — Cerbero: supply-chain screening, known CVE detection, rug pull baseline checks
+- **Security framework** — Cerbero: supply-chain screening for Skills and MCP servers, known CVE detection, rug pull baseline checks
 - **CI/CD pipeline** — GitHub Actions workflow generated and configured for your stack
 - **Mid-way support** — detects existing code, CI/CD, and conventions — integrates without overwriting
 - **Adaptive UX** — auto-detects experience level, adapts prompts, defaults, and output detail
@@ -318,17 +318,18 @@ The skill follows a **delegation pattern**: `SKILL.md` orchestrates the phases, 
 
 ```
 .claude/skills/project-workflow-init/
-├── SKILL.md                  # Orchestrator (Steps 0-5)
-├── file-map.md               # Template mapping + placeholders
-├── ref-adaptive-ux.md        # Adaptive UX: detection, behavior tables, preview specs
-├── ref-stack-profiles.md     # 12 stack profiles
-├── ref-platform-detection.md # OS/Python/Git detection
-├── ref-generation-details.md # Step 2.5 preview + Step 3 generation logic
-├── ref-finalization-details.md # Step 5 detailed logic
-├── ref-cerbero-installation.md # Security framework
-└── ref-error-handling.md     # Error recovery
+├── SKILL.md                       # Orchestrator (Steps 0-5)
+└── references/                    # Detailed logic (loaded on-demand)
+    ├── file-map.md                # Template mapping + placeholders
+    ├── ref-adaptive-ux.md         # Adaptive UX: detection, behavior tables, preview specs
+    ├── ref-stack-profiles.md      # 12 stack profiles
+    ├── ref-platform-detection.md  # OS/Python/Git detection
+    ├── ref-generation-details.md  # Step 2.5 preview + Step 3 generation logic
+    ├── ref-finalization-details.md # Step 5 detailed logic
+    ├── ref-cerbero-installation.md # Security framework
+    └── ref-error-handling.md      # Error recovery
 
-plugin-manifest.json            # Marketplace manifest
+.claude-plugin/plugin.json          # Standard plugin manifest
 ```
 
 ### Complete Feature Reference
@@ -354,7 +355,7 @@ plugin-manifest.json            # Marketplace manifest
 | **Post-mortem tracking** | Structured LESSONS-LEARNED.md with incident timeline and root cause analysis |
 | **Auto-update notification** | Session-start version check with drift and age detection |
 | **Graduation automation** | Automated detection of repeating SCRATCHPAD patterns across sessions |
-| **Marketplace manifest** | plugin-manifest.json ready for Claude Code marketplace |
+| **Plugin manifest** | .claude-plugin/plugin.json — standard Claude Code plugin structure |
 
 </details>
 

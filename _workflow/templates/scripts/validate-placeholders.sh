@@ -11,7 +11,7 @@
 set -euo pipefail
 
 ROOT="${1:-.}"
-FILEMAP="$ROOT/.claude/skills/project-workflow-init/file-map.md"
+FILEMAP="$ROOT/.claude/skills/project-workflow-init/references/file-map.md"
 TEMPLATES_DIR="$ROOT/_workflow/templates"
 
 ERRORS=0

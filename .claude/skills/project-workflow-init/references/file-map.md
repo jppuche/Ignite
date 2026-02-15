@@ -167,7 +167,7 @@ These files exist at the root of the Ignite package for distribution and discove
 | `LICENSE` | MIT License (hardcoded — no license type placeholder; replace manually if needed) |
 | `CONTRIBUTING.md` | Contributor guide (architecture, how to add profiles/templates/hooks/rules) |
 | `CHANGELOG.md` | Version history (semantic versioning) |
-| `plugin-manifest.json` | Plugin manifest for Claude Code marketplace (JSON) |
+| `.claude-plugin/plugin.json` | Standard Claude Code plugin manifest (JSON) |
 
 ### Skill Reference Files
 

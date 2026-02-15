@@ -18,15 +18,19 @@ Guide for extending and modifying Ignite. Covers architecture, how to add new co
 
 ```
 Ignite/
+├── .claude-plugin/
+│   └── plugin.json                          # Standard plugin manifest
 ├── .claude/skills/project-workflow-init/     # Skill definition
 │   ├── SKILL.md              # Orchestrator (~475 lines, 5 phases)
-│   ├── file-map.md           # Single source of truth: template mappings + placeholders
-│   ├── ref-stack-profiles.md # 12 stack profiles with domain config
-│   ├── ref-platform-detection.md
-│   ├── ref-generation-details.md
-│   ├── ref-finalization-details.md
-│   ├── ref-cerbero-installation.md
-│   └── ref-error-handling.md
+│   └── references/           # Detailed logic (loaded on-demand)
+│       ├── file-map.md       # Single source of truth: template mappings + placeholders
+│       ├── ref-adaptive-ux.md
+│       ├── ref-stack-profiles.md
+│       ├── ref-platform-detection.md
+│       ├── ref-generation-details.md
+│       ├── ref-finalization-details.md
+│       ├── ref-cerbero-installation.md
+│       └── ref-error-handling.md
 ├── _workflow/
 │   ├── templates/            # Source templates (processed during generation)
 │   │   ├── agents/           # 5 agent templates
@@ -46,9 +50,9 @@ Ignite/
 
 ### Delegation Pattern
 
-`SKILL.md` is the orchestrator. Complex logic is delegated to `ref-*.md` files, which Claude loads only when needed. This keeps the main skill file focused and reduces token consumption.
+`SKILL.md` is the orchestrator. Complex logic is delegated to `ref-*.md` files in `references/`, which Claude loads only when needed. This keeps the main skill file focused and reduces token consumption.
 
-`file-map.md` is the single source of truth for:
+`references/file-map.md` is the single source of truth for:
 - All template-to-destination mappings
 - All placeholder declarations (name, source, default)
 - Overwrite categories per file
@@ -56,7 +60,7 @@ Ignite/
 
 ## How to Add a Stack Profile
 
-1. Open `ref-stack-profiles.md`
+1. Open `references/ref-stack-profiles.md`
 2. Add a new "Expanded Profile" section following the existing format:
    ```markdown
    ### Profile: Your Stack (Framework)
@@ -79,8 +83,8 @@ Ignite/
 
 1. Create template file in `_workflow/templates/[category]/`
    - Use `{{PLACEHOLDER}}` syntax for dynamic values
-   - Only use placeholders declared in `file-map.md`
-2. Add mapping to `file-map.md` in the appropriate Template Mapping section
+   - Only use placeholders declared in `references/file-map.md`
+2. Add mapping to `references/file-map.md` in the appropriate Template Mapping section
    - Columns: Template | Destination | Placeholders used | OW (overwrite category)
 3. Assign overwrite category (see table below)
 4. Add generation logic to `SKILL.md` Phase 3 (or appropriate sub-phase)
@@ -95,7 +99,7 @@ Ignite/
    - Fail closed on validation errors: output JSON with `{"decision": "block", "reason": "..."}`
    - Cross-platform: use `os.path.join()`, handle Windows paths
    - Use `{PYTHON_CMD}` in settings (resolved at generation time)
-3. Add to `file-map.md` in appropriate hooks section (Category B)
+3. Add to `references/file-map.md` in appropriate hooks section (Category B)
 4. Register in `SKILL.md` Phase 3.2 settings.local.json merge:
    ```json
    { "type": "command", "command": "{PYTHON_CMD} .claude/hooks/your-hook.py" }
@@ -115,7 +119,7 @@ Ignite/
    always_apply: true
    ---
    ```
-3. Add to `file-map.md` Rules section with OW category C
+3. Add to `references/file-map.md` Rules section with OW category C
 4. If rule is stack-dependent, add conditional logic in `SKILL.md` Phase 3.3
    (see `styling.md` pattern: check `STYLING_APPLICABLE` flag from stack profile)
 5. Validate
@@ -131,7 +135,7 @@ When `/project-workflow-init` re-runs on an existing project, each file is handl
 | **C** | Analyze differences, ask user before modifying | Rules and agents (possibly customized by user) |
 | **--** | File-specific logic (implemented per file) | CLAUDE.md (ask), .gitignore (append), settings.local.json (merge), README.md (ask) |
 
-Defined in `file-map.md` "Overwrite Categories" section. Logic in `SKILL.md` Phase 3.0.
+Defined in `references/file-map.md` "Overwrite Categories" section. Logic in `SKILL.md` Phase 3.0.
 
 ## Testing
 
@@ -182,7 +186,7 @@ No additional manifest files are required. The frontmatter is compatible with th
 
 ### Plugin Manifest
 
-`plugin-manifest.json` at the skill root extends SKILL.md frontmatter with marketplace-specific metadata. Update it when:
+`.claude-plugin/plugin.json` follows the standard Claude Code plugin structure and extends SKILL.md frontmatter with marketplace-specific metadata. Update it when:
 - Version changes (keep in sync with CHANGELOG.md)
 - Features are added/removed (agents, rules, hooks, doc_templates counts)
 - New stack profiles are added (supported_stacks array)
@@ -190,4 +194,4 @@ No additional manifest files are required. The frontmatter is compatible with th
 
 ### Version Tracking
 
-Ignite uses semantic versioning tracked in `CHANGELOG.md` and `plugin-manifest.json`. Git tags mark releases (`v1.0.0`, `v1.1.0`, etc.). Auto-update check: the session-gate hook compares its embedded version with the project's installed version and notifies the user of drift.
+Ignite uses semantic versioning tracked in `CHANGELOG.md` and `.claude-plugin/plugin.json`. Git tags mark releases (`v1.0.0`, `v1.1.0`, etc.). Auto-update check: the session-gate hook compares its embedded version with the project's installed version and notifies the user of drift.

@@ -4,8 +4,6 @@
   "description": "Phase 0: Foundation of the Ignite workflow methodology — an 8-phase development process from project setup to production hardening. Creates project memory, documentation, agents, rules, hooks, quality gates, CI/CD, and security framework. Adaptive UX (Guided/Advanced), 12 stack profiles, mid-way integration, dry-run preview.",
   "author": "workflow-base",
   "license": "MIT",
-  "entry_point": ".claude/skills/project-workflow-init/SKILL.md",
-  "min_claude_code_version": "1.0.0",
   "tags": [
     "agent-skills",
     "claude-code",
@@ -48,7 +46,7 @@
     "python": ">=3.8",
     "bash": true
   },
-  "repository": "",
-  "homepage": "",
+  "repository": "https://github.com/jppuche/Ignite",
+  "homepage": "https://github.com/jppuche/Ignite",
   "changelog": "CHANGELOG.md"
 }

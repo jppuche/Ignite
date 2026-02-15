@@ -1,11 +1,7 @@
 ---
 name: project-workflow-init
-description: >-
-  Establishes Phase 0: Foundation of the Ignite workflow methodology.
-  Creates project memory, documentation, agents, rules, hooks, quality gates,
-  CI/CD, and security framework — adapted to the detected stack.
-  Phase 0 is the first of 8 phases that guide development from setup to production.
-  Use when the user wants to start a new project workflow or integrate into an existing project.
+description: 'This skill should be used when the user asks to "initialize a project", "set up workflow", "start Ignite", "create project foundation", "set up development infrastructure", "integrate workflow into existing project", or "run Phase 0". Establishes Phase 0: Foundation of the Ignite workflow methodology — creates project memory, documentation, agents, rules, hooks, quality gates, CI/CD, and security framework adapted to the detected stack. Supports new projects and mid-way integration into existing codebases.'
+argument-hint: "[project-directory]"
 disable-model-invocation: true
 allowed-tools: Read, Write, Edit, Bash, Glob, Grep, AskUserQuestion
 ---
@@ -14,8 +10,8 @@ allowed-tools: Read, Write, Edit, Bash, Glob, Grep, AskUserQuestion
 
 Phase 0: Foundation of the Ignite workflow methodology. Guides the user through project setup by asking questions, detecting existing configuration, and generating all project files from templates in `_workflow/templates/`. Adapts interaction density and detail level based on user experience (Guided / Advanced).
 
-**Reference:** [file-map.md](file-map.md) contains the complete template-to-destination mapping and all placeholders.
-**Adaptive UX:** [ref-adaptive-ux.md](ref-adaptive-ux.md) contains user level detection, behavior tables, preview specifications, and safe defaults.
+**Reference:** [file-map.md](references/file-map.md) contains the complete template-to-destination mapping and all placeholders.
+**Adaptive UX:** [ref-adaptive-ux.md](references/ref-adaptive-ux.md) contains user level detection, behavior tables, preview specifications, and safe defaults.
 
 ---
 
@@ -60,7 +56,7 @@ Store selection as `{{IDIOMA}}`. From this point forward:
 
 Determine user experience level. This affects question presentation, default decisions, and preview detail throughout all subsequent steps.
 
-> **Adaptive:** Full detection logic in [ref-adaptive-ux.md](ref-adaptive-ux.md) (Detection Cascade)
+> **Adaptive:** Full detection logic in [ref-adaptive-ux.md](references/ref-adaptive-ux.md) (Detection Cascade)
 
 **Detection cascade (lightweight — no Discovery dependency):**
 
@@ -76,11 +72,11 @@ Determine user experience level. This affects question presentation, default dec
 3. **Ask user** (in `{{IDIOMA}}`): AskUserQuestion with 2 options: "Guided (Recommended)" / "Advanced". Store as `detected_via = "explicit"`.
 4. **Persist:** Write `.claude/security/user-profile.json`. Create `.claude/security/` directory if needed.
 
-Store as `USER_LEVEL` ("guided" | "advanced"). All subsequent steps reference `USER_LEVEL` via adaptive directives — see [ref-adaptive-ux.md](ref-adaptive-ux.md) (Phase Behavior Table).
+Store as `USER_LEVEL` ("guided" | "advanced"). All subsequent steps reference `USER_LEVEL` via adaptive directives — see [ref-adaptive-ux.md](references/ref-adaptive-ux.md) (Phase Behavior Table).
 
 ### 0.2 Welcome message
 
-> **Adaptive:** Present per [ref-adaptive-ux.md](ref-adaptive-ux.md) (Welcome). Adapt all text to `{{IDIOMA}}`.
+> **Adaptive:** Present per [ref-adaptive-ux.md](references/ref-adaptive-ux.md) (Welcome). Adapt all text to `{{IDIOMA}}`.
 
 Present the complete workflow as an integral vision. The user understands from the first moment that they are entering a structured process. Phase 0 is presented as the first step of the journey.
 
@@ -144,7 +140,7 @@ Scan the project directory for existing configuration. Report findings to the us
 
 Detect OS, configure Python command and Git Bash (Windows). Store PYTHON_CMD for Step 3.2 and 4.4.
 
-**Full logic:** [ref-platform-detection.md](ref-platform-detection.md)
+**Full logic:** [ref-platform-detection.md](references/ref-platform-detection.md)
 
 ### 1.1 Detect existing project files
 
@@ -170,12 +166,12 @@ Store as {{PACKAGE_MANAGER}}.
 
 ### 1.2 Check for prior initialization
 
-Scan all destination files from [file-map.md](file-map.md) and build a catalog for Step 3.0.
+Scan all destination files from [file-map.md](references/file-map.md) and build a catalog for Step 3.0.
 
 ```
 EXISTING_FILES = {}   # map: destination_path → { exists, category, size_lines }
 
-For each entry in file-map.md Template Mapping tables:
+For each entry in references/file-map.md Template Mapping tables:
   destination = resolved destination path
   category    = OW column value (A, B, C, or --)
 
@@ -214,7 +210,7 @@ Store `EXISTING_FILES` and `STATE` for use in Step 3.0.
 
 ### 1.3 Report to user
 
-> **Adaptive:** If `USER_LEVEL == "guided"`, show only stack and file count (omit platform details, package manager, prior init state). If `USER_LEVEL == "advanced"`, show full report. See ref-adaptive-ux.md (Phase Behavior Table).
+> **Adaptive:** If `USER_LEVEL == "guided"`, show only stack and file count (omit platform details, package manager, prior init state). If `USER_LEVEL == "advanced"`, show full report. See references/ref-adaptive-ux.md (Phase Behavior Table).
 
 Summarize what was detected, what was pre-filled, and what needs manual input. Adapt to `{{IDIOMA}}`.
 
@@ -295,7 +291,7 @@ USER_LEVEL was set during initialization (Step 0.1). Proceed to 1.5.
 
 ### 1.5 Extended report (only if PROJECT_MODE == "mid-way")
 
-> **Adaptive:** If `USER_LEVEL == "guided"`, omit extended report (proceed silently). See ref-adaptive-ux.md (Phase Behavior Table).
+> **Adaptive:** If `USER_LEVEL == "guided"`, omit extended report (proceed silently). See references/ref-adaptive-ux.md (Phase Behavior Table).
 
 ```
 Display (adapt to {{IDIOMA}}):
@@ -339,9 +335,9 @@ Resolve each value using the chain: **config file → inferencia del stack → d
 
 ### 2.1.1 Stack profile resolution
 
-After resolving stack values, determine the stack profile and resolve domain-specific placeholders. **Stack profiles:** [ref-stack-profiles.md](ref-stack-profiles.md)
+After resolving stack values, determine the stack profile and resolve domain-specific placeholders. **Stack profiles:** [ref-stack-profiles.md](references/ref-stack-profiles.md)
 
-1. **Select profile:** Match detected config files from Step 1.1 against the profile selection logic in ref-stack-profiles.md (priority-ordered: most specific framework first, Generic as fallback).
+1. **Select profile:** Match detected config files from Step 1.1 against the profile selection logic in references/ref-stack-profiles.md (priority-ordered: most specific framework first, Generic as fallback).
 
 2. **Resolve domain placeholders** from the matched profile:
 
@@ -362,7 +358,7 @@ After resolving stack values, determine the stack profile and resolve domain-spe
 
 After resolving, display summary to user (informational, not a question). Adapt to `{{IDIOMA}}`.
 
-> **Adaptive:** If `USER_LEVEL == "guided"`, show only project name and stack (omit command breakdown — it's not actionable for non-technical users). If `USER_LEVEL == "advanced"`, show full summary. See ref-adaptive-ux.md (Phase Behavior Table).
+> **Adaptive:** If `USER_LEVEL == "guided"`, show only project name and stack (omit command breakdown — it's not actionable for non-technical users). If `USER_LEVEL == "advanced"`, show full summary. See references/ref-adaptive-ux.md (Phase Behavior Table).
 
 **Advanced summary:**
 ```
@@ -392,7 +388,7 @@ After resolving, display summary to user (informational, not a question). Adapt 
 
 ### 2.2 Project configuration
 
-> **Adaptive:** If `USER_LEVEL == "guided"`, skip Q1-Q4 entirely and auto-decide with safe defaults. Q0 is shown in simplified form if mid-way project detected. See ref-adaptive-ux.md (Safe Defaults, Phase Behavior Table).
+> **Adaptive:** If `USER_LEVEL == "guided"`, skip Q1-Q4 entirely and auto-decide with safe defaults. Q0 is shown in simplified form if mid-way project detected. See references/ref-adaptive-ux.md (Safe Defaults, Phase Behavior Table).
 
 Present in `{{IDIOMA}}` (selected in Step 0.0).
 
@@ -533,13 +529,13 @@ Build options based on detection:
 
 After all placeholders are resolved and all decisions are captured, display a preview of what will be generated. The user must confirm before any files are written.
 
-> **Adaptive:** Preview format and confirmation options adapt to `USER_LEVEL`. See [ref-adaptive-ux.md](ref-adaptive-ux.md) (Preview Specifications).
+> **Adaptive:** Preview format and confirmation options adapt to `USER_LEVEL`. See [ref-adaptive-ux.md](references/ref-adaptive-ux.md) (Preview Specifications).
 
-**Full logic:** [ref-generation-details.md](ref-generation-details.md) — sections 2.5.1 through 2.5.4.
+**Full logic:** [ref-generation-details.md](references/ref-generation-details.md) — sections 2.5.1 through 2.5.4.
 
 **Summary:**
 
-1. **Build file manifest** from [file-map.md](file-map.md) — resolve conditions (styling, Cerbero, Teams) to determine which files will actually be generated.
+1. **Build file manifest** from [file-map.md](references/file-map.md) — resolve conditions (styling, Cerbero, Teams) to determine which files will actually be generated.
 2. **Resolve key files in memory** (do NOT write yet): CLAUDE.md and quality-gate.json.
 3. **Display preview** — Advanced: file tree + resolved CLAUDE.md + placeholder table. Guided: grouped by purpose in plain language.
 4. **Ask confirmation:**
@@ -554,19 +550,19 @@ If re-run (STATE != "fresh"): the preview integrates the overwrite analysis from
 
 ## Step 3: Generation
 
-Read each template from `_workflow/templates/`, replace placeholders with collected values, write to destination. See [file-map.md](file-map.md) for the complete mapping.
+Read each template from `_workflow/templates/`, replace placeholders with collected values, write to destination. See [file-map.md](references/file-map.md) for the complete mapping.
 
 ### 3.0 Pre-generation analysis (overwrite protection)
 
 If STATE == "fresh": skip to 3.1. Otherwise, analyze each existing file by category (A/B/C) to determine action (skip/merge/replace/ask). Display report and get user confirmation.
 
-**Full logic:** [ref-generation-details.md](ref-generation-details.md) — sections 3.0.1 through 3.0.7 and 3.1.
+**Full logic:** [ref-generation-details.md](references/ref-generation-details.md) — sections 3.0.1 through 3.0.7 and 3.1.
 
 ### 3.1 Core files
 
 Generate CLAUDE.md, docs (STATUS, DECISIONS, CHANGELOG-DEV, SCRATCHPAD, LESSONS-LEARNED, spec-template), and scripts (validate-docs.sh, validate-placeholders.sh). Respect overwrite analysis from 3.0.
 
-**Full logic:** [ref-generation-details.md](ref-generation-details.md) — section 3.1 (9 files with per-category handling).
+**Full logic:** [ref-generation-details.md](references/ref-generation-details.md) — section 3.1 (9 files with per-category handling).
 
 ### 3.2 Lorekeeper + hooks (always, immediately after core files)
 
@@ -723,7 +719,7 @@ Generate GitHub Actions workflow from the CI template. The code-quality-gate hoo
 
 Only execute if user answered Yes to Cerbero in Step 2.2 (Q3: Security). Installs Cerbero skill, security hooks, trusted-publishers list, and configures hooks in settings.local.json.
 
-**Full logic:** [ref-cerbero-installation.md](ref-cerbero-installation.md) — sections 4.0 through 4.5.
+**Full logic:** [ref-cerbero-installation.md](references/ref-cerbero-installation.md) — sections 4.0 through 4.5.
 
 ---
 
@@ -769,7 +765,7 @@ If errors: fix automatically before continuing.
 
 Move skill README.md to docs/ignite-reference.md, generate project README.md from template (README.template.md with NOMBRE_PROYECTO, DESCRIPCION_CORTA, STACK, FECHA), cleanup setup files (skill dir, templates/), display comprehensive summary with AskUserQuestion for next steps.
 
-**Full logic:** [ref-finalization-details.md](ref-finalization-details.md)
+**Full logic:** [ref-finalization-details.md](references/ref-finalization-details.md)
 
 ---
 
@@ -777,4 +773,4 @@ Move skill README.md to docs/ignite-reference.md, generate project README.md fro
 
 Covers: missing templates, missing placeholders, existing CLAUDE.md, git conflicts, and per-category overwrite protection edge cases (corrupted files, encoding, empty files, line limits).
 
-**Full logic:** [ref-error-handling.md](ref-error-handling.md)
+**Full logic:** [ref-error-handling.md](references/ref-error-handling.md)

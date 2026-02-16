@@ -3,6 +3,18 @@
 All notable changes to Ignite are documented here.
 Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [1.1.0] - 2026-02-16
+
+### Security
+- Security best practices section added to generated CLAUDE.md (secrets management, env vars, MCP permissions)
+- Generated .gitignore now includes `secrets/`, `.env`, `.env.*` by default
+
+### Documentation
+- README intro rewritten for three audiences (non-technical users, developers, AI discovery)
+- GitHub About metadata optimized with searchable terms
+- Acknowledgments section: methodology references, practitioner credits, Anthropic resources
+- Author tagline added to footer
+
 ## [1.0.0] - 2026-02-15
 
 Initial public release.

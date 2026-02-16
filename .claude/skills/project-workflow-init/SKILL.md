@@ -4,7 +4,7 @@ description: 'This skill should be used when the user asks to "initialize a proj
 license: MIT
 metadata:
   author: jppuche
-  version: "1.0.0"
+  version: "1.1.0"
 compatibility: Designed for Claude Code. Requires Python 3.8+ and Git.
 argument-hint: "[project-directory]"
 disable-model-invocation: true
@@ -758,6 +758,9 @@ Append workflow-relevant entries (do not overwrite existing):
 .claude/security/audit-*.log
 .claude/lorekeeper-pending.json
 *.local.md
+secrets/
+.env
+.env.*
 ```
 
 ### 5.4 Validate

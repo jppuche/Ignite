@@ -1,6 +1,6 @@
 {
   "name": "project-workflow-init",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Phase 0: Foundation of the Ignite workflow methodology — an 8-phase development process from project setup to production hardening. Creates project memory, documentation, agents, rules, hooks, quality gates, CI/CD, and security framework. Adaptive UX (Guided/Advanced), 12 stack profiles, mid-way integration, dry-run preview.",
   "author": "jppuche",
   "license": "MIT",

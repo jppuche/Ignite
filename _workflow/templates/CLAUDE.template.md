@@ -72,6 +72,13 @@ Configurados en .claude/settings.local.json (no commitear).
 - `lorekeeper-commit-gate.py` (PreToolUse:Bash) — bloquea git commit si docs validation falla
 - `lorekeeper-session-end.py` (SessionEnd) — checkpoint de docs + pending items + graduation candidates para siguiente sesion
 
+## Security
+
+- Secrets SIEMPRE como env vars -- usar `${VAR}` en configs (ej: `.mcp.json`), valores reales en `.env` (gitignored). Nunca hardcoded
+- Archivos sensibles en `secrets/` (gitignored) -- credenciales OAuth, tokens, API keys. Referenciar via env var de ruta (ej: `OAUTH_PATH=./secrets/oauth.json`)
+- Validacion local de credenciales -- usar `python3 -c "..."` para verificar estructura. NUNCA pasar contenido de secrets por herramientas que envien datos a servidores externos
+- MCP tools: principio de minimo privilegio -- al instalar MCPs con tools de escritura/borrado/envio, deny explicito via `permissions.deny` en `settings.local.json`
+
 ## Scratchpad
 
 @docs/SCRATCHPAD.md -- leer al inicio de cada sesion, append al cierre

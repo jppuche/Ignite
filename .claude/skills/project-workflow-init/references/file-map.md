@@ -184,6 +184,7 @@ Always:
 docs/
 docs/specs/
 scripts/
+secrets/
 .claude/agents/
 .claude/rules/
 .claude/hooks/

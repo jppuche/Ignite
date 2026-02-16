@@ -1,20 +1,20 @@
 # Ignite
 
-**An 8-phase development workflow for Claude Code** — from project setup to production hardening.
+**Complete development infrastructure for Claude Code.** One command. Any stack. Full workflow.
 
-<!-- GitHub About: Claude Code workflow methodology — 8 phases, 5 agents, 7 hooks, 12 stack profiles, security framework, compound engineering. Works on new and existing projects. -->
+<!-- GitHub About: Complete development infrastructure for Claude Code projects. Project scaffolding, session memory, quality gates, security screening, CI/CD — auto-adapted to any stack. Works on new and existing codebases. -->
 <!-- Topics: claude-code, agent-skills, workflow-methodology, development-workflow, compound-engineering, security, multi-stack, automation -->
 
-![Version](https://img.shields.io/badge/version-1.0.0-blue)
+![Version](https://img.shields.io/badge/version-1.1.0-blue)
 ![License](https://img.shields.io/badge/license-MIT-green)
 ![Python](https://img.shields.io/badge/python-3.8%2B-yellow)
 ![Platforms](https://img.shields.io/badge/platforms-Windows%20%7C%20macOS%20%7C%20Linux-lightgrey)
 ![Stacks](https://img.shields.io/badge/stacks-12%20profiles-orange)
 ![Claude Code](https://img.shields.io/badge/Claude%20Code-compatible-purple)
 
-You start a project with Claude Code. You get code — but no structured workflow around it. No quality gates, no memory between sessions, no security checks, no automation. Context gets lost after every `/clear`. Mistakes repeat. Technical debt grows silently.
+You start a project with Claude Code. You get code — but no structure around it. No quality gates, no memory between sessions, no security checks. Context gets lost after every `/clear`. Mistakes repeat.
 
-Ignite fixes this. One command gives you the full infrastructure: project memory, documentation, specialized agents, automation hooks, security framework, quality gates, and CI/CD — all adapted to your detected stack. Works on fresh projects and existing codebases.
+Ignite gives your project the infrastructure it's missing. One command sets up project memory, quality gates, security screening, CI/CD, and specialized agents — all adapted to your stack. It handles the complex parts so you can focus on building.
 
 ## Table of Contents
 
@@ -36,6 +36,7 @@ Ignite fixes this. One command gives you the full infrastructure: project memory
 - [Contributing](#contributing)
 - [Changelog](#changelog)
 - [License](#license)
+- [Acknowledgments](#acknowledgments)
 
 ## Quick Start
 
@@ -383,6 +384,28 @@ See [CHANGELOG.md](CHANGELOG.md) for version history.
 
 MIT License — see [LICENSE](LICENSE).
 
+## Acknowledgments
+
+This workflow builds on ideas and practices from:
+
+**Methodologies**
+- [Ralph Loop](https://ghuntley.com/loop) — the iterative execution pattern at the core of Development Blocks. Expanded by [vincirufus.com](https://vincirufus.com) and [paddo.dev](https://paddo.dev)
+- [Compound Engineering](https://every.to/chain-of-thought/compound-engineering) — the plan/work/review cycle and session accumulation pattern. [Plugin](https://github.com/EveryInc/compound-engineering-plugin) by Every
+
+**Practitioners**
+- **Andrej Karpathy** (ex-Tesla AI Director, OpenAI founding member) — the shift from vibe coding to agentic engineering shaped Ignite's declarative approach (CLAUDE.md + rules instead of imperative scripts)
+- **Boris Cherny** (Claude Code creator) — CLAUDE.md as mistake log and PostToolUse hooks directly inspired the SCRATCHPAD graduation pipeline and quality gates
+- **Addy Osmani** (Google Chrome engineering lead) — spec-first development and task sizing informed the Phase 0 → Phase N workflow structure and block-based execution
+- **Simon Willison** (Django co-creator) — his two-phase approach (research → production) influenced the separation between exploration phases (1-5) and development blocks (N)
+- **Harper Reed** (former CTO, Obama 2012 campaign) — TDD as counter to hallucination shaped the Prediction Protocol debugging methodology and verification loops
+- **paddo.dev** (Emergent Minds blog) — minimal effective structure, the 19-Agent Trap essay, and /compact timing research informed agent count decisions and context management
+- **swyx** (Latent Space founder) — the IMPACT framework and conductor model influenced the multi-agent architecture and Lorekeeper's orchestration role
+
+**Resources**
+- [Claude Code docs](https://code.claude.com/docs) — best practices, agent teams, skills, MCP
+- [Anthropic: Multi-Agent Research System](https://anthropic.com/engineering/multi-agent-research-system)
+- [Anthropic: Effective Context Engineering](https://anthropic.com/engineering/effective-context-engineering)
+
 ---
 
-Made by [Juan Puche](https://github.com/jppuche).
+Made by [Juan Puche](https://github.com/jppuche) — building tools that solve real problems and make complex things simpler.

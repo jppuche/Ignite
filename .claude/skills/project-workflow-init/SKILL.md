@@ -1,6 +1,11 @@
 ---
 name: project-workflow-init
 description: 'This skill should be used when the user asks to "initialize a project", "set up workflow", "start Ignite", "create project foundation", "set up development infrastructure", "integrate workflow into existing project", or "run Phase 0". Establishes Phase 0: Foundation of the Ignite workflow methodology — creates project memory, documentation, agents, rules, hooks, quality gates, CI/CD, and security framework adapted to the detected stack. Supports new projects and mid-way integration into existing codebases.'
+license: MIT
+metadata:
+  author: jppuche
+  version: "1.0.0"
+compatibility: Designed for Claude Code. Requires Python 3.8+ and Git.
 argument-hint: "[project-directory]"
 disable-model-invocation: true
 allowed-tools: Read, Write, Edit, Bash, Glob, Grep, AskUserQuestion

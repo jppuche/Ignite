@@ -56,10 +56,11 @@ echo ""
 # --- 3. Formato de DECISIONS.md ---
 echo "3. Formato de DECISIONS.md"
 if [ -f "docs/DECISIONS.md" ]; then
-  if grep -q "| Fecha |" docs/DECISIONS.md || grep -q "| Date |" docs/DECISIONS.md; then
+  # i18n: ES/EN/PT/FR table header variants
+  if grep -q "| Fecha |" docs/DECISIONS.md || grep -q "| Date |" docs/DECISIONS.md || grep -q "| Data |" docs/DECISIONS.md; then
     ok "Header de tabla presente"
   else
-    err "Falta header de tabla (| Fecha/Date | Decision | ...)"
+    err "Falta header de tabla (| Fecha/Date/Data | Decision | ...)"
   fi
   # Contar decisiones (lineas que empiezan con | 20)
   DECISION_COUNT=$(grep -c "^| 20" docs/DECISIONS.md || true)
@@ -103,12 +104,13 @@ echo ""
 # --- 6. STATUS.md tiene fase actual ---
 echo "6. Coherencia de STATUS.md"
 if [ -f "docs/STATUS.md" ]; then
-  if grep -qi "Fase actual\|Current phase\|## Fase\|## Phase" docs/STATUS.md; then
+  # i18n: ES/EN/PT/FR variants
+  if grep -qi "Fase actual\|Current phase\|Fase atual\|Phase actuelle\|## Fase\|## Phase" docs/STATUS.md; then
     ok "Tiene seccion de fase actual"
   else
     warn "No tiene indicador de fase actual"
   fi
-  if grep -qi "Pendiente\|Pending" docs/STATUS.md; then
+  if grep -qi "Pendiente\|Pending\|Pendente\|En attente" docs/STATUS.md; then
     ok "Tiene seccion de pendientes"
   else
     warn "No tiene seccion de pendientes"
@@ -168,7 +170,8 @@ echo ""
 # --- 11. Estructura de LESSONS-LEARNED.md ---
 echo "11. Estructura de LESSONS-LEARNED.md"
 if [ -f "docs/LESSONS-LEARNED.md" ]; then
-  if grep -qi "Template de incidente\|Incident template" docs/LESSONS-LEARNED.md; then
+  # i18n: ES/EN/PT/FR variants
+  if grep -qi "Template de incidente\|Incident template\|Template de incidente\|Modele d'incident" docs/LESSONS-LEARNED.md; then
     ok "LESSONS-LEARNED.md tiene template de incidente"
   else
     warn "LESSONS-LEARNED.md falta template de incidente"

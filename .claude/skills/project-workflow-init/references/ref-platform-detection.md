@@ -2,7 +2,7 @@
 
 Detect the operating system from the environment context (platform field).
 
-> **Adaptive:** If `USER_LEVEL == "guided"`, auto-configure silently without AskUserQuestion. Report result as a single line. If auto-configuration fails, display a warning and continue (do not ask). If `USER_LEVEL == "advanced"` (or not yet determined — Step 1.0 runs before 0.1), use the full interactive flow below. See [ref-adaptive-ux.md](ref-adaptive-ux.md) (Phase Behavior Table).
+> **Adaptive:** If `USER_LEVEL == "guided"`, auto-configure silently without AskUserQuestion. Report result as a single line. If auto-configuration fails, display a warning and continue (do not ask). If `USER_LEVEL == "advanced"`, use the full interactive flow below. See [ref-adaptive-ux.md](ref-adaptive-ux.md) (Phase Behavior Table).
 
 ```
 If platform == "win32":

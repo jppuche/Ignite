@@ -1,9 +1,46 @@
-"""Lorekeeper hook: PreToolUse — block commits with stale documentation."""
+"""Lorekeeper hook: PreToolUse — block commits with stale documentation.
+
+Blocks on [FAIL] (hard gate). Warnings ([WARN] + freshness checks) are
+emitted as additionalContext — injected into Claude's conversation so the
+agent can act on them after the commit proceeds.
+"""
 import sys
 import json
 import re
 import subprocess
 import os
+from datetime import date
+
+
+def _check_freshness(cwd):
+    """Check if SCRATCHPAD and CHANGELOG-DEV.md have today's date. Returns list of warnings."""
+    today = date.today().isoformat()
+    warnings = []
+
+    scratchpad_path = os.path.join(cwd, "docs", "SCRATCHPAD.md")
+    if os.path.isfile(scratchpad_path):
+        try:
+            with open(scratchpad_path, "r", encoding="utf-8") as f:
+                if today not in f.read():
+                    warnings.append(
+                        "SCRATCHPAD.md has no entry for today — add session section"
+                    )
+        except (OSError, UnicodeDecodeError):
+            pass
+
+    changelog_path = os.path.join(cwd, "docs", "CHANGELOG-DEV.md")
+    if os.path.isfile(changelog_path):
+        try:
+            with open(changelog_path, "r", encoding="utf-8") as f:
+                if today not in f.read():
+                    warnings.append(
+                        "CHANGELOG-DEV.md has no entry for today "
+                        "— add entry if significant changes were made"
+                    )
+        except (OSError, UnicodeDecodeError):
+            pass
+
+    return warnings
 
 
 def main():
@@ -51,6 +88,7 @@ def main():
     has_fail = "[FAIL]" in result.stdout
     has_warn = "[WARN]" in result.stdout
 
+    # Hard gate: [FAIL] blocks the commit
     if has_fail:
         fail_lines = [
             l.strip() for l in result.stdout.splitlines() if "[FAIL]" in l
@@ -72,15 +110,37 @@ def main():
         )
         sys.exit(0)
 
+    # --- Accumulate all warnings (validate-docs [WARN] + freshness) ---
+    all_warnings = []
+
     if has_warn:
         warn_lines = [
             l.strip() for l in result.stdout.splitlines() if "[WARN]" in l
         ]
-        msg = "Lorekeeper WARNING: documentation has warnings:\n"
-        for line in warn_lines[:5]:
-            msg += f"  {line}\n"
-        print(msg, file=sys.stderr)
+        all_warnings.extend(warn_lines[:5])
 
+    # Freshness checks (only run if commit isn't blocked)
+    freshness_warnings = _check_freshness(cwd)
+    all_warnings.extend(freshness_warnings)
+
+    # Emit warnings as additionalContext (injected into Claude's conversation)
+    if all_warnings:
+        msg = "Lorekeeper commit warnings — act on these after committing:\n"
+        for w in all_warnings:
+            msg += f"  - {w}\n"
+        json.dump(
+            {
+                "hookSpecificOutput": {
+                    "hookEventName": "PreToolUse",
+                    "permissionDecision": "allow",
+                    "additionalContext": msg,
+                }
+            },
+            sys.stdout,
+        )
+        sys.exit(0)
+
+    # Clean pass — no output needed
     sys.exit(0)
 
 

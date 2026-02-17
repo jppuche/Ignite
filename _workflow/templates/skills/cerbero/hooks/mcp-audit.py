@@ -22,6 +22,16 @@ def main():
         "session": data.get("session_id", "unknown"),
     }
 
+    # Log rotation: truncate to last 500 entries if over 1MB
+    try:
+        if os.path.exists(log_path) and os.path.getsize(log_path) > 1_000_000:
+            with open(log_path, "r", encoding="utf-8") as f:
+                lines = f.readlines()
+            with open(log_path, "w", encoding="utf-8") as f:
+                f.writelines(lines[-500:])
+    except OSError:
+        pass  # Fail open on rotation errors
+
     with open(log_path, "a", encoding="utf-8") as f:
         f.write(json.dumps(entry) + "\n")
 

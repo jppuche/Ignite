@@ -50,7 +50,22 @@
 - **Persistir descubrimientos valiosos a SCRATCHPAD.md inmediatamente** -- no esperar al cierre de sesion; insights solo en contexto conversacional se pierden con compact/clear
 - Post-mortems de incidentes van a docs/LESSONS-LEARNED.md (1 seccion por incidente, append-only)
 - Docs check: ejecutar `bash scripts/validate-docs.sh` al cierre de cada sesion/bloque
-- Lorekeeper hooks: session-start context, commit-gate validation, session-end checkpoint — actuar sobre pending items mostrados al inicio
+
+### Protocolo Lorekeeper (OBLIGATORIO)
+
+**Al inicio de cada sesion:**
+1. Leer y ACTUAR sobre items del hook SessionStart (marcados como REQUIRED ACTIONS)
+2. Si SCRATCHPAD > 100 lineas: graduar patrones repetidos a CLAUDE.md Learned Patterns
+3. Si no hay entrada de hoy en SCRATCHPAD: crear seccion con template
+
+**Durante la sesion:**
+4. Actualizar SCRATCHPAD con errores/correcciones/descubrimientos al momento (no al final)
+5. Ejecutar `bash scripts/validate-docs.sh` antes de cada commit
+
+**Al cierre de sesion:**
+6. Verificar entrada de SCRATCHPAD con tag [agente]
+7. Actualizar CHANGELOG-DEV.md si hubo cambios significativos
+8. Ejecutar `bash scripts/validate-docs.sh` -- 0 errors obligatorio, 0 warnings ideal
 
 ## Architecture
 
@@ -68,9 +83,9 @@
 
 Configurados en .claude/settings.local.json (no commitear).
 
-- `lorekeeper-session-gate.py` (SessionStart) — inyecta contexto + pending items de sesion anterior + version check (tambien post-compresion)
-- `lorekeeper-commit-gate.py` (PreToolUse:Bash) — bloquea git commit si docs validation falla
-- `lorekeeper-session-end.py` (SessionEnd) — checkpoint de docs + pending items + graduation candidates para siguiente sesion
+- `lorekeeper-session-gate.py` (SessionStart) — evalua SCRATCHPAD/CHANGELOG/STATUS en tiempo real, genera REQUIRED ACTIONS priorizadas, version check (tambien post-compresion)
+- `lorekeeper-commit-gate.py` (PreToolUse:Bash) — bloquea git commit si docs validation falla. Warnings (validation + freshness) se inyectan como additionalContext
+- `lorekeeper-session-end.py` (SessionEnd) — checkpoint completo (SCRATCHPAD, CHANGELOG-DEV, CLAUDE.md), graduation candidates, pending items numerados para siguiente sesion
 
 ## Security
 

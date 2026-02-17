@@ -29,10 +29,22 @@ Finalizando setup:
 ### 5.5.2 Execute cleanup
 
 Execute in order:
-1. Move `README.md` → `docs/ignite-reference.md`
+1. Handle `README.md` → `docs/ignite-reference.md`
    - If `docs/` doesn't exist: create it (should already exist from Step 3.1)
+   - **Mid-way safety:** If `PROJECT_MODE == "mid-way"` and `./README.md` exists, it is the USER's README, not the Ignite distribution README. In this case, use AskUserQuestion (adapt to `{{IDIOMA}}`):
+     ```
+     "Your project already has a README.md. How should we handle it?"
+       1. "Keep my README (Recommended)" — Skip move, generate Ignite reference as docs/ignite-reference.md from skill README
+       2. "Replace with Ignite template" — Move existing to docs/README-original.md, generate new from template
+       3. "Generate alongside" — Keep existing, generate template as README-ignite.md
+     ```
+     If option 1: copy `_workflow/guides/workflow-guide.md` summary to `docs/ignite-reference.md` instead. Do NOT move user's README.
+     If option 2: move user's README to `docs/README-original.md` (not `docs/ignite-reference.md` — avoid misattribution), then generate from template.
+     If option 3: generate from template as `./README-ignite.md`.
+   - **Fresh project:** Move `README.md` → `docs/ignite-reference.md` (normal behavior — this IS the Ignite README)
    - If `docs/ignite-reference.md` already exists (re-run): ask user whether to overwrite or skip
-2. Generate project `README.md` from `_workflow/templates/docs/README.template.md`
+   - **Windows/OneDrive:** Use read + write + delete instead of move to avoid sync locks
+2. Generate project `README.md` from `_workflow/templates/docs/README.template.md` (skip if user chose option 1 or 3 above)
    - Replace placeholders: `{{NOMBRE_PROYECTO}}`, `{{DESCRIPCION_CORTA}}`, `{{STACK}}`, `{{FECHA}}`
    - Adapt natural-language text to `{{IDIOMA}}`
    - Write to `./README.md`
@@ -142,6 +154,7 @@ Then use AskUserQuestion (in `{{IDIOMA}}`):
 
 **Scripts:**
 - scripts/validate-docs.sh (validates documentation structure and content)
+- scripts/validate-placeholders.sh (validates placeholder resolution in generated files)
 
 [If Cerbero:]
 **Security:**

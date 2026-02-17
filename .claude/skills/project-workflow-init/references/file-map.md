@@ -8,18 +8,18 @@ Reference for the Ignite skill (`/project-workflow-init`). Lists every template,
 
 | Placeholder | Source | Default |
 |-------------|--------|---------|
-| `{{IDIOMA}}` | User input (Step 0.0) | `Espanol` |
+| `{{IDIOMA}}` | User input (Step 0.0) | `English` |
 | `{{NOMBRE_PROYECTO}}` | User input / package.json `name` | (required) |
 | `{{DESCRIPCION_CORTA}}` | User input / package.json `description` | "Proyecto {name}" |
 | `{{STACK}}` | User input (summary) | (required) |
 | `{{STACK_DETALLE}}` | User input (detailed) | Same as `{{STACK}}` |
 | `{{STACK_BACKEND}}` | User input (backend portion) | Same as `{{STACK}}` |
 | `{{STACK_FRONTEND}}` | User input (frontend portion) | Same as `{{STACK}}` |
-| `{{CMD_DEV}}` | User input / package.json `scripts.dev` | `npm run dev` |
-| `{{CMD_BUILD}}` | User input / package.json `scripts.build` | `npm run build` |
-| `{{CMD_TEST}}` | User input / package.json `scripts.test` | `npm run test` |
-| `{{CMD_LINT}}` | User input / package.json `scripts.lint` | `npm run lint` |
-| `{{CMD_TYPECHECK}}` | User input / package.json `scripts.typecheck` | `npm run typecheck` |
+| `{{CMD_DEV}}` | User input / package.json `scripts.dev` / stack inference | `N/A` |
+| `{{CMD_BUILD}}` | User input / package.json `scripts.build` / stack inference | `N/A` |
+| `{{CMD_TEST}}` | User input / package.json `scripts.test` / stack inference | `N/A` |
+| `{{CMD_LINT}}` | User input / package.json `scripts.lint` / stack inference | `N/A` |
+| `{{CMD_TYPECHECK}}` | User input / package.json `scripts.typecheck` / stack inference | `N/A` |
 | `{{FECHA}}` | Auto (today YYYY-MM-DD) | — |
 | `{{FASE_ACTUAL}}` | Auto (adapt to `{{IDIOMA}}`) | "Phase 0: Foundation" |
 | `{{PENDIENTE}}` | Auto (adapt to `{{IDIOMA}}`) | "Phase 1: Technical Landscape" |
@@ -74,6 +74,9 @@ Resolution: All `{{DOMAIN_*}}`, `{{TEST_*}}`, `{{STYLING_*}}`, `{{CRITICAL_RULES
 | `_workflow/templates/agents/frontend-worker.template.md` | `./.claude/agents/frontend-worker.md` | Phase 5, if pre-selected | NOMBRE_PROYECTO, STACK_FRONTEND, DOMAIN_FRONTEND, CRITICAL_RULES_FRONTEND | C |
 | `_workflow/templates/agents/Inquisidor.template.md` | `./.claude/agents/Inquisidor.md` | Phase 5, if pre-selected (opcion 1, 2 o custom) | NOMBRE_PROYECTO, TEST_DOMAIN | C |
 | `_workflow/templates/agents/Sentinel.template.md` | `./.claude/agents/Sentinel.md` | Phase 5, if pre-selected (opcion 1, 2 o custom) | NOMBRE_PROYECTO | C |
+| `_workflow/templates/agents/Sentinel-n8n.template.md` | `./.claude/agents/Sentinel.md` | Preset n8n: install manually for n8n projects (replaces generic Sentinel) | NOMBRE_PROYECTO | C |
+
+> **Sentinel-n8n** is a stack-specific preset. Not auto-installed during Phase 5. User copies manually when working on n8n projects. Includes 9-phase pipeline, 11 dimensions, 6 sub-agent prompts, severity calibration, and web research protocol.
 
 ### Rules (always generated)
 

@@ -115,34 +115,34 @@ For each file in EXISTING_FILES where exists == true, perform category-specific 
 #### Language-aware section detection
 
 Merge detection must match documents generated in any `{{IDIOMA}}`.
-Use dual-pattern matching: section found if EITHER Spanish OR English variant matches (case-insensitive).
+Use multi-language pattern matching: section found if ANY of the 4 language variants matches (case-insensitive).
 
-| Spanish (base) | English | Used in |
-|----------------|---------|---------|
-| "Fase actual" | "Current phase" | STATUS.md |
-| "Completado" | "Completed" | STATUS.md |
-| "Pendiente" | "Pending" | STATUS.md |
-| "Bloqueantes" | "Blockers" | STATUS.md |
-| "Notas" | "Notes" | STATUS.md |
-| "Reglas" | "Rules" | SCRATCHPAD.md |
-| "Formato por sesion" | "Session format" | SCRATCHPAD.md |
-| "Template de incidente" | "Incident template" | LESSONS-LEARNED.md |
-| "Fecha \| Decision" | "Date \| Decision" | DECISIONS.md |
-| "Modelo de Orquestacion" | "Orchestration Model" | AGENT-COORDINATION.md |
-| "Tipos de Ejecucion" | "Execution Types" | AGENT-COORDINATION.md |
-| "Reglas de Coordinacion" | "Coordination Rules" | AGENT-COORDINATION.md |
-| "Protocolo de Comunicacion" | "Communication Protocol" | AGENT-COORDINATION.md |
-| "File Ownership Estricto" | "Strict File Ownership" | AGENT-COORDINATION.md |
-| "Orden de Spawn" | "Spawn Order" | AGENT-COORDINATION.md |
-| "Secuencia de Shutdown" | "Shutdown Sequence" | AGENT-COORDINATION.md |
-| "Seguridad OWASP MCP Top 10" | "OWASP MCP Top 10 Security" | AGENT-COORDINATION.md |
-| "Evaluacion Sandboxed" | "Sandboxed Evaluation" | AGENT-COORDINATION.md |
-| "Best Practices de Anthropic" | "Anthropic Best Practices" | AGENT-COORDINATION.md |
-| "Limitaciones Conocidas" | "Known Limitations" | AGENT-COORDINATION.md |
-| "Checklist Pre-Bloque" | "Pre-Block Checklist" | AGENT-COORDINATION.md |
-| "Mapeo de Skills por Agente y Bloque" | "Skills-to-Agent Block Mapping" | AGENT-COORDINATION.md |
+| Spanish (base) | English | Portuguese | French | Used in |
+|----------------|---------|------------|--------|---------|
+| "Fase actual" | "Current phase" | "Fase atual" | "Phase actuelle" | STATUS.md |
+| "Completado" | "Completed" | "Concluido" | "Termine" | STATUS.md |
+| "Pendiente" | "Pending" | "Pendente" | "En attente" | STATUS.md |
+| "Bloqueantes" | "Blockers" | "Bloqueadores" | "Bloquants" | STATUS.md |
+| "Notas" | "Notes" | "Notas" | "Notes" | STATUS.md |
+| "Reglas" | "Rules" | "Regras" | "Regles" | SCRATCHPAD.md |
+| "Formato por sesion" | "Session format" | "Formato por sessao" | "Format par session" | SCRATCHPAD.md |
+| "Template de incidente" | "Incident template" | "Template de incidente" | "Modele d'incident" | LESSONS-LEARNED.md |
+| "Fecha \| Decision" | "Date \| Decision" | "Data \| Decisao" | "Date \| Decision" | DECISIONS.md |
+| "Modelo de Orquestacion" | "Orchestration Model" | "Modelo de Orquestracao" | "Modele d'Orchestration" | AGENT-COORDINATION.md |
+| "Tipos de Ejecucion" | "Execution Types" | "Tipos de Execucao" | "Types d'Execution" | AGENT-COORDINATION.md |
+| "Reglas de Coordinacion" | "Coordination Rules" | "Regras de Coordenacao" | "Regles de Coordination" | AGENT-COORDINATION.md |
+| "Protocolo de Comunicacion" | "Communication Protocol" | "Protocolo de Comunicacao" | "Protocole de Communication" | AGENT-COORDINATION.md |
+| "File Ownership Estricto" | "Strict File Ownership" | "File Ownership Estrito" | "Propriete Stricte des Fichiers" | AGENT-COORDINATION.md |
+| "Orden de Spawn" | "Spawn Order" | "Ordem de Spawn" | "Ordre de Spawn" | AGENT-COORDINATION.md |
+| "Secuencia de Shutdown" | "Shutdown Sequence" | "Sequencia de Shutdown" | "Sequence de Shutdown" | AGENT-COORDINATION.md |
+| "Seguridad OWASP MCP Top 10" | "OWASP MCP Top 10 Security" | "Seguranca OWASP MCP Top 10" | "Securite OWASP MCP Top 10" | AGENT-COORDINATION.md |
+| "Evaluacion Sandboxed" | "Sandboxed Evaluation" | "Avaliacao Sandboxed" | "Evaluation Sandboxed" | AGENT-COORDINATION.md |
+| "Best Practices de Anthropic" | "Anthropic Best Practices" | "Melhores Praticas da Anthropic" | "Meilleures Pratiques Anthropic" | AGENT-COORDINATION.md |
+| "Limitaciones Conocidas" | "Known Limitations" | "Limitacoes Conhecidas" | "Limitations Connues" | AGENT-COORDINATION.md |
+| "Checklist Pre-Bloque" | "Pre-Block Checklist" | "Checklist Pre-Bloco" | "Checklist Pre-Bloc" | AGENT-COORDINATION.md |
+| "Mapeo de Skills por Agente y Bloque" | "Skills-to-Agent Block Mapping" | "Mapeamento de Skills por Agente e Bloco" | "Mapping Skills par Agent et Bloc" | AGENT-COORDINATION.md |
 
-Pattern: for each required section, search the existing file for EITHER variant (case-insensitive substring match). If either matches, the section is considered present.
+Pattern: for each required section, search the existing file for ANY of the 4 language variants (case-insensitive substring match). If any variant matches, the section is considered present.
 
 For each Category A file that exists:
 

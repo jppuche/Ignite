@@ -195,3 +195,15 @@ No additional manifest files are required. The frontmatter is compatible with th
 ### Version Tracking
 
 Ignite uses semantic versioning tracked in `CHANGELOG.md` and `.claude-plugin/plugin.json`. Git tags mark releases (`v1.0.0`, `v1.1.0`, etc.). Auto-update check: the session-gate hook compares its embedded version with the project's installed version and notifies the user of drift.
+
+**Version bump checklist** — update ALL of these when releasing a new version:
+
+| # | File | Field / Location | Notes |
+|---|------|------------------|-------|
+| 1 | `.claude-plugin/plugin.json` | `"version"` | **Canonical source of truth** |
+| 2 | `.claude/skills/project-workflow-init/SKILL.md` | frontmatter `version:` | Must match plugin.json |
+| 3 | `README.md` | badge `version-X.Y.Z-blue` | Display only |
+| 4 | `CHANGELOG.md` | new `## [X.Y.Z]` section | Document changes |
+| 5 | `_workflow/templates/hooks/lorekeeper/lorekeeper-session-gate.py` | `HOOK_VERSION` constant | Compared against installed project's ignite-version.json |
+
+Note: SKILL.md Step 3.2 reads the version dynamically from plugin.json when generating `ignite-version.json`, so it does NOT need a separate bump for the inline JSON.

@@ -4,7 +4,6 @@ import json
 import os
 import re
 import subprocess
-import tempfile
 from collections import defaultdict
 from datetime import date, datetime, timezone
 
@@ -68,7 +67,7 @@ def main():
     cwd = data.get("cwd", ".")
 
     # Cleanup session marker (used by session-gate to detect post-compression)
-    marker_path = os.path.join(tempfile.gettempdir(), "lorekeeper-session-active.marker")
+    marker_path = os.path.join(cwd, ".claude", "lorekeeper-session-active.marker")
     if os.path.exists(marker_path):
         try:
             os.remove(marker_path)
@@ -81,36 +80,61 @@ def main():
     # 1. Check if SCRATCHPAD was updated today
     scratchpad_path = os.path.join(cwd, "docs", "SCRATCHPAD.md")
     if os.path.isfile(scratchpad_path):
-        with open(scratchpad_path, "r", encoding="utf-8") as f:
-            content = f.read()
-        if today not in content:
-            pending_items.append("SCRATCHPAD.md not updated today — add session entry")
+        try:
+            with open(scratchpad_path, "r", encoding="utf-8") as f:
+                content = f.read()
+        except (OSError, UnicodeDecodeError) as e:
+            pending_items.append(f"SCRATCHPAD.md unreadable ({e})")
+            content = None
 
-        line_count = len(content.splitlines())
-        if line_count > 100:
-            pending_items.append(
-                f"SCRATCHPAD.md at {line_count}/150 lines — review for graduation candidates"
-            )
-        # 1b. Check for graduation candidates (patterns across 3+ sessions)
-        candidates = analyze_graduation_candidates(scratchpad_path)
-        if candidates:
-            pending_items.append(
-                f"SCRATCHPAD graduation candidates ({len(candidates)}): "
-                + "; ".join(candidates[:3])
-                + " — review and graduate to CLAUDE.md Learned Patterns"
-            )
+        if content is not None:
+            if today not in content:
+                pending_items.append("SCRATCHPAD.md not updated today — add session entry")
+
+            line_count = len(content.splitlines())
+            if line_count > 100:
+                pending_items.append(
+                    f"SCRATCHPAD.md at {line_count}/150 lines — review for graduation candidates"
+                )
+            # 1b. Check for graduation candidates (patterns across 3+ sessions)
+            candidates = analyze_graduation_candidates(scratchpad_path)
+            if candidates:
+                pending_items.append(
+                    f"SCRATCHPAD graduation candidates ({len(candidates)}): "
+                    + "; ".join(candidates[:3])
+                    + " — review and graduate to CLAUDE.md Learned Patterns"
+                )
     else:
         pending_items.append("SCRATCHPAD.md missing")
+
+    # 1c. Check if CHANGELOG-DEV.md was updated today
+    changelog_path = os.path.join(cwd, "docs", "CHANGELOG-DEV.md")
+    if os.path.isfile(changelog_path):
+        try:
+            with open(changelog_path, "r", encoding="utf-8") as f:
+                changelog_content = f.read()
+            if today not in changelog_content:
+                pending_items.append(
+                    "CHANGELOG-DEV.md not updated today "
+                    "— add entry if significant changes were made"
+                )
+        except (OSError, UnicodeDecodeError):
+            pass
+    else:
+        pending_items.append("CHANGELOG-DEV.md missing — create initial entry")
 
     # 2. Check CLAUDE.md line count
     claude_md_path = os.path.join(cwd, "CLAUDE.md")
     if os.path.isfile(claude_md_path):
-        with open(claude_md_path, "r", encoding="utf-8") as f:
-            claude_lines = len(f.readlines())
-        if claude_lines > 180:
-            pending_items.append(
-                f"CLAUDE.md at {claude_lines}/200 lines — prune with relevance test"
-            )
+        try:
+            with open(claude_md_path, "r", encoding="utf-8") as f:
+                claude_lines = len(f.readlines())
+            if claude_lines > 180:
+                pending_items.append(
+                    f"CLAUDE.md at {claude_lines}/200 lines — prune with relevance test"
+                )
+        except (OSError, UnicodeDecodeError):
+            pass  # Fail open — CLAUDE.md line count is advisory
 
     # 3. Run validate-docs.sh (safe: SessionEnd fires once per session)
     script_path = os.path.join(cwd, "scripts", "validate-docs.sh")
@@ -145,7 +169,7 @@ def main():
         pending_data = {
             "timestamp": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
             "session_date": today,
-            "items": pending_items,
+            "items": pending_items[:5],  # Cap to match session-gate display limit
         }
         with open(pending_path, "w", encoding="utf-8") as f:
             json.dump(pending_data, f, indent=2)
@@ -157,9 +181,11 @@ def main():
     if validation_summary:
         msg += f"  Docs: {validation_summary}\n"
     if pending_items:
-        msg += f"  Pending items ({len(pending_items)}) saved for next session:\n"
-        for item in pending_items:
-            msg += f"    - {item}\n"
+        msg += f"  Pending items ({min(len(pending_items), 5)}) saved for next session:\n"
+        for i, item in enumerate(pending_items[:5], 1):
+            msg += f"    {i}. {item}\n"
+        if len(pending_items) > 5:
+            msg += f"    ... and {len(pending_items) - 5} more (not persisted)\n"
     else:
         msg += "  All documentation up to date.\n"
 

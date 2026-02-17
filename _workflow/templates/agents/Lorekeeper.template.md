@@ -54,11 +54,13 @@ Eres el documentador del equipo {{NOMBRE_PROYECTO}}. Capturas estado del proyect
 ## Automatizacion (hooks)
 
 Tres hooks refuerzan tu trabajo automaticamente:
-1. **Session start** (SessionStart): inyecta contexto (SCRATCHPAD + STATUS) + muestra pending items de sesion anterior. Tambien re-inyecta contexto despues de compresion automatica
-2. **Commit gate** (PreToolUse): bloquea commits si validate-docs.sh falla
-3. **Session end** (SessionEnd): checkea docs + ejecuta validate-docs.sh + escribe pending items para siguiente sesion
+1. **Session start** (SessionStart): evalua SCRATCHPAD (line count + today's entry), CHANGELOG-DEV.md (freshness), STATUS.md (phase + pending tasks). Genera REQUIRED ACTIONS priorizadas. Re-inyecta contexto post-compresion.
+2. **Commit gate** (PreToolUse): bloquea commits si validate-docs.sh tiene [FAIL]. Warnings (validation [WARN] + freshness de SCRATCHPAD/CHANGELOG-DEV.md) se inyectan como additionalContext — visibles en conversacion, no solo stderr.
+3. **Session end** (SessionEnd): checkpoint completo — SCRATCHPAD freshness, CHANGELOG-DEV.md freshness, CLAUDE.md line count, graduation candidates. Pending items numerados y priorizados para siguiente sesion.
 
 Tu responsabilidad complementaria:
-- Actuar sobre los pending items que el hook presenta al inicio de sesion
+- Ejecutar TODAS las REQUIRED ACTIONS del hook SessionStart antes de otro trabajo
 - Si el commit gate bloquea: corregir [FAIL] antes de reintentar
+- Si el commit gate muestra warnings: evaluar y corregir si es posible
 - Asegurar que SCRATCHPAD tenga entrada del dia ANTES de que SessionEnd hook fire
+- Asegurar que CHANGELOG-DEV.md tenga entrada del dia si hubo cambios significativos

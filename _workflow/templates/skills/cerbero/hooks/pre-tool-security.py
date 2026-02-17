@@ -12,7 +12,7 @@ DANGEROUS_PATTERNS = [
     (r"curl.*\|.*sh", "remote code execution via curl|sh"),
     (r"wget.*\|.*sh", "remote code execution via wget|sh"),
     (r"nc\s+-e", "reverse shell via netcat"),
-    (r"python.*-c.*import\s+os", "Python OS command execution"),
+    (r"python.*-c.*import\s+os.*\b(system|exec|popen|spawn)\b", "Python OS command execution"),
     (r"Invoke-WebRequest.*\|.*iex", "PowerShell remote execution"),
     (r"iex\s*\(", "PowerShell Invoke-Expression"),
     (r"Start-Process.*-NoNewWindow", "hidden process execution"),

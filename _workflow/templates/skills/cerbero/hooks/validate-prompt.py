@@ -11,7 +11,7 @@ INJECTION_PATTERNS = [
     r"<system>", r"\[inst\]", r"begin system message",
 ]
 
-BASE64_PATTERN = re.compile(r"[A-Za-z0-9+/]{40,}={0,2}")
+BASE64_PATTERN = re.compile(r"(?![0-9a-fA-F]+$)[A-Za-z0-9+/]{60,}={0,2}")
 ZERO_WIDTH_PATTERN = re.compile(r"[\u200b\u200c\u200d\ufeff\u00ad\u2060\u180e]")
 
 

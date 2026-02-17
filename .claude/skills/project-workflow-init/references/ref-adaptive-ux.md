@@ -352,7 +352,7 @@ Group by purpose, omit file paths, omit configuration table. Add Phase framing a
 
    Documentation — 6 files for tracking status, decisions, and learning
    AI Agents — Lorekeeper is active (documentation automation)
-   Quality Rules — 5 rules for documentation, testing, style, debugging
+   Quality Rules — {rule_count} rules for documentation, testing, style, debugging
    Automation — {hook_count} hooks for session management and code quality
    [if Cerbero] Security — Cerbero framework for tool and prompt safety
    CI/CD — GitHub Actions pipeline for automated checks

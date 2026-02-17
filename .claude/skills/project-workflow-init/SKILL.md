@@ -4,11 +4,10 @@ description: 'This skill should be used when the user asks to "initialize a proj
 license: MIT
 metadata:
   author: jppuche
-  version: "1.1.0"
+  version: "1.2.0"
 compatibility: Designed for Claude Code. Requires Python 3.8+ and Git.
 argument-hint: "[project-directory]"
 disable-model-invocation: true
-allowed-tools: Read, Write, Edit, Bash, Glob, Grep, AskUserQuestion
 ---
 
 # Setup Project
@@ -89,8 +88,12 @@ Present the complete workflow as an integral vision. The user understands from t
 ```
 --- Ignite ---
 
-You're starting a structured development workflow — from project setup
-to production hardening. It's organized in phases, each with clear goals:
+You get code — but no structure around it. No quality gates, no memory
+between sessions, no security checks. Context gets lost after every
+/clear. Mistakes repeat.
+
+Ignite sets up the infrastructure your project is missing — adapted
+to your stack. Here's the full workflow:
 
   Phase 0  Foundation ............. Project memory, docs, automation
   Phase 1  Technical Landscape .... Stack decisions, tools, ecosystem
@@ -101,19 +104,19 @@ to production hardening. It's organized in phases, each with clear goals:
   Phase N  Development Blocks ..... Build features iteratively
   Final    Hardening .............. Security, performance, production
 
-Each phase builds on the last. Quality gates ensure nothing advances
-until it's ready. Your project learns from every session.
+Each phase builds on the last. It handles the complex parts so you
+can focus on building.
 
-We start with Phase 0 — setting up the infrastructure. Most values are
-auto-detected. Estimated time: ~3-5 minutes.
+We start with Phase 0. Most values are auto-detected.
 ```
 
 **Display — Advanced** (adapt to `{{IDIOMA}}`):
 ```
 --- Ignite — Phase 0: Foundation ---
 
-Entering an 8-phase development workflow. Every technical decision is
-documented, every session builds on the last (compound engineering),
+No quality gates, no session memory, no security checks — Ignite sets
+up the infrastructure your project is missing. Every technical decision
+is documented, every session builds on the last (compound engineering),
 and quality gates enforce standards automatically.
 
   Phase 0  Foundation ............. Project memory, docs, agents, hooks, CI/CD
@@ -191,11 +194,16 @@ For each entry in references/file-map.md Template Mapping tables:
 
 # Classify initialization state
 existing_count = count entries where exists == true
-total_count    = total destination entries
+# IMPORTANT: total_count should only include files that WOULD be generated
+# for this project. Exclude conditional files whose conditions are not yet
+# evaluated (styling.md, Cerbero files, AGENT-COORDINATION.md, worker agents).
+# Use only "always generated" files from file-map.md (Core + Rules + Lorekeeper
+# Hooks + Code Quality + CI/CD + Version Tracking) for classification.
+core_total = count entries in "always generated" sections of file-map.md
 
 If existing_count == 0:
   STATE = "fresh"     (first-time install)
-Elif existing_count < total_count * 0.5:
+Elif existing_count < core_total * 0.5:
   STATE = "partial"   (some files exist)
 Else:
   STATE = "full"      (most/all files exist, likely re-run)
@@ -669,9 +677,11 @@ Overwrite: replace if different (Category B).
 
 7. Generate `.claude/ignite-version.json` (version tracking for auto-update):
 
+Read the `version` field from `.claude-plugin/plugin.json` (canonical source of truth for Ignite version). Use that value as `{{IGNITE_VERSION}}` below:
+
 ```json
 {
-  "version": "1.0.0",
+  "version": "{{IGNITE_VERSION}}",
   "installed_date": "{{FECHA}}",
   "source": "Ignite"
 }

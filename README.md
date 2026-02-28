@@ -12,9 +12,9 @@
 ![Stacks](https://img.shields.io/badge/stacks-12%20profiles-orange)
 ![Claude Code](https://img.shields.io/badge/Claude%20Code-compatible-purple)
 
-You start a project with Claude Code. Context vanishes after `/clear` — the same bug appears three sessions in a row. A package you installed last week has a known security flaw — nobody flagged it. Every project starts from zero: no memory, no quality gates, no structure around the code.
+You start a project with Claude Code. Context vanishes after `/clear` — the same bug appears three sessions in a row. A package you installed last week has a known security flaw — nobody flagged it. Project documentation is outdated by week two — nobody enforces keeping it current. Every project starts from zero: no memory, no quality gates, no structure around the code.
 
-Ignite understands your project first — vision, constraints, architecture — then generates the infrastructure to match. Project memory, quality gates, security, CI/CD, and specialized agents, all adapted to your stack and complexity.
+Ignite understands your project first — vision, constraints, architecture — then generates the infrastructure to match. Living documentation, project memory, quality gates, security, CI/CD, and specialized agents, all adapted to your stack and complexity.
 
 ## Table of Contents
 
@@ -62,6 +62,7 @@ The skill auto-detects your OS, stack, and existing configuration. You answer a 
 - **Project Discovery** — Structured Q&A builds `FOUNDATION.md` before any technical decisions. Your project's vision, constraints, and architecture documented once, referenced by every agent downstream
 - **Full infrastructure** — CLAUDE.md, docs, 5 specialized agents, context-aware rules, CI/CD pipeline — all adapted to your detected stack. 30+ placeholders resolved automatically from your project config
 - **Session memory** — Mistakes are recorded and patterns graduate to permanent memory. Claude Code gets better every session instead of starting from zero
+- **Living documentation** — Hooks enforce that project docs stay current. Commits are blocked if documentation validation fails. Session start checks freshness of STATUS, CHANGELOG, and SCRATCHPAD. The AI writes — automation ensures it never skips
 - **Quality enforcement** — Typecheck + lint + test gates before every commit. CI/CD pipeline generated for your stack. Doc validation on every session close
 - **Security layers** — Environment protection blocks AI access to `.env`, secrets, and credentials. Cerbero screens Skills and MCP servers for known CVEs, prompt injection, and supply-chain attacks
 - **Adapts to you** — Experience level (Guided/Advanced) controls interaction style. Project profile (Quick/Standard/Enterprise) controls workflow depth. A weekend script and a production API get different treatment
@@ -243,6 +244,7 @@ Most project scaffolders generate files and leave. Ignite works differently:
 - **Protects existing work** — 3-category overwrite system (merge docs, replace code, ask for rules/agents). Re-run `/ignite` without losing customizations. Mid-way integration detects existing CI/CD and conventions
 - **Enforces quality automatically** — PreToolUse hooks block commits that fail typecheck, lint, or tests. Not advisory — enforced
 - **Learns across sessions** — Compound engineering: mistakes recorded in SCRATCHPAD, patterns graduate to CLAUDE.md, session handoffs preserve context across `/clear`. Every session builds on the last
+- **Keeps documentation alive** — Hooks check doc freshness at session start and block commits when validation fails. STATUS, CHANGELOG, SCRATCHPAD, and DECISIONS stay current because the system won't let them go stale
 - **Security by default** — Environment protection hooks block `.env`/secrets/credentials access. Cerbero screens Skills and MCP servers for known CVEs, prompt injection, and supply-chain attacks
 - **Works everywhere** — Windows, macOS, Linux. 12 stack profiles. 4 languages + free text. New projects and existing codebases
 

@@ -15,7 +15,7 @@ Installing security framework (Cerbero):
   - Audits external tool usage
   - Screens new tools before installation
 
-  Coverage: ~70-80% of known attack vectors.
+  First-line defense: catches common attacks. Not comprehensive — see Limitations.
 ```
 
 **Advanced briefing** (full, adapt to `{{IDIOMA}}`):
@@ -33,7 +33,7 @@ QUE PROTEGE:
   - Supply chain: CVEs, typosquat, firmas invalidas (npm audit)
   - Telemetria: log de invocaciones MCP (hook: mcp-audit.py)
 
-  Cobertura estimada: ~70-80% de vectores conocidos (OWASP MCP Top 10).
+  Primera linea de defensa: detecta ataques comunes. No es exhaustivo — ver Limitations en README.
 
 QUE NO PROTEGE:
   - Indirect prompt injection via contenido procesado (paginas, archivos)

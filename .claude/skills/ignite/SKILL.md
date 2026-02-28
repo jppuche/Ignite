@@ -489,7 +489,7 @@ Recommendation criteria:
 Question (adapt to `{{IDIOMA}}`): "Install Cerbero security framework? Evaluates MCPs/Skills, detects rug pulls, blocks prompt injection."
 
 2 options (always the same):
-1. "Yes (Recommended)" — description: ~70-80% coverage of OWASP MCP Top 10 vectors
+1. "Yes (Recommended)" — description: First-line defense — catches known CVEs, destructive commands, obvious injection. Not comprehensive (see Limitations in README)
 2. "No" — description: No security framework
 
 #### Q4: Git (header: "Git")

@@ -12,7 +12,7 @@
 ![Stacks](https://img.shields.io/badge/stacks-12%20profiles-orange)
 ![Claude Code](https://img.shields.io/badge/Claude%20Code-compatible-purple)
 
-You start a project with Claude Code. Context vanishes after `/clear` — the same bug appears three sessions in a row. A dependency you installed last week has a known CVE — nobody checked. Every project starts from zero: no memory, no quality gates, no structure around the code.
+You start a project with Claude Code. Context vanishes after `/clear` — the same bug appears three sessions in a row. A package you installed last week has a known security flaw — nobody flagged it. Every project starts from zero: no memory, no quality gates, no structure around the code.
 
 Ignite understands your project first — vision, constraints, architecture — then generates the infrastructure to match. Project memory, quality gates, security, CI/CD, and specialized agents, all adapted to your stack and complexity.
 

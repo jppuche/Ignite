@@ -99,7 +99,7 @@ Ignite suggests a profile based on your project's complexity. You confirm or ove
 |-------|---------|
 | 0. Foundation + Discovery | Project context (FOUNDATION.md), memory, docs, agents, hooks, CI/CD |
 | 1. Technical Landscape | Stack decisions, validation tools, ecosystem scan |
-| 2. Tooling & Security | Evaluate and install skills/MCPs (via Cerbero) |
+| 2. Tooling & Security | Evaluate and install skills/MCPs, screened by Cerbero |
 | 3. Strategic Review | Architecture assessment (enriched by installed tools) |
 | 4. Architecture Blueprint | Detailed design based on actual capabilities |
 | 5. Team Assembly | Configure agents, assign roles |

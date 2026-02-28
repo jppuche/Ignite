@@ -70,7 +70,7 @@ Ejemplo minimo (`.claude/settings.local.json`):
 
 Los hooks son locales (no se commitean) a menos que el equipo acuerde compartirlos.
 
-> **Note:** PostToolUse auto-format is a recommended practice, not installed by `/project-workflow-init`.
+> **Note:** PostToolUse auto-format is a recommended practice, not installed by `/ignite`.
 > Configure manually if your project uses a formatter (Prettier, Black, rustfmt, gofmt).
 > The formatter must be available in the project's dependencies.
 
@@ -138,18 +138,34 @@ Tratarlas como manuales de referencia, no como decoracion.
 
 Phases 0-5 total: ~45-90 min for a typical project.
 
+### Project Profiles
+
+El perfil del proyecto determina que fases se ejecutan:
+
+| Perfil | Fases activas | Ideal para |
+|--------|--------------|------------|
+| **Quick** | 0 → N | Scripts, POCs, hobby, CLI tools |
+| **Standard** | 0 → 1 → 2 → 3* → 4 → N → Final | Apps, APIs, web services, libraries |
+| **Enterprise** | Todas | Sistemas complejos, multi-equipo, infraestructura critica |
+
+\* Phase 3 fast-path: auto-skip si no hay catalogo + single stack + generalistas.
+
+El perfil se selecciona en Phase 0 (Step 0.0) y se registra en STATUS.md.
+
 ### Phase 0: Foundation (~3-5 min)
 
-Establecer la estructura base del proyecto.
+Establecer la estructura base del proyecto + Discovery.
 
+- Determinar idioma, nivel de experiencia y perfil del proyecto.
+- Foundational Discovery: scan del proyecto, Q&A estructurado, generacion de FOUNDATION.md.
 - Crear `.claude/` con agentes, reglas y `settings.json`.
-- Crear `docs/` con STATUS.md, SCRATCHPAD.md, DECISIONS.md.
+- Crear `docs/` con STATUS.md, SCRATCHPAD.md, DECISIONS.md, FOUNDATION.md.
 - Inicializar git con primer commit.
 - Escribir CLAUDE.md con stack, comandos, convenciones, reglas.
 - Pre-seleccionar agentes (preferencia registrada en STATUS.md).
 - Solo Lorekeeper se instala. Demas agentes se instalan en Phase 5.
 
-**Exit condition:** Estructura creada, git inicializado, CLAUDE.md escrito, Lorekeeper activo.
+**Exit condition:** Estructura creada, git inicializado, CLAUDE.md escrito, Lorekeeper activo, FOUNDATION.md generado, perfil de proyecto determinado.
 
 ### Phase 1: Technical Landscape (~5-10 min)
 

@@ -137,11 +137,11 @@ def main():
             pass  # Fail open — CLAUDE.md line count is advisory
 
     # 3. Run validate-docs.sh (safe: SessionEnd fires once per session)
+    bash_cmd = os.environ.get("CLAUDE_CODE_GIT_BASH_PATH", "bash")
     script_path = os.path.join(cwd, "scripts", "validate-docs.sh")
     validation_summary = ""
     if os.path.isfile(script_path):
         try:
-            bash_cmd = os.environ.get("CLAUDE_CODE_GIT_BASH_PATH", "bash")
             result = subprocess.run(
                 [bash_cmd, script_path],
                 capture_output=True,
@@ -162,21 +162,60 @@ def main():
         except (subprocess.TimeoutExpired, FileNotFoundError):
             pass
 
-    # 4. Write pending items for next session (or cleanup stale)
+    # 4. Generate session handoff summary for next session
+    handoff_parts = []
+
+    # Current phase (extract from STATUS.md)
+    status_path = os.path.join(cwd, "docs", "STATUS.md")
+    if os.path.isfile(status_path):
+        try:
+            with open(status_path, "r", encoding="utf-8") as f:
+                status_lines = f.read().splitlines()
+            in_phase = False
+            for line in status_lines:
+                if re.match(r"^##\s+(Fase actual|Current phase)", line, re.IGNORECASE):
+                    in_phase = True
+                    continue
+                if in_phase:
+                    stripped = line.strip()
+                    if stripped and not stripped.startswith("#"):
+                        handoff_parts.append(f"Phase: {stripped}")
+                        break
+                    if stripped.startswith("#"):
+                        break
+        except (OSError, UnicodeDecodeError):
+            pass
+
+    # Recently changed files (from last commit)
+    try:
+        result = subprocess.run(
+            [bash_cmd, "-c", "git diff --name-only HEAD~1 HEAD 2>/dev/null | head -10"],
+            capture_output=True, text=True, timeout=10, cwd=cwd,
+        )
+        changed = [f.strip() for f in result.stdout.splitlines() if f.strip()]
+        if changed:
+            handoff_parts.append(f"Last commit touched: {', '.join(changed[:5])}")
+    except (subprocess.TimeoutExpired, FileNotFoundError):
+        pass
+
+    handoff_summary = " | ".join(handoff_parts) if handoff_parts else ""
+
+    # 5. Write pending items + handoff for next session (or cleanup stale)
     pending_path = os.path.join(cwd, ".claude", "lorekeeper-pending.json")
-    if pending_items:
+    if pending_items or handoff_summary:
         os.makedirs(os.path.dirname(pending_path), exist_ok=True)
         pending_data = {
             "timestamp": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
             "session_date": today,
             "items": pending_items[:5],  # Cap to match session-gate display limit
+            "handoff_summary": handoff_summary,
         }
         with open(pending_path, "w", encoding="utf-8") as f:
             json.dump(pending_data, f, indent=2)
     elif os.path.exists(pending_path):
         os.remove(pending_path)
 
-    # 5. Output summary to stderr (shown to user)
+    # 6. Output summary to stderr (shown to user)
     msg = "Lorekeeper: Session end checkpoint.\n"
     if validation_summary:
         msg += f"  Docs: {validation_summary}\n"

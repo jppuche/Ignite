@@ -1,10 +1,10 @@
 ---
-name: project-workflow-init
-description: 'This skill should be used when the user asks to "initialize a project", "set up workflow", "start Ignite", "create project foundation", "set up development infrastructure", "integrate workflow into existing project", or "run Phase 0". Establishes Phase 0: Foundation of the Ignite workflow methodology — creates project memory, documentation, agents, rules, hooks, quality gates, CI/CD, and security framework adapted to the detected stack. Supports new projects and mid-way integration into existing codebases.'
+name: ignite
+description: 'This skill should be used when the user asks to "ignite", "start ignite", "initialize a project", "set up workflow", "create project foundation", "set up development infrastructure", "integrate workflow into existing project", or "run Phase 0". Establishes Phase 0: Foundation of the Ignite workflow methodology — creates project memory, documentation, agents, rules, hooks, quality gates, CI/CD, and security framework adapted to the detected stack. Supports new projects and mid-way integration into existing codebases.'
 license: MIT
 metadata:
   author: jppuche
-  version: "1.2.0"
+  version: "2.0.0"
 compatibility: Designed for Claude Code. Requires Python 3.8+ and Git.
 argument-hint: "[project-directory]"
 disable-model-invocation: true
@@ -21,64 +21,69 @@ Phase 0: Foundation of the Ignite workflow methodology. Guides the user through 
 
 ## Step 0: Initialization
 
-Before any scanning or discovery, establish the user's language and experience level. This ensures ALL subsequent output — discovery reports, configuration, preview, summary — is fully adaptive.
+Before any scanning or discovery, establish language, experience level, and project profile. This ensures ALL subsequent output — discovery reports, configuration, preview, summary — is fully adaptive from the first interaction.
 
-### 0.0 Language selection
+### 0.0 Batched initialization (1 AskUserQuestion call, 3 questions)
 
-First interaction with the user. Determine project language before any other output.
+**Pre-detection (before asking):**
 
-**Question language inference:** Detect the language of the user's own project files. Priority order:
-1. CLAUDE.md (if it existed before /project-workflow-init)
-2. README.md / README
-3. package.json `description` / pyproject.toml `description`
-4. Comments in source files
+1. **Language inference:** Detect the language of the user's own project files. Priority order:
+   - CLAUDE.md (if it existed before /ignite)
+   - README.md / README
+   - package.json `description` / pyproject.toml `description`
+   - Comments in source files
+   - **Ignore workflow files** (`_workflow/`, `.claude/skills/ignite/`, templates, guides) — always in Spanish by convention.
+   - If no user files exist or language is ambiguous: default to English.
 
-**Ignore workflow files** (`_workflow/`, `.claude/skills/project-workflow-init/`, templates, guides) — these are always in Spanish by convention and do not reflect the user's language preference.
+2. **User level pre-detection:** Read `.claude/security/user-profile.json` — if exists and valid, pre-fill level (skip asking). Otherwise, run lightweight signal scan:
+   - CLAUDE.md with `## Hooks` section, `.claude/settings*.json` with `permissions.deny`, custom rules beyond defaults, sandbox/security/MCP config references, `## Learned Patterns` with 3+ entries, 5+ source files AND CI/CD AND tests.
+   - 2+ signals → pre-fill `"Advanced"`.
+   - Full detection logic: [ref-adaptive-ux.md](references/ref-adaptive-ux.md) (Detection Cascade).
 
-Present the question in the detected language. If no user files exist or language is ambiguous, default to English.
+3. **Profile pre-detection:** Quick scan for complexity signals:
+   - Quick: <5 source files AND no CI/CD AND no architecture docs AND no test files
+   - Standard: 5-50 source files OR existing CI/CD OR existing tests
+   - Enterprise: 50+ source files OR architecture docs OR team config indicators OR multi-package/monorepo
+   - Pre-fill the detected profile as recommended option.
 
-Use AskUserQuestion (the "Other" option with free text input is provided automatically by the tool):
+**Batched AskUserQuestion** (present question in detected language, all 3 questions in 1 call):
 
 ```
+Question 1 — Header: "Language"
 "What language do you prefer for this project?
- All responses and generated documentation will use the selected language."
+ All responses and documentation will use the selected language."
   1. English
   2. Espanol
   3. Portugues
   4. Francais
-  (Other → free text input)
+  (Other → free text)
+
+Question 2 — Header: "Experience"
+"How would you like to proceed with setup?"
+  1. "Guided (Recommended)" — Safe defaults, fewer questions, plain explanations
+  2. "Advanced" — Full control over every decision, detailed technical output
+  (Pre-select if signal scan detected a level)
+
+Question 3 — Header: "Profile"
+"What kind of project is this?"
+  1. "Quick" — Script, POC, hobby, CLI tool. Fast setup, skip planning phases.
+  2. "Standard (Recommended)" — App, API, library. Full setup with streamlined planning.
+  3. "Enterprise" — Complex system, multi-team, critical. All phases, maximum depth.
+  (Pre-select based on complexity signals)
 ```
 
-Store selection as `{{IDIOMA}}`. From this point forward:
+**If user level was pre-detected from profile file:** omit Question 2. Show only Language + Profile (2 questions).
 
-- **All human-facing text** (AskUserQuestion prompts, reports, summaries, generated documentation content) uses the selected language.
-- **Generated docs** (STATUS.md, DECISIONS.md, CHANGELOG-DEV.md, SCRATCHPAD.md, CLAUDE.md descriptions, AGENT-COORDINATION.md) are written in the selected language.
-- **Technical elements stay in English:** file names, placeholder keys, JSON config keys, code, command names, hook event names (SessionStart, PreToolUse, etc.).
-- Templates contain Spanish as base text. When generating, adapt natural-language portions to the selected language while preserving technical terms.
+**Store results:**
+- `{{IDIOMA}}` — language selection. From this point forward:
+  - **All human-facing text** uses the selected language
+  - **Generated docs** (STATUS, DECISIONS, CHANGELOG-DEV, SCRATCHPAD, CLAUDE.md, AGENT-COORDINATION) written in selected language
+  - **Technical elements stay in English:** file names, placeholder keys, JSON config keys, code, hook events
+  - Templates contain Spanish as base text — adapt natural-language portions to selected language
+- `USER_LEVEL` ("guided" | "advanced") — persist to `.claude/security/user-profile.json` (create `.claude/security/` if needed). All steps reference via adaptive directives — see [ref-adaptive-ux.md](references/ref-adaptive-ux.md)
+- `PROJECT_PROFILE` ("quick" | "standard" | "enterprise") — stored in STATUS.md and used to gate phases/questions throughout
 
-### 0.1 User level detection
-
-Determine user experience level. This affects question presentation, default decisions, and preview detail throughout all subsequent steps.
-
-> **Adaptive:** Full detection logic in [ref-adaptive-ux.md](references/ref-adaptive-ux.md) (Detection Cascade)
-
-**Detection cascade (lightweight — no Discovery dependency):**
-
-1. **Read profile:** `.claude/security/user-profile.json` — if exists and valid, use it (skip remaining steps).
-2. **Lightweight signal scan** (direct file checks, no Discovery catalog needed):
-   - CLAUDE.md exists with `## Hooks` section containing specific hook configurations
-   - `.claude/settings*.json` has `permissions.deny` references
-   - `.claude/rules/` has files beyond template defaults (modified or added)
-   - References to sandbox, security, or MCP configurations in any config file
-   - `## Learned Patterns` section in CLAUDE.md with 3+ entries
-   - 5+ source files AND existing CI/CD config AND existing test files
-   Threshold: 2+ signals → `level = "advanced"`, `detected_via = "inferred"`
-3. **Ask user** (in `{{IDIOMA}}`): AskUserQuestion with 2 options: "Guided (Recommended)" / "Advanced". Store as `detected_via = "explicit"`.
-4. **Persist:** Write `.claude/security/user-profile.json`. Create `.claude/security/` directory if needed.
-
-Store as `USER_LEVEL` ("guided" | "advanced"). All subsequent steps reference `USER_LEVEL` via adaptive directives — see [ref-adaptive-ux.md](references/ref-adaptive-ux.md) (Phase Behavior Table).
-
-### 0.2 Welcome message
+### 0.1 Welcome message
 
 > **Adaptive:** Present per [ref-adaptive-ux.md](references/ref-adaptive-ux.md) (Welcome). Adapt all text to `{{IDIOMA}}`.
 
@@ -142,16 +147,22 @@ Phase names adapt to `{{IDIOMA}}` (e.g., "Fase 0: Fundamentos", "Fase 1: Panoram
 
 ## Step 1: Discovery
 
-Scan the project directory for existing configuration. Report findings to the user.
+Merged scan + Foundational Discovery. Scans the project, runs structured Q&A, and generates FOUNDATION.md before any technical scaffolding.
 
-### 1.0 Platform detection
+**Full methodology:** [ref-foundational-discovery.md](references/ref-foundational-discovery.md)
+**Summary:** Platform detection → Comprehensive scan → Deep exploration → Structured Q&A → FOUNDATION.md → Profile validation → Combined report
+
+### 1.0 Platform detection (silent)
 
 Detect OS, configure Python command and Git Bash (Windows). Store PYTHON_CMD for Step 3.2 and 4.4.
 
 **Full logic:** [ref-platform-detection.md](references/ref-platform-detection.md)
 
-### 1.1 Detect existing project files
+### 1.1 Comprehensive scan (ONE pass)
 
+Scan everything in a single pass: project files, stack detection, maturity, conventions, CI/CD, prior initialization, and mid-way detection.
+
+**1.1.1 Stack and files:**
 ```
 Check for (in order):
 - package.json        → extract: name, description, scripts (dev, build, test, lint, typecheck)
@@ -164,161 +175,102 @@ Check for (in order):
 - pom.xml / build.gradle → Java/Kotlin project
 
 Package manager detection (Node projects only):
-- yarn.lock           → Yarn
-- pnpm-lock.yaml      → pnpm
-- bun.lockb           → Bun
-- package-lock.json   → npm (explicit)
-- (none of above)     → npm (default)
+- yarn.lock → Yarn, pnpm-lock.yaml → pnpm, bun.lockb → Bun, package-lock.json → npm, (none) → npm default
 Store as {{PACKAGE_MANAGER}}.
 ```
 
-### 1.2 Check for prior initialization
-
-Scan all destination files from [file-map.md](references/file-map.md) and build a catalog for Step 3.0.
-
+**1.1.2 Prior initialization:**
 ```
 EXISTING_FILES = {}   # map: destination_path → { exists, category, size_lines }
 
 For each entry in references/file-map.md Template Mapping tables:
   destination = resolved destination path
   category    = OW column value (A, B, C, or --)
+  EXISTING_FILES[destination] = { exists: file_exists, category: category, size_lines: count_if_exists }
 
-  If file exists at destination:
-    EXISTING_FILES[destination] = {
-      exists: true,
-      category: category,
-      size_lines: count lines in file
-    }
-  Else:
-    EXISTING_FILES[destination] = { exists: false, category: category }
-
-# Classify initialization state
-existing_count = count entries where exists == true
-# IMPORTANT: total_count should only include files that WOULD be generated
-# for this project. Exclude conditional files whose conditions are not yet
-# evaluated (styling.md, Cerbero files, AGENT-COORDINATION.md, worker agents).
-# Use only "always generated" files from file-map.md (Core + Rules + Lorekeeper
-# Hooks + Code Quality + CI/CD + Version Tracking) for classification.
+# Classify initialization state (use only "always generated" files)
 core_total = count entries in "always generated" sections of file-map.md
+existing_count = count entries where exists == true
 
-If existing_count == 0:
-  STATE = "fresh"     (first-time install)
-Elif existing_count < core_total * 0.5:
-  STATE = "partial"   (some files exist)
-Else:
-  STATE = "full"      (most/all files exist, likely re-run)
+STATE = "fresh" if existing_count == 0
+      | "partial" if existing_count < core_total * 0.5
+      | "full" otherwise
 ```
 
-For `.claude/` directory: check for contents BEYOND the start skill's own files.
-Ignore these paths (son del propio setup, no del proyecto):
-- `.claude/skills/project-workflow-init/`
-- `_workflow/templates/`
-- `_workflow/guides/`
+Ignore `.claude/skills/ignite/`, `_workflow/templates/`, `_workflow/guides/` when assessing `.claude/` initialization.
 
-If `.claude/` contains ONLY `skills/project-workflow-init/`, treat as NOT initialized.
-If `.claude/` contains other items (agents/, rules/, hooks/, other skills/),
-treat as partial initialization.
+**1.1.3 Project context (mid-way detection):**
+```
+CONTEXT_SCAN = {
+  existing_claude_md, existing_docs, existing_ci, existing_architecture,
+  conventions, commit_style, maturity
+}
 
-Store `EXISTING_FILES` and `STATE` for use in Step 3.0.
+PROJECT_MODE = "mid-way" if source_files > 0 AND STATE != "full"
+             | "fresh" otherwise
+```
 
-### 1.3 Report to user
+Full context scan logic unchanged from previous version — reads CLAUDE.md sections, docs, CI/CD, architecture docs, naming conventions, git history, code maturity.
 
-> **Adaptive:** If `USER_LEVEL == "guided"`, show only stack and file count (omit platform details, package manager, prior init state). If `USER_LEVEL == "advanced"`, show full report. See references/ref-adaptive-ux.md (Phase Behavior Table).
+Store `EXISTING_FILES`, `STATE`, `CONTEXT_SCAN`, and `PROJECT_MODE` for Steps 2 and 3.
 
-Summarize what was detected, what was pre-filled, and what needs manual input. Adapt to `{{IDIOMA}}`.
+### 1.2 Deep exploration (profile-scaled)
+
+Read ALL available project materials before asking questions. Depth scales with profile:
+- **Quick:** Scan README + package manifest + directory structure. 1-2 min.
+- **Standard:** Add existing specs, architecture docs, key source files. 3-5 min.
+- **Enterprise:** Thorough reading of all project documentation, reference projects, business context. 5-10 min.
+
+See [ref-foundational-discovery.md](references/ref-foundational-discovery.md) Section 1 for full exploration methodology.
+
+### 1.3 Structured Q&A (profile-scaled)
+
+Multiple-choice questions with descriptions, batched 3-4 per AskUserQuestion call. Depth scales with profile:
+- **Quick:** 1 call (vision + scope + key constraint). Fast convergence.
+- **Standard:** 2-3 calls. Vision → features → behaviors → constraints.
+- **Enterprise:** 3-5 calls (soft limit: 8 rounds max). Comprehensive.
+
+**Core rules:** Never assume. Each round builds on previous answers. No fixed questionnaire — categories adapt to project type. See [ref-foundational-discovery.md](references/ref-foundational-discovery.md) Section 2.
+
+After Q&A rounds, present a brief synthesis. Stay in dialogue until the user confirms understanding is correct.
+
+### 1.4 Profile validation
+
+Count complexity indicators from the Q&A and project scan. If the project exceeds or falls below its profile threshold, suggest adjustment with specific reasons. User always has final say.
+
+See [ref-foundational-discovery.md](references/ref-foundational-discovery.md) Section 5 for thresholds and logic.
+
+### 1.5 Generate docs/FOUNDATION.md
+
+Generate the foundational document based on Q&A results. Technology-agnostic. Includes instruction block for consuming agents.
+
+Structure and depth adapt to project type and profile. See [ref-foundational-discovery.md](references/ref-foundational-discovery.md) Section 4.
+
+### 1.6 Combined report
+
+> **Adaptive:** If `USER_LEVEL == "guided"`, show abbreviated report (stack + file count + Discovery summary). If `USER_LEVEL == "advanced"`, show full report with all metrics. See references/ref-adaptive-ux.md (Phase Behavior Table).
+
+Present ONE combined report covering scan results + Discovery summary + inferred configuration (adapt to `{{IDIOMA}}`):
 
 ```
 Display:
-  "--- Discovery Results ---
+  "--- Discovery Complete ---
+
+   Project: {name from Q&A or package manifest}
    Stack: {detected_stack or 'pending configuration'}
-   Project files: {file_count} config files detected
-   Package manager: {PACKAGE_MANAGER or 'N/A'}
+   Profile: {PROJECT_PROFILE}
    Platform: {OS} / Python: {PYTHON_CMD}
-   Prior initialization: {STATE} ({existing_count}/{total_count} workflow files)"
-```
+   Prior initialization: {STATE} ({existing_count}/{core_total} workflow files)
 
-If STATE == "partial" or "full", append:
-```
-  "Existing files will be analyzed before generation (Step 3.0).
+   FOUNDATION.md: Generated ({line_count} lines, {section_count} sections)
+   Key capabilities: {2-3 bullet summary from FOUNDATION.md}
+
+   [if mid-way:]
+   Codebase: {source_files} files (~{estimated_loc} LOC)
+   CI/CD: {ci_type or 'none'}
+   Tests: {has_tests ? 'found' : 'not detected'}
+
    Your customizations are safe — nothing is overwritten without confirmation."
-```
-
-### 1.3.1 Project Context Analysis (mid-way detection)
-
-Detect whether this is an existing project with its own code, architecture, and conventions — not just a re-run of the skill.
-
-```
-CONTEXT_SCAN = {}
-
-# 1. Existing CLAUDE.md (user-written, not generated by this skill)
-If CLAUDE.md exists AND STATE != "full":
-  CONTEXT_SCAN.existing_claude_md = true
-  Read content, extract sections with >3 lines of content.
-  Store as EXISTING_CLAUDE_SECTIONS (list of section names with content).
-
-# 2. Existing documentation
-Scan for docs in: docs/, doc/, documentation/, wiki/, README.md, CONTRIBUTING.md, ARCHITECTURE.md, ADR/
-CONTEXT_SCAN.existing_docs = { count, directories, files }
-
-# 3. Existing CI/CD
-Check for: .github/workflows/*.yml, .gitlab-ci.yml, Jenkinsfile, .circleci/, .travis.yml, bitbucket-pipelines.yml
-CONTEXT_SCAN.existing_ci = { type: "github_actions|gitlab|jenkins|circle|travis|bitbucket|none", files }
-
-# 4. Existing architecture docs
-Check for: architecture.md, ARCHITECTURE.md, ADR/, docs/decisions/, docs/architecture/
-CONTEXT_SCAN.existing_architecture = { found, files }
-
-# 5. Naming conventions (sample source files)
-Sample up to 10 source files (.js, .ts, .py, .go, .rs, .java, .rb, .php):
-  - Detect variable naming: camelCase, snake_case, PascalCase, kebab-case
-  - Detect file naming convention from directory listing
-CONTEXT_SCAN.conventions = { variables, files }
-
-# 6. Git history analysis
-If .git/ exists:
-  Extract last 10 commit messages.
-  Detect pattern: conventional commits, freeform, ticket-prefix, etc.
-CONTEXT_SCAN.commit_style = { pattern, examples }
-
-# 7. Code maturity assessment
-Count source files (exclude node_modules, .git, __pycache__, venv, dist, build).
-Estimate LOC from sampled files.
-Check for tests/ or __tests__ or *_test.* or *.spec.* patterns.
-CONTEXT_SCAN.maturity = { source_files, estimated_loc, has_tests }
-```
-
-**Determine PROJECT_MODE:**
-
-```
-If CONTEXT_SCAN.maturity.source_files > 0 AND STATE != "full":
-  PROJECT_MODE = "mid-way"
-Else:
-  PROJECT_MODE = "fresh"
-```
-
-Store `CONTEXT_SCAN` and `PROJECT_MODE` for Step 2 and Step 3.
-
-### 1.4 User level (already determined in Step 0.1)
-
-USER_LEVEL was set during initialization (Step 0.1). Proceed to 1.5.
-
-### 1.5 Extended report (only if PROJECT_MODE == "mid-way")
-
-> **Adaptive:** If `USER_LEVEL == "guided"`, omit extended report (proceed silently). See references/ref-adaptive-ux.md (Phase Behavior Table).
-
-```
-Display (adapt to {{IDIOMA}}):
-  "--- Existing Project Analysis ---
-
-   Codebase:  {source_files} source files (~{estimated_loc} LOC)
-   Tests:     {has_tests ? 'found (' + test_dir + ')' : 'not detected'}
-   CI/CD:     {ci_type or 'none'} {ci_files ? '(' + ci_files.join(', ') + ')' : ''}
-   Docs:      {doc_count} files in {doc_dirs.join(', ')}
-   Naming:    {conventions.variables} (variables), {conventions.files} (files)
-   Commits:   {commit_style.pattern or 'no pattern detected'}
-
-   The workflow will adapt to your existing project structure.
-   You will choose the integration level in the next step."
 ```
 
 ---
@@ -432,15 +384,43 @@ Map: Guided option 1 → `INTEGRATION_LEVEL = "full"`, Guided option 2 → `INTE
 
 Store as `INTEGRATION_LEVEL` ("full" | "workflow_only" | "audit").
 
-If `INTEGRATION_LEVEL == "audit"`: display CONTEXT_SCAN results in detail, then stop execution. User can re-run `/project-workflow-init` later with decisions made.
+If `INTEGRATION_LEVEL == "audit"`: display CONTEXT_SCAN results in detail, then stop execution. User can re-run `/ignite` later with decisions made.
 
 If `INTEGRATION_LEVEL == "workflow_only"`: set flags `SKIP_CICD_MERGE = true`, `SKIP_CLAUDE_MERGE = true`.
 
-Then proceed to main configuration (Q1-Q4) for "full" and "workflow_only" modes.
+Then proceed to main configuration for "full" and "workflow_only" modes.
+
+#### Profile-gated configuration
+
+The number of config questions depends on `PROJECT_PROFILE`:
+
+| Profile | Questions | Behavior |
+|---------|-----------|----------|
+| **Quick** | 0 | Auto-decide all: Lorekeeper only, no teams, no Cerbero, git auto-detected |
+| **Standard** | 2 (Agents + Security) | Git auto-detected, Teams auto-decided (No) |
+| **Enterprise** | 3 (Agents + Teams + Security) | Git auto-detected |
+
+Git is always auto-detected (not asked): if `.git/` exists → "Already initialized", add `.gitignore` entries. If not → `git init` + main branch + `.gitignore`.
+
+**Quick profile auto-decisions:**
+
+| Decision | Default | Stored as |
+|----------|---------|-----------|
+| Agents | Lorekeeper only | Pre-selected: Lorekeeper only |
+| Agent Teams | No | Agent Teams = disabled |
+| Security | No (Cerbero) | Cerbero = disabled |
+| Git | Contextual | Auto-detected from .git/ |
+
+Display brief summary (adapt to `{{IDIOMA}}`):
+```
+"Quick profile — auto-configured: Lorekeeper only, no security framework.
+ Git: {Already initialized / Will initialize}."
+```
+Then proceed directly to Step 2.5 (Preview).
 
 #### Main configuration — Guided mode (auto-decide)
 
-If `USER_LEVEL == "guided"`: skip Q1-Q4 entirely. Apply safe defaults:
+If `USER_LEVEL == "guided"` AND `PROJECT_PROFILE != "quick"`: skip remaining questions. Apply safe defaults:
 
 | Decision | Default | Stored as |
 |----------|---------|-----------|
@@ -459,18 +439,20 @@ Display auto-decision summary (adapt to `{{IDIOMA}}`):
    Security ......... Enabled (Cerbero framework)
    Git .............. {Already initialized / Will initialize}
 
- You can change any of these later by re-running /project-workflow-init."
+ You can change any of these later by re-running /ignite."
 ```
 
 Register selections in STATUS.md (same as Advanced mode). Then proceed to Step 2.5 (Preview).
 
-#### Main configuration — Advanced mode (single AskUserQuestion, 4 questions)
+#### Main configuration — Advanced mode (profile-gated questions)
 
-If `USER_LEVEL == "advanced"`:
+If `USER_LEVEL == "advanced"` AND `PROJECT_PROFILE != "quick"`:
 
-Combine all remaining decisions into **one AskUserQuestion call with 4 simultaneous questions**. Build options contextually from Step 1 detections.
+Combine decisions into **one AskUserQuestion call**. Number of questions depends on profile:
+- **Standard:** 2 questions (Q1 Agents + Q3 Security). Q2 Teams auto-decided (No), Q4 Git auto-detected.
+- **Enterprise:** 3 questions (Q1 Agents + Q2 Teams + Q3 Security). Q4 Git auto-detected.
 
-Use AskUserQuestion with 4 questions:
+Use AskUserQuestion:
 
 #### Q1: Agents (header: "Agents")
 
@@ -612,10 +594,15 @@ Lorekeeper se instala siempre en Step 3 (Phase 0). Es el unico agente necesario 
     ],
     "PreToolUse": [
       {
+        "matcher": "Read",
+        "hooks": [{ "type": "command", "command": "{PYTHON_CMD} .claude/hooks/env-protection.py" }]
+      },
+      {
         "matcher": "Bash",
         "hooks": [
           { "type": "command", "command": "{PYTHON_CMD} .claude/hooks/lorekeeper-commit-gate.py" },
-          { "type": "command", "command": "{PYTHON_CMD} .claude/hooks/code-quality-gate.py" }
+          { "type": "command", "command": "{PYTHON_CMD} .claude/hooks/code-quality-gate.py" },
+          { "type": "command", "command": "{PYTHON_CMD} .claude/hooks/env-protection.py" }
         ]
       }
     ],
@@ -629,7 +616,7 @@ Lorekeeper se instala siempre en Step 3 (Phase 0). Es el unico agente necesario 
 }
 ```
 
-> Si `.claude/settings.local.json` ya existe (re-run de /project-workflow-init), leer y mergear hooks sin duplicar.
+> Si `.claude/settings.local.json` ya existe (re-run de /ignite), leer y mergear hooks sin duplicar.
 
 > **Hook ordering:** All PreToolUse hooks fire before tool execution; any `exit(2)` blocks the tool. Registration order affects feedback order only (which hook's message the user sees first), not blocking priority.
 
@@ -658,7 +645,29 @@ Lorekeeper se instala siempre en Step 3 (Phase 0). Es el unico agente necesario 
    - To: `./.claude/hooks/code-quality-gate.py`
    - If not exists: copy. If exists and identical: skip. If different: replace.
 
-6. Generate `.claude/quality-gate.json` with resolved commands from Step 2.1:
+6. Install env protection hook (Category B, copy as-is):
+   - From: `_workflow/templates/hooks/env-protection.py`
+   - To: `./.claude/hooks/env-protection.py`
+   - If not exists: copy. If exists and identical: skip. If different: replace.
+   - Register in `settings.local.json` with **two specific matchers** (Read + Bash):
+   ```json
+   {
+     "PreToolUse": [
+       {
+         "matcher": "Read",
+         "hooks": [{ "type": "command", "command": "{PYTHON_CMD} .claude/hooks/env-protection.py" }]
+       },
+       {
+         "matcher": "Bash",
+         "hooks": [{ "type": "command", "command": "{PYTHON_CMD} .claude/hooks/env-protection.py" }]
+       }
+     ]
+   }
+   ```
+   > **Note:** Grep tool has no PreToolUse matcher in CC. Grep access to .env is lower risk (returns content matches, not full file contents). This limitation is documented.
+   > **Behavior:** Read → **block** (deny + reason). Bash → **warn** (allow + additionalContext).
+
+7. Generate `.claude/quality-gate.json` with resolved commands from Step 2.1:
 
 ```json
 {
@@ -675,7 +684,7 @@ For commands that are "N/A" for the detected stack (e.g., no typecheck for Pytho
 
 Overwrite: replace if different (Category B).
 
-7. Generate `.claude/ignite-version.json` (version tracking for auto-update):
+8. Generate `.claude/ignite-version.json` (version tracking for auto-update):
 
 Read the `version` field from `.claude-plugin/plugin.json` (canonical source of truth for Ignite version). Use that value as `{{IGNITE_VERSION}}` below:
 
@@ -687,7 +696,7 @@ Read the `version` field from `.claude-plugin/plugin.json` (canonical source of 
 }
 ```
 
-Overwrite: replace if different (Category B). This file tracks when /project-workflow-init was last run and which version was installed. The session-gate hook compares its embedded version constant with this file to detect version drift.
+Overwrite: replace if different (Category B). This file tracks when /ignite was last run and which version was installed. The session-gate hook compares its embedded version constant with this file to detect version drift.
 
 Los demas agentes (Inquisidor, Sentinel, backend-worker, frontend-worker) se instalan en Phase 5 del workflow, cuando la arquitectura este definida y las skills asignadas. La pre-seleccion del usuario (seccion 2.2) queda registrada en `docs/STATUS.md`.
 
@@ -731,6 +740,8 @@ Generate GitHub Actions workflow from the CI template. The code-quality-gate hoo
 ---
 
 ## Step 4: Security (if Cerbero enabled)
+
+**Skip entirely for Quick profile** (Cerbero auto-disabled).
 
 Only execute if user answered Yes to Cerbero in Step 2.2 (Q3: Security). Installs Cerbero skill, security hooks, trusted-publishers list, and configures hooks in settings.local.json.
 

@@ -1,6 +1,6 @@
 # File Map — Template to Destination Reference
 
-Reference for the Ignite skill (`/project-workflow-init`). Lists every template, its destination, and all placeholders.
+Reference for the Ignite skill (`/ignite`). Lists every template, its destination, and all placeholders.
 
 ---
 
@@ -35,8 +35,10 @@ Reference for the Ignite skill (`/project-workflow-init`). Lists every template,
 | `{{PACKAGE_MANAGER}}` | Lock file detection (Node only) | `npm` |
 | `{{PACKAGE_MANAGER_INSTALL}}` | Derived from PACKAGE_MANAGER | `npm ci` |
 | `{{CI_SETUP}}` | Stack profile (GitHub Actions setup steps as YAML) | Node.js setup |
+| `{{PROJECT_PROFILE}}` | Step 0.0 selection (quick / standard / enterprise) | `standard` |
+| `{{ACTIVE_PHASES}}` | Derived from PROJECT_PROFILE | `0, 1, 2, 3, 4, N, Final` |
 
-Resolution: All `{{DOMAIN_*}}`, `{{TEST_*}}`, `{{STYLING_*}}`, `{{CRITICAL_RULES_*}}`, and `{{CI_SETUP}}` placeholders are resolved in Step 2.1 using the detected stack profile. See [ref-stack-profiles.md](ref-stack-profiles.md) for the complete mapping.
+Resolution: All `{{DOMAIN_*}}`, `{{TEST_*}}`, `{{STYLING_*}}`, `{{CRITICAL_RULES_*}}`, and `{{CI_SETUP}}` placeholders are resolved in Step 2.1 using the detected stack profile. See [ref-stack-profiles.md](ref-stack-profiles.md) for the complete mapping. `{{PROJECT_PROFILE}}` and `{{ACTIVE_PHASES}}` are resolved from Step 0.0 initialization.
 
 ### Runtime Context (not template placeholders)
 
@@ -64,6 +66,14 @@ Resolution: All `{{DOMAIN_*}}`, `{{TEST_*}}`, `{{STYLING_*}}`, `{{CRITICAL_RULES
 | `_workflow/templates/docs/README.template.md` | `./README.md` | NOMBRE_PROYECTO, DESCRIPCION_CORTA, STACK, FECHA | -- |
 
 > Note: During Step 5.5, the skill's README.md is moved to `docs/ignite-reference.md` before the project README is generated from the template above. See [ref-finalization-details.md](ref-finalization-details.md).
+
+### Foundational Discovery (generated inline, Step 1.5)
+
+| Source | Destination | OW |
+|--------|-------------|----|
+| (generated inline by Step 1.5 — not template-sourced) | `./docs/FOUNDATION.md` | A |
+
+> Note: FOUNDATION.md is generated from the Foundational Discovery Q&A results (Step 1.3), not from a template. Its structure adapts to the project type and profile. See [ref-foundational-discovery.md](ref-foundational-discovery.md).
 
 ### Agents
 
@@ -110,6 +120,14 @@ Resolution: All `{{DOMAIN_*}}`, `{{TEST_*}}`, `{{STYLING_*}}`, `{{CRITICAL_RULES
 
 > Note: `code-quality-gate.py` is copy as-is (no placeholders). It reads `.claude/quality-gate.json` at runtime for stack-specific commands. The JSON config is generated inline during Step 3.5.
 
+### Env Protection (always generated)
+
+| Source | Destination | OW |
+|--------|-------------|----|
+| `_workflow/templates/hooks/env-protection.py` | `./.claude/hooks/env-protection.py` | B |
+
+> Note: `env-protection.py` is copy as-is (no placeholders). Registered with two PreToolUse matchers: Read (blocks sensitive files) and Bash (warns on sensitive file access). Grep tool is not matched (lower risk).
+
 ### Version Tracking (always generated)
 
 | Source | Destination | OW |
@@ -143,11 +161,17 @@ Resolution: All `{{DOMAIN_*}}`, `{{TEST_*}}`, `{{STYLING_*}}`, `{{CRITICAL_RULES
 | `_workflow/templates/skills/cerbero/hooks/mcp-audit.py` | `./.claude/hooks/mcp-audit.py` | B |
 | `_workflow/templates/skills/cerbero/hooks/cerbero-scanner.py` | `./.claude/hooks/cerbero-scanner.py` | B |
 
+### Optional Skills (conditional)
+
+| Template | Destination | When included | OW |
+|----------|-------------|---------------|----|
+| `_workflow/templates/skills/advance-phase/SKILL.md` | `./.claude/skills/advance-phase/SKILL.md` | USER_LEVEL == "advanced" | B |
+
 ---
 
 ## Overwrite Categories (OW)
 
-Cuando /project-workflow-init se re-ejecuta en un proyecto existente, los archivos destino se manejan segun su categoria:
+Cuando /ignite se re-ejecuta en un proyecto existente, los archivos destino se manejan segun su categoria:
 
 | Cat | Estrategia | Aplica a |
 |-----|-----------|----------|
@@ -162,7 +186,7 @@ Detalle de la logica en SKILL.md Step 3.0.
 
 ## Distribution Files (not generated to target project)
 
-These files exist at the root of the Ignite package for distribution and discovery purposes. They are NOT copied into target projects during `/project-workflow-init` execution.
+These files exist at the root of the Ignite package for distribution and discovery purposes. They are NOT copied into target projects during `/ignite` execution.
 
 | File | Purpose |
 |------|---------|

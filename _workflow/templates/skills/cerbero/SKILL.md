@@ -11,7 +11,7 @@ allowed-tools: Read, Bash, Glob, Grep, WebSearch, WebFetch
 
 # Cerbero — Security Framework for Skills and MCP Servers
 
-Version: 0.9
+Version: 1.0
 
 ## Skill Structure
 

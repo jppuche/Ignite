@@ -14,6 +14,7 @@
 {
   "level": "guided | advanced",
   "detected_via": "profile | inferred | explicit",
+  "project_profile": "quick | standard | enterprise",
   "set_date": "YYYY-MM-DD",
   "preferences": {}
 }
@@ -86,24 +87,40 @@ Reference for adaptive directives throughout SKILL.md and ref files. Each row sp
 
 | Step | Element | Guided | Advanced |
 |------|---------|--------|----------|
-| 0.2 | Welcome message | Simplified, plain language | Detailed, technical, steps listed |
+| 0.0 | Init questions | 2-3 questions (may pre-fill level) | 2-3 questions |
+| 0.1 | Welcome message | Simplified, plain language | Detailed, technical, steps listed |
 | 1.0 | Platform setup | Auto-configure silently, report result | Ask before configuring (current behavior) |
 | 1.3 | Discovery report | Stack + file count only | Full report with all metrics (current) |
 | 1.3.1 | Extended report | Omit (proceed silently) | Full extended report (current) |
 | 2.1.1 | Config summary | Project name + stack only | Full summary with all commands (current) |
 | 2.2 Q0 | Mid-way integration | Simplified: 2 options (see below) | 3 options (current) |
-| 2.2 Q1-Q4 | Main config | Auto-decide with safe defaults + display summary | 4 batched questions (current) |
+| 2.2 Q1-Q4 | Main config | Auto-decide with safe defaults + display summary | Profile-gated: Quick=0, Standard=2, Enterprise=3 |
 | 2.5 | Preview display | Grouped by purpose, plain language | File tree + CLAUDE.md + placeholder table |
 | 2.5 | Preview confirm | 4 options (includes "Show more detail") | 3 options |
-| 4.0 | Cerbero briefing | 4-line summary | Full QUE PROTEGE / NO PROTEGE briefing (current) |
+| 4.0 | Cerbero briefing | 4-line summary (skip for Quick) | Full briefing (skip for Quick) |
 | 5.6 | Summary | Grouped by purpose | File-by-file with paths (current) |
 | 5.6 | Next steps | 2 options | 3 options (current) |
+
+### Profile Behavior Table
+
+How `PROJECT_PROFILE` affects workflow phases and config questions:
+
+| Aspect | Quick | Standard | Enterprise |
+|--------|-------|----------|------------|
+| Active phases | 0, N | 0, 1, 2, 3*, 4, N, Final | All |
+| Config questions | 0 (all auto) | 2 (Agents + Security) | 3 (Agents + Teams + Security) |
+| Cerbero | Disabled | Asked | Asked |
+| Agent Teams | Disabled | Disabled | Asked |
+| Discovery Q&A | 1 call (vision + scope) | 2-3 calls | 3-5 calls (max 8) |
+| FOUNDATION.md | Abbreviated (1-2 pages) | Full (5-15 pages) | Comprehensive (10-30+ pages) |
+
+\* Phase 3 fast-path for Standard: auto-skip if no ecosystem catalog + single stack + generalistas.
 
 ---
 
 ## Safe Defaults (Guided Mode, Step 2.2)
 
-When `USER_LEVEL == "guided"`, skip Q1-Q4 entirely. Apply these defaults:
+When `USER_LEVEL == "guided"` AND `PROJECT_PROFILE != "quick"`, skip Q1-Q4 entirely. Apply these defaults (Quick profile has its own auto-decisions — see SKILL.md Step 2.2):
 
 | Decision | Default | Rationale |
 |----------|---------|-----------|
@@ -137,7 +154,7 @@ Map: Option 1 → `INTEGRATION_LEVEL = "full"`, Option 2 → `INTEGRATION_LEVEL 
    Security ......... Enabled (Cerbero framework)
    Git .............. {Already initialized / Will initialize}
 
- You can change any of these later by re-running /project-workflow-init."
+ You can change any of these later by re-running /ignite."
 ```
 
 ---
@@ -300,7 +317,7 @@ Option 4: "Cancel"
 Cancel in Step 2.5 = **abort completely**. No files are written, no Step 5 summary. Display:
 
 ```
-"Setup cancelled. No files were created. Run /project-workflow-init again when ready."
+"Setup cancelled. No files were created. Run /ignite again when ready."
 ```
 
 This differs from Step 3.0 cancel (which sets all actions to "skip" and proceeds to Step 5 summary). In Step 2.5, nothing has been written yet, so a summary would be empty/useless.
@@ -310,7 +327,7 @@ This differs from Step 3.0 cancel (which sets all actions to "skip" and proceeds
 Return to Step 2.2 for re-configuration, then re-execute Step 2.5. Maximum 2 loop-backs. On the third attempt, display:
 
 ```
-"You've adjusted configuration multiple times. Consider running /project-workflow-init fresh to start over."
+"You've adjusted configuration multiple times. Consider running /ignite fresh to start over."
 ```
 
 Then proceed with current configuration (do not block).

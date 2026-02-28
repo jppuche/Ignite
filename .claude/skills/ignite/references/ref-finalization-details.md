@@ -17,7 +17,7 @@ Finalizando setup:
     - README.md (README del proyecto desde template)
 
   Eliminando:
-    - .claude/skills/project-workflow-init/ (skill de inicializacion, ya ejecutado)
+    - .claude/skills/ignite/ (skill de inicializacion, ya ejecutado)
     - _workflow/templates/ (templates ya procesados)
 
   Manteniendo:
@@ -48,7 +48,7 @@ Execute in order:
    - Replace placeholders: `{{NOMBRE_PROYECTO}}`, `{{DESCRIPCION_CORTA}}`, `{{STACK}}`, `{{FECHA}}`
    - Adapt natural-language text to `{{IDIOMA}}`
    - Write to `./README.md`
-3. Delete `.claude/skills/project-workflow-init/` (entire directory)
+3. Delete `.claude/skills/ignite/` (entire directory)
 4. Delete `_workflow/templates/` (entire directory)
 
 If `_workflow/` only contains `guides/` after deletion, keep the directory.

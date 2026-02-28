@@ -177,7 +177,7 @@ if [ -f "docs/LESSONS-LEARNED.md" ]; then
     warn "LESSONS-LEARNED.md falta template de incidente"
   fi
 else
-  ok "LESSONS-LEARNED.md no existe aun (se creara con /project-workflow-init)"
+  ok "LESSONS-LEARNED.md no existe aun (se creara con /ignite)"
 fi
 echo ""
 

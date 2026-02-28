@@ -20,7 +20,7 @@ Guide for extending and modifying Ignite. Covers architecture, how to add new co
 Ignite/
 ├── .claude-plugin/
 │   └── plugin.json                          # Standard plugin manifest
-├── .claude/skills/project-workflow-init/     # Skill definition
+├── .claude/skills/ignite/     # Skill definition
 │   ├── SKILL.md              # Orchestrator (~475 lines, 5 phases)
 │   └── references/           # Detailed logic (loaded on-demand)
 │       ├── file-map.md       # Single source of truth: template mappings + placeholders
@@ -126,7 +126,7 @@ Ignite/
 
 ## Overwrite Categories
 
-When `/project-workflow-init` re-runs on an existing project, each file is handled by its category:
+When `/ignite` re-runs on an existing project, each file is handled by its category:
 
 | Category | Strategy | When to Use |
 |----------|----------|-------------|
@@ -166,9 +166,9 @@ Checks: required files, line limits, format, dates, sections, graduation candida
 
 Skills can be distributed via three methods:
 
-1. **Project-scoped** — Commit `.claude/skills/project-workflow-init/` + `_workflow/` to your repo. Anyone cloning gets the skill.
-2. **Personal** — Copy to `~/.claude/skills/project-workflow-init/SKILL.md` for availability across all projects.
-3. **Marketplace** — Publish via `/plugin marketplace add <publisher/repo>`, users install with `/plugin install project-workflow-init`.
+1. **Project-scoped** — Commit `.claude/skills/ignite/` + `_workflow/` to your repo. Anyone cloning gets the skill.
+2. **Personal** — Copy to `~/.claude/skills/ignite/SKILL.md` for availability across all projects.
+3. **Marketplace** — Publish via `/plugin marketplace add <publisher/repo>`, users install with `/plugin install ignite`.
 
 ### SKILL.md as Metadata
 
@@ -176,7 +176,7 @@ The SKILL.md frontmatter is the standard metadata format for Claude Code skills:
 
 ```yaml
 ---
-name: project-workflow-init
+name: ignite
 description: Interactive project initialization...
 allowed-tools: Read, Write, Edit, Bash, Glob, Grep, AskUserQuestion
 ---
@@ -201,7 +201,7 @@ Ignite uses semantic versioning tracked in `CHANGELOG.md` and `.claude-plugin/pl
 | # | File | Field / Location | Notes |
 |---|------|------------------|-------|
 | 1 | `.claude-plugin/plugin.json` | `"version"` | **Canonical source of truth** |
-| 2 | `.claude/skills/project-workflow-init/SKILL.md` | frontmatter `version:` | Must match plugin.json |
+| 2 | `.claude/skills/ignite/SKILL.md` | frontmatter `version:` | Must match plugin.json |
 | 3 | `README.md` | badge `version-X.Y.Z-blue` | Display only |
 | 4 | `CHANGELOG.md` | new `## [X.Y.Z]` section | Document changes |
 | 5 | `_workflow/templates/hooks/lorekeeper/lorekeeper-session-gate.py` | `HOOK_VERSION` constant | Compared against installed project's ignite-version.json |

@@ -2,9 +2,9 @@
 
 ## Modelo de pre-seleccion
 
-Durante `/project-workflow-init` (Phase 0), el usuario elige una preferencia de agentes. Esta preferencia se registra en `docs/STATUS.md` pero **no se instala** (excepto Lorekeeper). La instalacion real ocurre en Phase 5: Team Assembly, cuando la arquitectura este definida y las skills asignadas. Note: Tier 2 tools from Phase 4 may influence agent composition.
+Durante `/ignite` (Phase 0), el usuario elige una preferencia de agentes. Esta preferencia se registra en `docs/STATUS.md` pero **no se instala** (excepto Lorekeeper). La instalacion real ocurre en Phase 5: Team Assembly, cuando la arquitectura este definida y las skills asignadas. Note: Tier 2 tools from Phase 4 may influence agent composition.
 
-### Opciones de pre-seleccion (pregunta 5 de /project-workflow-init)
+### Opciones de pre-seleccion (pregunta 5 de /ignite)
 
 | Opcion | Agentes incluidos | Nota |
 |--------|------------------|------|

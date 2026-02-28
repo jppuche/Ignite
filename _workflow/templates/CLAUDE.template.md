@@ -10,6 +10,14 @@
 
 @docs/STATUS.md
 
+## Workflow
+
+Phase 0: Foundation | Phase 1: Technical Landscape | Phase 2: Tooling & Security
+Phase 3: Strategic Review | Phase 4: Architecture | Phase 5: Team Assembly
+Phase N: Development Blocks | Final: Hardening
+
+**On session resume:** Read @docs/STATUS.md FIRST. Do not start work without knowing the active phase.
+
 ## Style
 
 <!-- Definir: naming conventions (archivos, variables, componentes), formato codigo, design tokens si frontend -->
@@ -86,6 +94,10 @@ Configurados en .claude/settings.local.json (no commitear).
 - `lorekeeper-session-gate.py` (SessionStart) — evalua SCRATCHPAD/CHANGELOG/STATUS en tiempo real, genera REQUIRED ACTIONS priorizadas, version check (tambien post-compresion)
 - `lorekeeper-commit-gate.py` (PreToolUse:Bash) — bloquea git commit si docs validation falla. Warnings (validation + freshness) se inyectan como additionalContext
 - `lorekeeper-session-end.py` (SessionEnd) — checkpoint completo (SCRATCHPAD, CHANGELOG-DEV, CLAUDE.md), graduation candidates, pending items numerados para siguiente sesion
+- `env-protection.py` (PreToolUse:Read+Bash) — bloquea lectura de .env/secrets/credentials. Read→block, Bash→warn
+
+> **Phases 0-3:** Quality gate hooks skip checks when tools aren't installed yet.
+> This is expected — tools are installed during development blocks.
 
 ## Security
 

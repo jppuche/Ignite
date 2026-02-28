@@ -88,7 +88,7 @@ If user selects "Adjust configuration" / "Let me change something":
   If LOOPBACK_COUNT > 2:
     Display (adapt to {{IDIOMA}}):
       "You've adjusted configuration multiple times.
-       Consider running /project-workflow-init fresh to start over."
+       Consider running /ignite fresh to start over."
     Proceed with current configuration (do not block).
   Else:
     Return to Step 2.2 (re-ask questions per USER_LEVEL).
@@ -97,7 +97,7 @@ If user selects "Adjust configuration" / "Let me change something":
 If user selects "Cancel":
   Display (adapt to {{IDIOMA}}):
     "Setup cancelled. No files were created.
-     Run /project-workflow-init again when ready."
+     Run /ignite again when ready."
   STOP EXECUTION. Do NOT proceed to Step 3 or Step 5.
   No files are written, no summary is displayed.
 ```

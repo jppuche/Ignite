@@ -19,12 +19,17 @@
 
 Ninguno
 
+## Project Profile
+
+- Profile: {{PROJECT_PROFILE}}
+- Active phases: {{ACTIVE_PHASES}}
+
 ## Notas
 
 - Stack: {{STACK}}
 
 ## Team & Tooling Pre-selection
-<!-- /project-workflow-init registra aqui la opcion elegida en pregunta 5 -->
+<!-- /ignite registra aqui la opcion elegida en pregunta 5 -->
 - Opcion: (se completa durante setup)
 - Agentes a instalar en Phase 5: (se completa durante setup)
 

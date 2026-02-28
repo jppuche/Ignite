@@ -3,6 +3,51 @@
 All notable changes to Ignite are documented here.
 Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [2.0.0] - 2026-02-28
+
+### Added
+- **Foundational Discovery** — merged into Phase 0. Structured Q&A generates `FOUNDATION.md` (technology-agnostic project context document) before any technical scaffolding. Scales with profile: Quick (1 Q&A round, abbreviated doc), Standard (2-3 rounds, full doc), Enterprise (3-5 rounds, comprehensive doc with appendices). Methodology in `ref-foundational-discovery.md`.
+- **Project Profiles** — Quick/Standard/Enterprise profiles gate which phases execute and how many config questions are asked. Quick skips planning phases (0→N). Standard includes streamlined planning. Enterprise runs all phases at maximum depth. Auto-detected from project complexity, user confirms.
+- **`.env` protection hook** — always installed. Blocks AI agent from reading `.env`, `secrets/`, credentials files (Read→block, Bash→warn). Registered with specific matchers (Read + Bash) to avoid intercepting all tool calls.
+- **Batched initialization** — Language + Experience Level + Profile determined in a single AskUserQuestion call (was 2 separate calls). Profile pre-detection from project complexity signals.
+
+### Changed
+- **Skill renamed** `/project-workflow-init` → `/ignite`. Directory: `.claude/skills/ignite/`. 40+ references updated across 16 files.
+- **Step 1 restructured** — merged project scan + Foundational Discovery into unified Discovery step. Eliminates triple-display redundancy (welcome + report + summary → single combined report).
+- **Config questions profile-gated** — Quick: 0 questions. Standard: 2 (Agents + Security). Enterprise: 3 (Agents + Teams + Security). Git always auto-detected.
+- **Phase 0 exit conditions updated** — now requires FOUNDATION.md + project profile in STATUS.md.
+- **`advance-phase` skill** — profile-aware phase skipping. Reads profile from STATUS.md, skips inactive phases, notes skipped phases in transition summary. Legacy projects (no profile) default to all phases.
+- **STATUS.md template** — added `## Project Profile` section with profile and active phases.
+- Plugin manifest `name` field: `project-workflow-init` → `ignite`.
+
+### Adoption
+Major version: rename + profiles + Discovery. To adopt v2.0.0 on existing projects: re-run `/ignite`.
+Legacy projects without profile section in STATUS.md default to Enterprise behavior (all phases active).
+
+## [1.3.0] - 2026-02-20
+
+### Added
+- **`/advance-phase` skill** — automates phase transitions: validates exit conditions per phase, updates STATUS.md + CHANGELOG-DEV.md, runs doc validation. Installed for advanced users. (`_workflow/templates/skills/advance-phase/SKILL.md`)
+- **Session handoff** — `session-end` hook now generates a handoff summary (current phase + recently changed files) persisted to `lorekeeper-pending.json`. `session-gate` hook displays it at next session start, eliminating re-discovery overhead.
+- **Phase-specific guidance** — `session-gate` hook now shows actionable recommendations for the current phase (e.g., "Write block specs in docs/specs/" for Phase 4) instead of only reminding about Phase 0→1 transition.
+- **Workflow section** in CLAUDE.md template — static phase list with "Read STATUS.md FIRST" reminder, visible even when hooks are disabled.
+- **Hook expectation note** in CLAUDE.md template — explains that quality gate hooks skip checks in Phases 0-3 when tools aren't installed yet.
+- **Optional Skills section** in `file-map.md` — architectural support for conditional skill installation.
+
+### Changed
+- `session-gate` hook: current phase is now ALWAYS displayed as first line of SESSION CONTEXT (was conditional). Phase 0→1 specific reminder replaced by general-purpose phase action mapping.
+- `session-gate` hook: `pending` dict initialized to `{}` (was undefined when no pending file existed).
+- `session-end` hook: `bash_cmd` moved to function scope (was inside conditional block).
+- Hook version bumped to 1.3.0.
+
+### Fixed
+- **`code-quality-gate.py`: early-phase graceful degradation** — gates now check if the command binary exists (`shutil.which`) before running. Missing tools (e.g., `mypy` not yet installed) produce a clear "skipped" message instead of opaque failure output that blocks commits. This was the #2 friction source across 103 sessions.
+
+### Adoption
+To adopt v1.3.0 on existing projects: re-run `/project-workflow-init`.
+Hooks auto-update (Cat B). Review CLAUDE.md merge prompt for new sections.
+`/advance-phase` installs for advanced users.
+
 ## [1.2.0] - 2026-02-17
 
 ### Fixed (integrity audit — 17 issues resolved)

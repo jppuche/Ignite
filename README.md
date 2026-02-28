@@ -2,40 +2,37 @@
 
 **Complete development infrastructure for Claude Code.** One command. Any stack. Full workflow.
 
-<!-- GitHub About: Complete development infrastructure for Claude Code projects. Project scaffolding, session memory, quality gates, security screening, CI/CD — auto-adapted to any stack. Works on new and existing codebases. -->
+<!-- GitHub About: Complete development infrastructure for Claude Code projects. Foundational Discovery, project profiles, session memory, quality gates, security screening, CI/CD — auto-adapted to any stack and complexity. Works on new and existing codebases. -->
 <!-- Topics: claude-code, agent-skills, workflow-methodology, development-workflow, compound-engineering, security, multi-stack, automation -->
 
-![Version](https://img.shields.io/badge/version-1.2.0-blue)
+![Version](https://img.shields.io/badge/version-2.0.0-blue)
 ![License](https://img.shields.io/badge/license-MIT-green)
 ![Python](https://img.shields.io/badge/python-3.8%2B-yellow)
 ![Platforms](https://img.shields.io/badge/platforms-Windows%20%7C%20macOS%20%7C%20Linux-lightgrey)
 ![Stacks](https://img.shields.io/badge/stacks-12%20profiles-orange)
 ![Claude Code](https://img.shields.io/badge/Claude%20Code-compatible-purple)
 
-You start a project with Claude Code. You get code — but no structure around it. No quality gates, no memory between sessions, no security checks. Context gets lost after every `/clear`. Mistakes repeat.
+You start a project with Claude Code. Context vanishes after `/clear` — the same bug appears three sessions in a row. A dependency you installed last week has a known CVE — nobody checked. Every project starts from zero: no memory, no quality gates, no structure around the code.
 
-Ignite gives your project the infrastructure it's missing. One command sets up project memory, quality gates, security screening, CI/CD, and specialized agents — all adapted to your stack. It handles the complex parts so you can focus on building.
+Ignite understands your project first — vision, constraints, architecture — then generates the infrastructure to match. Project memory, quality gates, security, CI/CD, and specialized agents, all adapted to your stack and complexity.
 
 ## Table of Contents
 
 - [Quick Start](#quick-start)
-- [Workflow Overview](#workflow-overview)
-- [What You Get](#what-you-get)
-- [How It Works](#how-it-works)
-- [The 8 Phases](#the-8-phases)
+- [What Ignite Does](#what-ignite-does)
+- [Your Experience](#your-experience)
+- [The Development Workflow](#the-development-workflow)
 - [What Gets Generated](#what-gets-generated)
-- [Stack Detection](#stack-detection)
-- [Adaptive UX](#adaptive-ux)
+- [Adapts to You](#adapts-to-you)
+- [Stack Support](#stack-support)
 - [Requirements](#requirements)
-- [Post-Setup](#post-setup)
-- [Comparison](#comparison)
+- [After Setup](#after-setup)
+- [What Makes Ignite Different](#what-makes-ignite-different)
 - [FAQ](#faq)
 - [Limitations](#limitations)
-- [Technical Details](#technical-details)
+- [Deep Dive](#deep-dive)
 - [Project Values](#project-values)
 - [Contributing](#contributing)
-- [Changelog](#changelog)
-- [License](#license)
 - [Acknowledgments](#acknowledgments)
 
 ## Quick Start
@@ -44,73 +41,63 @@ Ignite gives your project the infrastructure it's missing. One command sets up p
 > Copy the `Ignite/` folder into your project root, then run:
 
 ```bash
-/project-workflow-init
+/ignite
 ```
 
-The skill auto-detects your OS, stack, and existing configuration. Most values resolve automatically — you answer 0–5 questions depending on your experience level.
+The skill auto-detects your OS, stack, and existing configuration. You answer a few questions about your project — most values resolve automatically.
 
 <details>
 <summary>Step-by-step walkthrough</summary>
 
 1. Copy the `Ignite/` folder into your project root
 2. Open Claude Code in your project directory
-3. Run `/project-workflow-init`
+3. Run `/ignite`
 4. Answer the setup questions (most values auto-detected)
 5. Done — full workflow infrastructure generated
 
 </details>
 
-## Workflow Overview
+## What Ignite Does
 
-```mermaid
-graph LR
-    P0["<b>Phase 0</b><br/>Foundation"]
-    P1["Phase 1<br/>Technical Landscape"]
-    P2["Phase 2<br/>Tooling & Security"]
-    P3["Phase 3<br/>Strategic Review"]
-    P4["Phase 4<br/>Architecture Blueprint"]
-    P5["Phase 5<br/>Team Assembly"]
-    PN["Phase N<br/>Development Blocks"]
-    PF["Phase Final<br/>Hardening"]
-
-    P0 --> P1 --> P2 --> P3 --> P4 --> P5 --> PN --> PF
-
-    style P0 fill:#4a90d9,color:#fff
-```
-
-## What You Get
-
-- **Workflow structure** — CLAUDE.md, docs, 5 specialized agents, context-aware rules — adapted to your stack
-- **Quality gates** — automated typecheck + lint + test enforcement before every commit
-- **Session memory** — mistakes are recorded and patterns graduate to permanent memory. Your Claude Code learns from past errors and gets better every session
-- **Security framework** — Cerbero: supply-chain screening for Skills and MCP servers, known CVE detection, rug pull baseline checks
-- **CI/CD pipeline** — GitHub Actions workflow generated and configured for your stack
-- **Mid-way support** — detects existing code, CI/CD, and conventions — integrates without overwriting
-- **Adaptive UX** — auto-detects experience level, adapts prompts, defaults, and output detail
+- **Project Discovery** — Structured Q&A builds `FOUNDATION.md` before any technical decisions. Your project's vision, constraints, and architecture documented once, referenced by every agent downstream
+- **Full infrastructure** — CLAUDE.md, docs, 5 specialized agents, context-aware rules, CI/CD pipeline — all adapted to your detected stack. 30+ placeholders resolved automatically from your project config
+- **Session memory** — Mistakes are recorded and patterns graduate to permanent memory. Claude Code gets better every session instead of starting from zero
+- **Quality enforcement** — Typecheck + lint + test gates before every commit. CI/CD pipeline generated for your stack. Doc validation on every session close
+- **Security layers** — Environment protection blocks AI access to `.env`, secrets, and credentials. Cerbero screens Skills and MCP servers for known CVEs, prompt injection, and supply-chain attacks
+- **Adapts to you** — Experience level (Guided/Advanced) controls interaction style. Project profile (Quick/Standard/Enterprise) controls workflow depth. A weekend script and a production API get different treatment
 
 > [!NOTE]
 > Every technical decision is documented with context and alternatives. Information surfaces when you need it, not all at once. The goal is a better development experience, not just a faster one.
 
-## How It Works
+## Your Experience
 
-When you run `/project-workflow-init`, Ignite executes **Phase 0: Foundation** in 6 steps:
+When you run `/ignite`, three things happen:
 
-| Step | Name | What happens |
-|------|------|-------------|
-| 0 | Initialization | Detect language preference, determine experience level (Guided/Advanced) |
-| 1 | Discovery | Scan OS, project files, existing config, analyze project context |
-| 2 | Configuration | Auto-resolve values, select stack profile, ask questions adapted to level |
-| 2.5 | Preview | Dry-run showing exactly what will be generated, with confirmation before writing |
-| 3 | Generation | Process templates with 28 dynamic placeholders, respect overwrite categories |
-| 4–5 | Finalization | Security framework, git init, validate docs, cleanup, summary |
+**Ignite asks about your project.** It scans your codebase, reads config files, then asks structured questions about your project's vision, capabilities, and constraints. The depth scales with your profile — a quick script gets 1 round of questions, an enterprise system gets 3-5. The result is `FOUNDATION.md`: a technology-agnostic document that every downstream agent reads before making decisions.
 
-## The 8 Phases
+**It shows you what it will create.** A full dry-run preview lists every file that will be generated, grouped by purpose. You can adjust or cancel before anything is written.
 
-`/project-workflow-init` establishes Phase 0. The remaining phases guide your project from stack decisions to production:
+**Then it generates everything, adapted.** Templates are processed with placeholders resolved from your project config. A 3-category overwrite system keeps your existing customizations safe during re-runs.
+
+How much of the workflow applies to your project depends on its profile:
+
+```
+Quick:      Phase 0 ─────────────────────────────> Phase N
+Standard:   Phase 0 → 1 → 2 → 3 → 4 ───────────> Phase N → Final
+Enterprise: Phase 0 → 1 → 2 → 3 → 4 → 5 ───────> Phase N → Final
+```
+
+**Quick** for scripts, POCs, and hobby projects — infrastructure + Discovery, then start building. **Standard** for apps, APIs, and libraries — streamlined planning before development. **Enterprise** for complex systems and multi-team projects — all phases at full depth.
+
+Ignite suggests a profile based on your project's complexity. You confirm or override.
+
+## The Development Workflow
+
+`/ignite` establishes Phase 0. The remaining phases guide your project from stack decisions to production:
 
 | Phase | Purpose |
 |-------|---------|
-| 0. Foundation | Project memory, docs, agents, hooks, CI/CD |
+| 0. Foundation + Discovery | Project context (FOUNDATION.md), memory, docs, agents, hooks, CI/CD |
 | 1. Technical Landscape | Stack decisions, validation tools, ecosystem scan |
 | 2. Tooling & Security | Evaluate and install skills/MCPs (via Cerbero) |
 | 3. Strategic Review | Architecture assessment (enriched by installed tools) |
@@ -122,10 +109,12 @@ When you run `/project-workflow-init`, Ignite executes **Phase 0: Foundation** i
 > [!IMPORTANT]
 > Phase 2 (Tooling) runs before Phase 3 (Review) deliberately. This ensures architecture decisions are made with full knowledge of available tools — not speculative candidates.
 
+Project profiles control which phases are active. Quick skips directly to building. Standard runs a streamlined planning path. Enterprise runs all phases at full depth.
+
 ## What Gets Generated
 
 <details>
-<summary>Full file tree — 28+ files across 10 categories (click to expand)</summary>
+<summary>Full file tree — 30+ files across 10 categories (click to expand)</summary>
 
 ```
 your-project/
@@ -146,14 +135,20 @@ your-project/
 │   │   ├── lorekeeper-session-gate.py    # SessionStart: context + version check
 │   │   ├── lorekeeper-commit-gate.py     # PreToolUse: blocks commits without docs
 │   │   ├── lorekeeper-session-end.py     # SessionEnd: checkpoint + graduation
-│   │   └── code-quality-gate.py          # PreToolUse: typecheck + lint + test
-│   ├── skills/cerbero/      # Security framework (optional)
+│   │   ├── code-quality-gate.py          # PreToolUse: typecheck + lint + test
+│   │   └── env-protection.py             # PreToolUse: blocks .env/secrets/credentials
+│   ├── security/
+│   │   └── user-profile.json # Experience level + profile persistence
+│   ├── skills/
+│   │   ├── cerbero/          # Security framework (optional)
+│   │   └── advance-phase/    # Phase transition automation (advanced users)
 │   ├── quality-gate.json    # Stack-specific quality commands
 │   ├── ignite-version.json  # Version tracking for auto-update
 │   └── settings.local.json  # Hook configuration (gitignored)
 ├── .github/workflows/
 │   └── quality.yml          # CI/CD pipeline (adapted per stack)
 ├── docs/
+│   ├── FOUNDATION.md        # Project context from Discovery
 │   ├── STATUS.md            # Project status (< 60 lines)
 │   ├── DECISIONS.md         # Technical decisions (append-only)
 │   ├── CHANGELOG-DEV.md     # Development changelog
@@ -172,7 +167,30 @@ your-project/
 
 </details>
 
-## Stack Detection
+## Adapts to You
+
+Ignite adapts on two dimensions: how you interact, and how deep the workflow goes.
+
+**Experience Level** — controls interaction style. Detected automatically from project signals; you can always override.
+
+| Aspect | Guided | Advanced |
+|--------|--------|----------|
+| Setup | Minimal questions, safe defaults applied | Full control over every option |
+| Preview | Summary grouped by purpose | Detailed file-by-file view |
+| Phase transitions | Automatic validation | Manual with `/advance-phase` skill |
+
+**Project Profile** — controls workflow depth. Suggested based on project complexity; you confirm or override.
+
+| Profile | Phases | Discovery | Config Questions | Best for |
+|---------|--------|-----------|-----------------|----------|
+| Quick | 0 → N | 1 round, abbreviated | 0 | Scripts, POCs, hobby projects |
+| Standard | 0–4, N, Final | 2-3 rounds, full | 2 | Apps, APIs, web services, libraries |
+| Enterprise | All | 3-5 rounds, comprehensive | 3 | Complex systems, multi-team projects |
+
+> [!TIP]
+> You can always switch levels. Guided users can request more detail during preview; Advanced users get streamlined defaults if they prefer.
+
+## Stack Support
 
 Works with **any project type**. These stacks get optimized defaults (paths, test patterns, CI actions, security rules); all other projects use the Generic profile.
 
@@ -196,22 +214,6 @@ Works with **any project type**. These stacks get optimized defaults (paths, tes
 
 </details>
 
-## Adaptive UX
-
-Ignite adapts to your experience level automatically. The same analysis runs at every level — only the interaction density and presentation detail change.
-
-| Aspect | Guided | Advanced |
-|--------|--------|----------|
-| Prompts | 0–2 questions | 4–5 questions |
-| Defaults | Safe defaults, auto-applied | Full control over every option |
-| Preview | Summary grouped by purpose | Detailed file-by-file view |
-| Detection | Automatic from project signals | Automatic or manual override |
-
-Level detection reads existing project signals (CLAUDE.md complexity, hook configurations, rule customizations, project maturity). If signals are inconclusive, the skill asks you directly.
-
-> [!TIP]
-> You can always switch levels. Guided users can request more detail during preview; Advanced users get streamlined defaults if they prefer.
-
 ## Requirements
 
 - **Claude Code** installed and running
@@ -222,38 +224,36 @@ Level detection reads existing project signals (CLAUDE.md complexity, hook confi
 > **Windows:** Git for Windows must be installed. Ignite auto-configures `CLAUDE_CODE_GIT_BASH_PATH`.
 > **macOS/Linux:** Python 3 available via `python3`. Verified automatically.
 
-## Post-Setup
+## After Setup
 
-After `/project-workflow-init` completes, customize these project-specific sections:
+After `/ignite` completes, customize these project-specific sections:
 
 1. **CLAUDE.md** — Fill in `Style` and `Architecture` sections
 2. **Agents** — Adapt domain paths to your project layout
 3. **Styling rule** — Define design tokens if applicable
 
-Then proceed to Phase 1. Full guide: `_workflow/guides/workflow-guide.md`
+Then proceed to Phase 1 — or Phase N directly if you chose the Quick profile. Full guide: `_workflow/guides/workflow-guide.md`
 
-## Comparison
+## What Makes Ignite Different
 
-| Feature | Ignite | claude-bootstrap | atlas-session | scaffolding |
-|---------|:------:|:----------------:|:-------------:|:-----------:|
-| Auto-detection | ++ | + | + | -- |
-| Multi-language | ++ | -- | -- | -- |
-| Mid-way integration | +++ | -- | -- | -- |
-| Overwrite protection | +++ | - | ++ | -- |
-| Supply-chain security | ++ | -- | -- | - |
-| Compound engineering | ++ | -- | ++ | ++ |
-| Hook-based enforcement | +++ | -- | -- | -- |
-| Code quality gates | ++ | ++ | -- | +++ |
-| CI/CD generation | ++ | ++ | -- | ++ |
-| Doc validation | ++ | -- | -- | - |
-| Adaptive UX (2 levels) | +++ | -- | -- | -- |
-| Dry-run preview | ++ | -- | -- | -- |
-| Minimal UX (0-2 prompts) | +++ | - | ++ | -- |
-| Cross-platform | ++ | -- | + | + |
+Most project scaffolders generate files and leave. Ignite works differently:
 
-Legend: `+++` exceptional `++` good `+` basic `-` weak `--` absent
+- **Understands before generating** — Foundational Discovery creates a project context document through structured Q&A before any technical decision. Agents don't guess your requirements — they read `FOUNDATION.md`
+- **Adapts to complexity** — Three project profiles gate which phases run and how many questions you answer. A weekend script doesn't get the same treatment as a production API
+- **Protects existing work** — 3-category overwrite system (merge docs, replace code, ask for rules/agents). Re-run `/ignite` without losing customizations. Mid-way integration detects existing CI/CD and conventions
+- **Enforces quality automatically** — PreToolUse hooks block commits that fail typecheck, lint, or tests. Not advisory — enforced
+- **Learns across sessions** — Compound engineering: mistakes recorded in SCRATCHPAD, patterns graduate to CLAUDE.md, session handoffs preserve context across `/clear`. Every session builds on the last
+- **Security by default** — Environment protection hooks block `.env`/secrets/credentials access. Cerbero screens Skills and MCP servers for known CVEs, prompt injection, and supply-chain attacks
+- **Works everywhere** — Windows, macOS, Linux. 12 stack profiles. 4 languages + free text. New projects and existing codebases
 
 ## FAQ
+
+<details>
+<summary>What are project profiles?</summary>
+
+Project profiles control how much of the workflow applies to your project. **Quick** (scripts, POCs) skips planning phases and jumps straight to building. **Standard** (apps, APIs) runs a streamlined planning path. **Enterprise** (complex systems) runs all phases at full depth. Ignite suggests a profile based on your project's complexity — you confirm or override.
+
+</details>
 
 <details>
 <summary>Does Ignite work on existing projects?</summary>
@@ -263,7 +263,7 @@ Yes. Ignite detects existing code, CI/CD configuration, and conventions. It inte
 </details>
 
 <details>
-<summary>Can I re-run /project-workflow-init?</summary>
+<summary>Can I re-run /ignite?</summary>
 
 Yes. Safe re-execution analyzes what has changed since the last run. Docs are merged (missing sections added), executable code is replaced if different, and customized files (rules, agents) prompt before modification.
 
@@ -294,7 +294,6 @@ English, Spanish, Portuguese, and French for all generated documentation and int
 
 ### What Ignite doesn't do
 - **Not a substitute for thinking** — generates infrastructure, not architecture decisions
-- **Phase time estimates are optimistic** — real architecture design takes longer than 15-30 min
 - **No rollback** — if generation goes wrong, you delete and re-run (git history is your safety net)
 
 ### Cerbero security disclaimers
@@ -308,21 +307,22 @@ Cerbero is a **screening layer, not a security guarantee**. It catches common at
 > [!CAUTION]
 > For high-stakes environments, use Cerbero as one layer in a defense-in-depth approach, not your only protection.
 
-## Technical Details
+## Deep Dive
 
 <details>
 <summary>Skill architecture and complete feature reference (click to expand)</summary>
 
 ### Skill Architecture
 
-The skill follows a **delegation pattern**: `SKILL.md` orchestrates the phases, while complex logic is delegated to reference files (`ref-*.md`). `file-map.md` serves as the single source of truth for all template-to-destination mappings and placeholder declarations.
+The skill follows a **delegation pattern**: `SKILL.md` orchestrates the steps, while complex logic is delegated to reference files (`ref-*.md`). `file-map.md` serves as the single source of truth for all template-to-destination mappings and placeholder declarations.
 
 ```
-.claude/skills/project-workflow-init/
+.claude/skills/ignite/
 ├── SKILL.md                       # Orchestrator (Steps 0-5)
 └── references/                    # Detailed logic (loaded on-demand)
     ├── file-map.md                # Template mapping + placeholders
     ├── ref-adaptive-ux.md         # Adaptive UX: detection, behavior tables, preview specs
+    ├── ref-foundational-discovery.md  # Discovery methodology + FOUNDATION.md spec
     ├── ref-stack-profiles.md      # 12 stack profiles
     ├── ref-platform-detection.md  # OS/Python/Git detection
     ├── ref-generation-details.md  # Step 2.5 preview + Step 3 generation logic
@@ -337,21 +337,25 @@ The skill follows a **delegation pattern**: `SKILL.md` orchestrates the phases, 
 
 | Feature | Description |
 |---------|-------------|
-| **6-step initialization** | Initialization, Discovery, Configuration, Preview, Generation, Finalization |
+| **6-step initialization** | Initialization (with profile selection), Discovery (with FOUNDATION.md), Configuration, Preview, Generation, Finalization |
+| **Foundational Discovery** | Structured Q&A creates FOUNDATION.md — technology-agnostic project context. Depth scales with profile (1-5 rounds) |
+| **Project Profiles** | Quick/Standard/Enterprise gate which phases execute and interaction depth |
 | **12 stack profiles** | Python (Django/FastAPI/generic), Rust, Go, Node (React/Express/generic), Java/Kotlin, PHP/Laravel, Ruby/Rails, Generic |
-| **28 dynamic placeholders** | Auto-resolved from project config files (package.json, pyproject.toml, etc.) |
+| **30+ dynamic placeholders** | Auto-resolved from project config files (package.json, pyproject.toml, etc.) |
 | **Mid-way integration** | Detects existing code, CI/CD, conventions — integrates without overwriting |
 | **Overwrite protection** | 3-category system: A (merge docs), B (replace code), C (ask user) |
 | **Compound engineering** | SCRATCHPAD graduation pipeline + cross-session persistence via hooks |
 | **Cerbero security** | Supply-chain screening, known CVE detection, prompt injection patterns, rug pull baselines |
+| **Environment protection** | PreToolUse hook blocking AI access to .env, secrets, and credentials (Read blocks, Bash warns) |
 | **Code quality gates** | PreToolUse hook enforcing typecheck + lint + test before commits |
 | **CI/CD generation** | GitHub Actions workflow template adapted per stack profile |
-| **Hook-based enforcement** | 7 automated hooks: session lifecycle + commit gates + security validation |
+| **Phase transitions** | `/advance-phase` skill automates validation, STATUS.md updates, and profile-aware phase skipping |
+| **Hook-based enforcement** | 8 automated hooks: session lifecycle + commit gates + quality + security |
 | **Multi-language** | English, Spanish, Portuguese, French + free text |
-| **Adaptive UX** | 2 levels (Guided/Advanced): auto-detects user experience, adapts questions, defaults, and output detail |
+| **Adaptive UX** | 2 levels (Guided/Advanced) x 3 profiles (Quick/Standard/Enterprise): adapts questions, defaults, depth |
 | **Dry-run preview** | Preview all generated files before writing — cancel, adjust, or confirm |
-| **Minimal interaction** | 0-2 prompts (Guided) to 4-5 prompts (Advanced), level-adaptive |
-| **Safe re-execution** | Smart overwrite analysis — re-run `/project-workflow-init` without losing customizations |
+| **Interaction budget** | 2-9 prompts depending on profile and level |
+| **Safe re-execution** | Smart overwrite analysis — re-run `/ignite` without losing customizations |
 | **Debugging methodology** | Prediction Protocol: predict, observe, compare, explain, verify |
 | **Post-mortem tracking** | Structured LESSONS-LEARNED.md with incident timeline and root cause analysis |
 | **Auto-update notification** | Session-start version check with drift and age detection |

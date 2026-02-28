@@ -11,7 +11,7 @@ import os
 import re
 from datetime import date
 
-HOOK_VERSION = "1.2.0"
+HOOK_VERSION = "2.0.0"
 
 
 def _version_tuple(v):
@@ -127,6 +127,31 @@ def _extract_pending_tasks(cwd, max_items=5):
     return tasks
 
 
+_PHASE_ACTIONS = {
+    "phase 0": ["Run /ignite", "Complete Discovery + FOUNDATION.md", "Verify generated files"],
+    "phase 1": ["Stack decisions in DECISIONS.md", "Ecosystem scan for tools"],
+    "phase 2": ["Evaluate candidates with Cerbero", "Install approved tools"],
+    "phase 3": ["Strategic review of Phase 1-2 decisions", "Architecture directives"],
+    "phase 4": ["Write block specs in docs/specs/", "Security review"],
+    "phase 5": ["Install agents", "Assign skills", "Populate AGENT-COORDINATION Sec 13"],
+    "phase n": ["Check next block spec in docs/specs/", "Follow block exit conditions"],
+    "development": ["Check next block spec in docs/specs/", "Follow block exit conditions"],
+    "final": ["Security audit", "Performance validation", "Documentation review"],
+    "hardening": ["Security audit", "Performance validation", "Documentation review"],
+}
+
+
+def _get_phase_actions(phase_str):
+    """Return actionable guidance for the current phase. Empty list if no match."""
+    if not phase_str:
+        return ["Read docs/STATUS.md to determine current phase"]
+    phase_lower = phase_str.lower()
+    for key, actions in _PHASE_ACTIONS.items():
+        if key in phase_lower:
+            return actions
+    return []
+
+
 def main():
     data = json.load(sys.stdin)
     cwd = data.get("cwd", ".")
@@ -151,12 +176,13 @@ def main():
             os.makedirs(os.path.dirname(marker_path), exist_ok=True)
             with open(marker_path, "w") as f:
                 f.write(date.today().isoformat())
-        except OSError:
-            pass
+        except OSError as e:
+            print(f"Lorekeeper: marker creation failed at {marker_path}: {e}", file=sys.stderr)
 
     # Check for pending work from previous session
     pending_path = os.path.join(cwd, ".claude", "lorekeeper-pending.json")
     pending_items = []
+    pending = {}
     if os.path.exists(pending_path):
         try:
             with open(pending_path, "r", encoding="utf-8") as f:
@@ -181,7 +207,7 @@ def main():
                 version_msg = (
                     f"Ignite update: hooks are v{HOOK_VERSION} but project config "
                     f"is from v{installed_version}. Consider re-running "
-                    "/project-workflow-init to update generated files."
+                    "/ignite to update generated files."
                 )
 
             # Age check: if installed > 30 days ago
@@ -197,48 +223,6 @@ def main():
                 except ValueError:
                     pass
         except (json.JSONDecodeError, OSError, KeyError):
-            pass  # Fail open
-
-    # Phase transition reminder
-    phase_reminder = ""
-    status_path = os.path.join(cwd, "docs", "STATUS.md")
-    if os.path.exists(status_path):
-        try:
-            with open(status_path, "r", encoding="utf-8") as f:
-                status_content = f.read()
-            phase_0_done = re.search(
-                r"(Phase 0|Fase 0|Foundation|Fundamentos).*?"
-                r"(completad|complete|done|\[x\])",
-                status_content, re.IGNORECASE
-            )
-            phase_1_not_started = not re.search(
-                r"(Phase 1|Fase 1|Technical Landscape|Panorama).*?"
-                r"(completad|complete|done|in.progress|en.curso|\[x\])",
-                status_content, re.IGNORECASE
-            )
-            if phase_0_done and phase_1_not_started:
-                days_since = ""
-                if os.path.exists(version_path):
-                    try:
-                        with open(version_path, "r", encoding="utf-8") as f:
-                            vdata = json.load(f)
-                        installed = vdata.get("installed_date", "")
-                        if installed:
-                            try:
-                                delta = (date.today() - date.fromisoformat(installed)).days
-                                if delta > 0:
-                                    days_since = f" ({delta} day{'s' if delta != 1 else ''} ago)"
-                            except ValueError:
-                                pass
-                    except (json.JSONDecodeError, OSError):
-                        pass
-                phase_reminder = (
-                    f"Phase 0: Foundation completed{days_since}. "
-                    "Phase 1: Technical Landscape is pending — "
-                    "stack decisions, validation tools, ecosystem scan. "
-                    "See _workflow/guides/workflow-guide.md (Phase 1) for details."
-                )
-        except OSError:
             pass  # Fail open
 
     # --- Real-time file evaluation ---
@@ -278,22 +262,31 @@ def main():
             msg += f"  {i}. {action}\n"
 
     msg += "\nSESSION CONTEXT:\n"
+    msg += f"  CURRENT PHASE: {current_phase or 'unknown — check docs/STATUS.md'}\n"
     if scratchpad_eval["exists"]:
         msg += f"  SCRATCHPAD: {scratchpad_eval['line_count']}/150 lines\n"
     else:
         msg += "  SCRATCHPAD: missing\n"
-    if current_phase:
-        msg += f"  Current phase: {current_phase}\n"
     if pending_tasks:
-        msg += f"  Pending tasks from STATUS.md:\n"
+        msg += "  Pending tasks from STATUS.md:\n"
         for task in pending_tasks:
             msg += f"    - {task}\n"
 
+    # Phase-specific actionable guidance
+    phase_actions = _get_phase_actions(current_phase)
+    if phase_actions:
+        msg += "  Recommended actions for this phase:\n"
+        for action in phase_actions:
+            msg += f"    - {action}\n"
+
+    # Session handoff from previous session (populated by session-end hook)
+    handoff = pending.get("handoff_summary", "")
+    if handoff:
+        msg += f"\n  SESSION HANDOFF (from previous session):\n"
+        msg += f"    {handoff}\n"
+
     if version_msg:
         msg += f"\n  {version_msg}\n"
-
-    if phase_reminder:
-        msg += f"\n  {phase_reminder}\n"
 
     msg += "\nREMINDERS:\n"
     msg += "  - Update SCRATCHPAD with errors/corrections/discoveries AS THEY HAPPEN (not at the end)\n"

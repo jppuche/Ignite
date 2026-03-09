@@ -2,17 +2,17 @@
 
 ## Modelo de pre-seleccion
 
-Durante `/ignite` (Phase 0), el usuario elige una preferencia de agentes. Esta preferencia se registra en `docs/STATUS.md` pero **no se instala** (excepto Lorekeeper). La instalacion real ocurre en Phase 5: Team Assembly, cuando la arquitectura este definida y las skills asignadas. Note: Tier 2 tools from Phase 4 may influence agent composition.
+Durante `/ignite` (Phase 0), el usuario elige una preferencia de agentes. Esta preferencia se registra en `docs/STATUS.md` pero **no se instala** (excepto Lorekeeper). La instalacion real ocurre en Phase N Step N.0 (Team Assembly), cuando la arquitectura este definida y las skills asignadas. Note: Tier 2 tools from Phase 2 may influence agent composition.
 
 ### Opciones de pre-seleccion (pregunta 5 de /ignite)
 
 | Opcion | Agentes incluidos | Nota |
 |--------|------------------|------|
 | **Generalistas** (default) | Lorekeeper + Inquisidor + Sentinel | Cubren documentacion, testing y seguridad |
-| **Generalistas + especificos** | Los 3 generalistas + backend-worker + frontend-worker | Los especificos se confirman en Phase 5 |
+| **Generalistas + especificos** | Los 3 generalistas + backend-worker + frontend-worker | Los especificos se confirman en Phase N (N.0) |
 | **Lorekeeper only** | Lorekeeper | Solo compound engineering y documentacion. Sin testing (Inquisidor) ni auditorias (Sentinel). Quality gates dependen enteramente de hooks |
 | **Ninguno** | (ninguno) | ADVERTENCIA: sin compound engineering, quality gates ni auditorias |
-| **Otro** | Texto libre | Se registra para Phase 5 |
+| **Otro** | Texto libre | Se registra para Phase N (N.0) |
 
 Lorekeeper se instala siempre en Phase 0 (compound engineering desde el inicio).
 

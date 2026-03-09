@@ -31,7 +31,7 @@ Ninguno
 ## Team & Tooling Pre-selection
 <!-- /ignite registra aqui la opcion elegida en pregunta 5 -->
 - Opcion: (se completa durante setup)
-- Agentes a instalar en Phase 5: (se completa durante setup)
+- Agentes a instalar en Phase N (N.0): (se completa durante setup)
 
 ### Tier 1 — Core Tools
 <!-- Installed during Phase 2 (Tooling & Security) -->
@@ -39,6 +39,6 @@ Ninguno
 |------|--------|-------|
 
 ### Tier 2 — Agent & Specialist Tools
-<!-- Approved during Phase 2, installed during Phase 5 -->
+<!-- Approved during Phase 2, installed during Phase N (N.0) -->
 | Tool | Target Agent | Status | Notes |
 |------|-------------|--------|-------|

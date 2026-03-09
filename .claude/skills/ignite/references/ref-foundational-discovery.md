@@ -186,3 +186,30 @@ Discovery is complete when:
 1. FOUNDATION.md exists in `docs/`
 2. Project profile is validated (or user override documented)
 3. User has confirmed the synthesis (no outstanding questions)
+
+---
+
+## 7. FOUNDATION.md Lifecycle
+
+FOUNDATION.md is generated in Phase 0 (Discovery) but is NOT frozen. It can be enriched at two later points:
+
+### Phase 1: External Research Appendix
+
+If Phase 1 external research (Step 1.0.5 in workflow-guide.md) discovers relevant domain context, an "External Context" appendix is added. This does NOT modify the core document — it appends reference material for stack decisions.
+
+### Phase 3: Intelligence-Enriched Update
+
+After tools are installed in Phase 2, Phase 3 re-reads FOUNDATION.md with the context of installed tools' specialized knowledge. If material gaps are identified:
+
+1. Agent proposes specific, scoped updates to FOUNDATION.md
+2. **User must confirm** before any modification is applied
+3. Updates are appended or inserted in the relevant section — core structure is preserved
+4. A note is added to the document header: `<!-- Updated in Phase 3 with intelligence from installed tools (YYYY-MM-DD) -->`
+
+**Types of valid Phase 3 updates:**
+- Missing edge cases revealed by security tools
+- Performance constraints surfaced by monitoring/profiling tools
+- Integration patterns enabled by installed MCPs
+- Architecture constraints imposed by installed frameworks
+
+**NOT valid:** Changing the project's vision, scope, or priority tiers — those are user decisions, not tool-derived insights.

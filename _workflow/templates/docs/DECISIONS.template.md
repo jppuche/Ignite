@@ -21,7 +21,7 @@
 
 ## Strategic Assessment
 
-> Completed during Phase 2 (Strategic Review).
+> Completed during Phase 3 (Intelligence-Enriched Review).
 
 ### Confirmations
 <!-- Phase 1 decisions confirmed with evidence -->
@@ -39,7 +39,7 @@
 
 ## Architecture Pivot Summary
 
-> Completed during Phase 5.4 (Architecture Reconciliation), if applicable.
+> Completed during Phase N Step N.0.4 (Consistency Check), if applicable.
 
 ### Deltas
 <!-- Differences between Phase 3 blueprint and actual Phase 4 tooling -->

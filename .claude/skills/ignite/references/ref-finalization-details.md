@@ -189,7 +189,7 @@ Then use AskUserQuestion (in `{{IDIOMA}}`):
 [If PROJECT_MODE == "mid-way":  | Integration | {INTEGRATION_LEVEL} |]
 
 Lorekeeper is active — 3 hooks configured in .claude/settings.local.json.
-Agent pre-selection recorded in docs/STATUS.md (installation happens in workflow Phase 5).
+Agent pre-selection recorded in docs/STATUS.md (installation happens in Phase N Step N.0).
 
 Phase 0: Foundation complete.
 

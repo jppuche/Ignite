@@ -20,10 +20,9 @@ conditions — don't advance until they're met.
 | 0. Foundation | Project structure, memory, automation | Done |
 | 1. Technical Landscape | Stack decisions, tools, ecosystem scan | **Next** |
 | 2. Tooling & Security | Evaluate and install skills/MCPs | Pending |
-| 3. Strategic Review | Architecture assessment (with installed tools) | Pending |
-| 4. Architecture Blueprint | Detailed design, feature specs | Pending |
-| 5. Team Assembly | Configure agents, assign roles | Pending |
-| N. Development Blocks | Build features with Ralph Loop | Pending |
+| 3. Intelligence-Enriched Review | Architecture assessment (with installed tools) | Pending |
+| 4. Architecture Blueprint | Detailed design + plan hardening | Pending |
+| N. Development Blocks | Team assembly (N.0), build features with Ralph Loop | Pending |
 | Final. Hardening | Security audit, performance, production | Pending |
 
 Current status: `docs/STATUS.md`

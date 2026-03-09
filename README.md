@@ -5,7 +5,7 @@
 <!-- GitHub About: Complete development infrastructure for Claude Code projects. Foundational Discovery, project profiles, session memory, quality gates, security screening, CI/CD — auto-adapted to any stack and complexity. Works on new and existing codebases. -->
 <!-- Topics: claude-code, agent-skills, workflow-methodology, development-workflow, compound-engineering, security, multi-stack, automation -->
 
-![Version](https://img.shields.io/badge/version-2.0.0-blue)
+![Version](https://img.shields.io/badge/version-2.2.0-blue)
 ![License](https://img.shields.io/badge/license-MIT-green)
 ![Python](https://img.shields.io/badge/python-3.8%2B-yellow)
 ![Platforms](https://img.shields.io/badge/platforms-Windows%20%7C%20macOS%20%7C%20Linux-lightgrey)
@@ -85,7 +85,7 @@ How much of the workflow applies to your project depends on its profile:
 ```
 Quick:      Phase 0 ─────────────────────────────> Phase N
 Standard:   Phase 0 → 1 → 2 → 3 → 4 ───────────> Phase N → Final
-Enterprise: Phase 0 → 1 → 2 → 3 → 4 → 5 ───────> Phase N → Final
+Enterprise: Phase 0 → 1 → 2 → 3 → 4 ───────────> Phase N → Final
 ```
 
 **Quick** for scripts, POCs, and hobby projects — infrastructure + Discovery, then start building. **Standard** for apps, APIs, and libraries — streamlined planning before development. **Enterprise** for complex systems and multi-team projects — all phases at full depth.
@@ -99,12 +99,11 @@ Ignite suggests a profile based on your project's complexity. You confirm or ove
 | Phase | Purpose |
 |-------|---------|
 | 0. Foundation + Discovery | Project context (FOUNDATION.md), memory, docs, agents, hooks, CI/CD |
-| 1. Technical Landscape | Stack decisions, validation tools, ecosystem scan |
+| 1. Technical Landscape | External research, stack comparison, ecosystem scan |
 | 2. Tooling & Security | Evaluate and install skills/MCPs, screened by Cerbero |
-| 3. Strategic Review | Architecture assessment (enriched by installed tools) |
-| 4. Architecture Blueprint | Detailed design based on actual capabilities |
-| 5. Team Assembly | Configure agents, assign roles |
-| N. Development Blocks | Build features iteratively with Ralph Loop |
+| 3. Intelligence-Enriched Review | Architecture assessment enriched by installed tools |
+| 4. Architecture Blueprint | Detailed design + plan hardening |
+| N. Development Blocks | Team assembly (N.0), build features with Ralph Loop |
 | Final. Hardening | Security audit, performance, production readiness |
 
 > [!IMPORTANT]
@@ -402,7 +401,7 @@ This workflow builds on ideas and practices from:
 - **Andrej Karpathy** (ex-Tesla AI Director, OpenAI founding member) — the shift from vibe coding to agentic engineering shaped Ignite's declarative approach (CLAUDE.md + rules instead of imperative scripts)
 - **Boris Cherny** (Claude Code creator) — CLAUDE.md as mistake log and PostToolUse hooks directly inspired the SCRATCHPAD graduation pipeline and quality gates
 - **Addy Osmani** (Google Chrome engineering lead) — spec-first development and task sizing informed the Phase 0 → Phase N workflow structure and block-based execution
-- **Simon Willison** (Django co-creator) — his two-phase approach (research → production) influenced the separation between exploration phases (1-5) and development blocks (N)
+- **Simon Willison** (Django co-creator) — his two-phase approach (research → production) influenced the separation between exploration phases (1-4) and development blocks (N)
 - **Harper Reed** (former CTO, Obama 2012 campaign) — TDD as counter to hallucination shaped the Prediction Protocol debugging methodology and verification loops
 - **paddo.dev** (Emergent Minds blog) — minimal effective structure, the 19-Agent Trap essay, and /compact timing research informed agent count decisions and context management
 - **swyx** (Latent Space founder) — the IMPACT framework and conductor model influenced the multi-agent architecture and Lorekeeper's orchestration role

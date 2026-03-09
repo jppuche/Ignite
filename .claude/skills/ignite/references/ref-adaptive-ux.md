@@ -88,7 +88,7 @@ Reference for adaptive directives throughout SKILL.md and ref files. Each row sp
 | Step | Element | Guided | Advanced |
 |------|---------|--------|----------|
 | 0.0 | Init questions | 2-3 questions (may pre-fill level) | 2-3 questions |
-| 0.1 | Welcome message | Simplified, plain language | Detailed, technical, steps listed |
+| 0.1 | Welcome message | Simplified, plain language. Phase list filtered by profile (Quick: 0+N only) | Detailed, technical, steps listed. Phase list filtered by profile (Quick: 0+N only) |
 | 1.0 | Platform setup | Auto-configure silently, report result | Ask before configuring (current behavior) |
 | 1.3 | Discovery report | Stack + file count only | Full report with all metrics (current) |
 | 1.3.1 | Extended report | Omit (proceed silently) | Full extended report (current) |
@@ -107,12 +107,16 @@ How `PROJECT_PROFILE` affects workflow phases and config questions:
 
 | Aspect | Quick | Standard | Enterprise |
 |--------|-------|----------|------------|
-| Active phases | 0, N | 0, 1, 2, 3*, 4, N, Final | All |
+| Active phases | 0, N | 0, 1, 2, 3*, 4, N, Final | 0, 1, 2, 3, 4, N, Final |
+| Welcome phases shown | 0, N (2 phases) | All 7 phases | All 7 phases |
 | Config questions | 0 (all auto) | 2 (Agents + Security) | 3 (Agents + Teams + Security) |
 | Cerbero | Disabled | Asked | Asked |
 | Agent Teams | Disabled | Disabled | Asked |
 | Discovery Q&A | 1 call (vision + scope) | 2-3 calls | 3-5 calls (max 8) |
 | FOUNDATION.md | Abbreviated (1-2 pages) | Full (5-15 pages) | Comprehensive (10-30+ pages) |
+| Phase 1 External Research | Skip | 1-2 searches (~3 min) | 2-3 searches (~5 min) |
+| Phase 4B Plan Hardening | N/A (no Phase 4) | Complexity-scaled (abbreviated if ≤2 specs + single stack) | Full (mandatory) |
+| Phase N Team Assembly (N.0) | Skip (Lorekeeper only) | Agents only (no Teams) | Full (agents + Teams + coordination) |
 
 \* Phase 3 fast-path for Standard: auto-skip if no ecosystem catalog + single stack + generalistas.
 
@@ -186,7 +190,7 @@ Display complete file tree grouped by category, full resolved CLAUDE.md content,
 
  Agents ({agent_count}):
    .claude/agents/Lorekeeper.md  (installed now)
-   [list pre-selected for workflow Phase 5]
+   [list pre-selected for Phase N Step N.0]
 
  Rules ({rule_count}):
    .claude/rules/documentation.md
@@ -257,7 +261,7 @@ Display simplified summary grouped by purpose, with key resolved values.
 
    AI Agents (1 now + {N} later)
      Lorekeeper (documentation) — active immediately
-     [list pre-selected agents for workflow Phase 5]
+     [list pre-selected agents for Phase N Step N.0]
 
    Quality Rules ({rule_count} rules)
      Documentation standards, testing, code style, debugging methodology, compound learning

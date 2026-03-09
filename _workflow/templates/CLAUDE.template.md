@@ -13,8 +13,8 @@
 ## Workflow
 
 Phase 0: Foundation | Phase 1: Technical Landscape | Phase 2: Tooling & Security
-Phase 3: Strategic Review | Phase 4: Architecture | Phase 5: Team Assembly
-Phase N: Development Blocks | Final: Hardening
+Phase 3: Intelligence-Enriched Review | Phase 4: Architecture Blueprint
+Phase N: Development Blocks (N.0: Team Assembly) | Final: Hardening
 
 **On session resume:** Read @docs/STATUS.md FIRST. Do not start work without knowing the active phase.
 
@@ -44,7 +44,7 @@ Phase N: Development Blocks | Final: Hardening
 <!-- Listar skills instaladas con trigger de uso -->
 <!-- Formato: - `skill-name` -- Cuando usar -->
 <!-- Ejemplo: - `vercel-react-best-practices` -- Crear/refactorizar componentes React o paginas Next.js -->
-<!-- Mapeo por agente y bloque: @docs/AGENT-COORDINATION.md seccion 13 (se llena en Phase 5) -->
+<!-- Mapeo por agente y bloque: @docs/AGENT-COORDINATION.md seccion 13 (se llena en Phase N Step N.0) -->
 
 ## Rules
 
@@ -90,6 +90,7 @@ Phase N: Development Blocks | Final: Hardening
 ## Hooks
 
 Configurados en .claude/settings.local.json (no commitear).
+Lorekeeper hooks leen paths y umbrales de `.claude/lorekeeper-config.json` (si falta, usan defaults).
 
 - `lorekeeper-session-gate.py` (SessionStart) — evalua SCRATCHPAD/CHANGELOG/STATUS en tiempo real, genera REQUIRED ACTIONS priorizadas, version check (tambien post-compresion)
 - `lorekeeper-commit-gate.py` (PreToolUse:Bash) — bloquea git commit si docs validation falla. Warnings (validation + freshness) se inyectan como additionalContext

@@ -7,6 +7,39 @@ import subprocess
 from collections import defaultdict
 from datetime import date, datetime, timezone
 
+HOOK_VERSION = "2.2.0"
+
+
+def _load_config(cwd):
+    """Load lorekeeper config. Returns defaults if not found/corrupt."""
+    config_path = os.path.join(cwd, ".claude", "lorekeeper-config.json")
+    DEFAULTS = {
+        "docs": {
+            "scratchpad": {"path": "docs/SCRATCHPAD.md", "max_lines": 150, "graduation_threshold": 100},
+            "changelog": {"path": "docs/CHANGELOG-DEV.md", "check_freshness": True},
+            "status": {"path": "docs/STATUS.md", "max_lines": 60},
+            "decisions": {"path": "docs/DECISIONS.md"},
+            "lessons_learned": {"path": "docs/LESSONS-LEARNED.md"},
+        },
+        "claude_md": {"path": "CLAUDE.md", "max_lines": 200, "warn_threshold": 180},
+        "validation_script": "scripts/validate-docs.sh",
+    }
+    try:
+        with open(config_path, "r", encoding="utf-8") as f:
+            cfg = json.load(f)
+        for role, defs in DEFAULTS["docs"].items():
+            if role not in cfg.get("docs", {}):
+                cfg.setdefault("docs", {})[role] = defs
+            else:
+                for k, v in defs.items():
+                    cfg["docs"][role].setdefault(k, v)
+        for k, v in DEFAULTS["claude_md"].items():
+            cfg.setdefault("claude_md", {}).setdefault(k, v)
+        cfg.setdefault("validation_script", DEFAULTS["validation_script"])
+        return cfg
+    except (OSError, json.JSONDecodeError, ValueError):
+        return DEFAULTS
+
 
 def analyze_graduation_candidates(scratchpad_path):
     """Analyze SCRATCHPAD.md for patterns appearing in 3+ different sessions.
@@ -74,11 +107,17 @@ def main():
         except OSError:
             pass
 
+    # --- Load config (paths + thresholds) ---
+    cfg = _load_config(cwd)
+
     pending_items = []
     today = date.today().isoformat()
 
     # 1. Check if SCRATCHPAD was updated today
-    scratchpad_path = os.path.join(cwd, "docs", "SCRATCHPAD.md")
+    scratchpad_cfg = cfg["docs"]["scratchpad"]
+    scratchpad_path = os.path.join(cwd, scratchpad_cfg["path"])
+    grad_threshold = scratchpad_cfg.get("graduation_threshold", 100)
+    max_lines = scratchpad_cfg.get("max_lines", 150)
     if os.path.isfile(scratchpad_path):
         try:
             with open(scratchpad_path, "r", encoding="utf-8") as f:
@@ -92,9 +131,9 @@ def main():
                 pending_items.append("SCRATCHPAD.md not updated today — add session entry")
 
             line_count = len(content.splitlines())
-            if line_count > 100:
+            if line_count > grad_threshold:
                 pending_items.append(
-                    f"SCRATCHPAD.md at {line_count}/150 lines — review for graduation candidates"
+                    f"SCRATCHPAD.md at {line_count}/{max_lines} lines — review for graduation candidates"
                 )
             # 1b. Check for graduation candidates (patterns across 3+ sessions)
             candidates = analyze_graduation_candidates(scratchpad_path)
@@ -108,7 +147,7 @@ def main():
         pending_items.append("SCRATCHPAD.md missing")
 
     # 1c. Check if CHANGELOG-DEV.md was updated today
-    changelog_path = os.path.join(cwd, "docs", "CHANGELOG-DEV.md")
+    changelog_path = os.path.join(cwd, cfg["docs"]["changelog"]["path"])
     if os.path.isfile(changelog_path):
         try:
             with open(changelog_path, "r", encoding="utf-8") as f:
@@ -124,21 +163,24 @@ def main():
         pending_items.append("CHANGELOG-DEV.md missing — create initial entry")
 
     # 2. Check CLAUDE.md line count
-    claude_md_path = os.path.join(cwd, "CLAUDE.md")
+    claude_md_cfg = cfg["claude_md"]
+    claude_md_path = os.path.join(cwd, claude_md_cfg["path"])
+    warn_threshold = claude_md_cfg.get("warn_threshold", 180)
+    claude_max = claude_md_cfg.get("max_lines", 200)
     if os.path.isfile(claude_md_path):
         try:
             with open(claude_md_path, "r", encoding="utf-8") as f:
                 claude_lines = len(f.readlines())
-            if claude_lines > 180:
+            if claude_lines > warn_threshold:
                 pending_items.append(
-                    f"CLAUDE.md at {claude_lines}/200 lines — prune with relevance test"
+                    f"CLAUDE.md at {claude_lines}/{claude_max} lines — prune with relevance test"
                 )
         except (OSError, UnicodeDecodeError):
             pass  # Fail open — CLAUDE.md line count is advisory
 
     # 3. Run validate-docs.sh (safe: SessionEnd fires once per session)
     bash_cmd = os.environ.get("CLAUDE_CODE_GIT_BASH_PATH", "bash")
-    script_path = os.path.join(cwd, "scripts", "validate-docs.sh")
+    script_path = os.path.join(cwd, cfg["validation_script"])
     validation_summary = ""
     if os.path.isfile(script_path):
         try:
@@ -166,7 +208,7 @@ def main():
     handoff_parts = []
 
     # Current phase (extract from STATUS.md)
-    status_path = os.path.join(cwd, "docs", "STATUS.md")
+    status_path = os.path.join(cwd, cfg["docs"]["status"]["path"])
     if os.path.isfile(status_path):
         try:
             with open(status_path, "r", encoding="utf-8") as f:

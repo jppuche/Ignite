@@ -11,7 +11,38 @@ import os
 import re
 from datetime import date
 
-HOOK_VERSION = "2.0.0"
+HOOK_VERSION = "2.2.0"
+
+
+def _load_config(cwd):
+    """Load lorekeeper config. Returns defaults if not found/corrupt."""
+    config_path = os.path.join(cwd, ".claude", "lorekeeper-config.json")
+    DEFAULTS = {
+        "docs": {
+            "scratchpad": {"path": "docs/SCRATCHPAD.md", "max_lines": 150, "graduation_threshold": 100},
+            "changelog": {"path": "docs/CHANGELOG-DEV.md", "check_freshness": True},
+            "status": {"path": "docs/STATUS.md", "max_lines": 60},
+            "decisions": {"path": "docs/DECISIONS.md"},
+            "lessons_learned": {"path": "docs/LESSONS-LEARNED.md"},
+        },
+        "claude_md": {"path": "CLAUDE.md", "max_lines": 200, "warn_threshold": 180},
+        "validation_script": "scripts/validate-docs.sh",
+    }
+    try:
+        with open(config_path, "r", encoding="utf-8") as f:
+            cfg = json.load(f)
+        for role, defs in DEFAULTS["docs"].items():
+            if role not in cfg.get("docs", {}):
+                cfg.setdefault("docs", {})[role] = defs
+            else:
+                for k, v in defs.items():
+                    cfg["docs"][role].setdefault(k, v)
+        for k, v in DEFAULTS["claude_md"].items():
+            cfg.setdefault("claude_md", {}).setdefault(k, v)
+        cfg.setdefault("validation_script", DEFAULTS["validation_script"])
+        return cfg
+    except (OSError, json.JSONDecodeError, ValueError):
+        return DEFAULTS
 
 
 def _version_tuple(v):
@@ -33,10 +64,12 @@ def _read_file_safe(path):
         return None, "encoding error (not UTF-8)"
 
 
-def _evaluate_scratchpad(cwd, today):
+def _evaluate_scratchpad(cwd, today, scratchpad_cfg):
     """Evaluate SCRATCHPAD.md status. Returns dict with findings."""
-    path = os.path.join(cwd, "docs", "SCRATCHPAD.md")
-    result = {"exists": False, "line_count": 0, "has_today": False, "actions": []}
+    path = os.path.join(cwd, scratchpad_cfg["path"])
+    max_lines = scratchpad_cfg.get("max_lines", 150)
+    grad_threshold = scratchpad_cfg.get("graduation_threshold", 100)
+    result = {"exists": False, "line_count": 0, "has_today": False, "actions": [], "max_lines": max_lines}
 
     if not os.path.exists(path):
         result["actions"].append(
@@ -53,9 +86,9 @@ def _evaluate_scratchpad(cwd, today):
     result["line_count"] = len(content.splitlines())
     result["has_today"] = today in content
 
-    if result["line_count"] > 100:
+    if result["line_count"] > grad_threshold:
         result["actions"].append(
-            f"SCRATCHPAD.md at {result['line_count']}/150 lines "
+            f"SCRATCHPAD.md at {result['line_count']}/{max_lines} lines "
             "— graduate repeated patterns to CLAUDE.md Learned Patterns"
         )
     if not result["has_today"]:
@@ -66,9 +99,9 @@ def _evaluate_scratchpad(cwd, today):
     return result
 
 
-def _evaluate_changelog(cwd, today):
+def _evaluate_changelog(cwd, today, changelog_cfg):
     """Evaluate CHANGELOG-DEV.md status. Returns dict with findings."""
-    path = os.path.join(cwd, "docs", "CHANGELOG-DEV.md")
+    path = os.path.join(cwd, changelog_cfg["path"])
     result = {"exists": False, "has_today": False, "actions": []}
 
     if not os.path.exists(path):
@@ -88,9 +121,9 @@ def _evaluate_changelog(cwd, today):
     return result
 
 
-def _extract_current_phase(cwd):
+def _extract_current_phase(cwd, status_cfg):
     """Extract current phase description from STATUS.md. Returns string or None."""
-    path = os.path.join(cwd, "docs", "STATUS.md")
+    path = os.path.join(cwd, status_cfg["path"])
     content, _ = _read_file_safe(path)
     if not content:
         return None
@@ -110,9 +143,9 @@ def _extract_current_phase(cwd):
     return None
 
 
-def _extract_pending_tasks(cwd, max_items=5):
+def _extract_pending_tasks(cwd, status_cfg, max_items=5):
     """Extract unchecked tasks from STATUS.md. Returns list of strings."""
-    path = os.path.join(cwd, "docs", "STATUS.md")
+    path = os.path.join(cwd, status_cfg["path"])
     content, _ = _read_file_safe(path)
     if not content:
         return []
@@ -141,10 +174,10 @@ _PHASE_ACTIONS = {
 }
 
 
-def _get_phase_actions(phase_str):
+def _get_phase_actions(phase_str, status_path="docs/STATUS.md"):
     """Return actionable guidance for the current phase. Empty list if no match."""
     if not phase_str:
-        return ["Read docs/STATUS.md to determine current phase"]
+        return [f"Read {status_path} to determine current phase"]
     phase_lower = phase_str.lower()
     for key, actions in _PHASE_ACTIONS.items():
         if key in phase_lower:
@@ -225,12 +258,15 @@ def main():
         except (json.JSONDecodeError, OSError, KeyError):
             pass  # Fail open
 
+    # --- Load config (paths + thresholds) ---
+    cfg = _load_config(cwd)
+
     # --- Real-time file evaluation ---
     today = date.today().isoformat()
-    scratchpad_eval = _evaluate_scratchpad(cwd, today)
-    changelog_eval = _evaluate_changelog(cwd, today)
-    current_phase = _extract_current_phase(cwd)
-    pending_tasks = _extract_pending_tasks(cwd)
+    scratchpad_eval = _evaluate_scratchpad(cwd, today, cfg["docs"]["scratchpad"])
+    changelog_eval = _evaluate_changelog(cwd, today, cfg["docs"]["changelog"])
+    current_phase = _extract_current_phase(cwd, cfg["docs"]["status"])
+    pending_tasks = _extract_pending_tasks(cwd, cfg["docs"]["status"])
 
     # Build REQUIRED ACTIONS (prioritized)
     required_actions = []
@@ -250,7 +286,7 @@ def main():
             "Lorekeeper SESSION PROTOCOL [post-compression] — MANDATORY before any work:\n\n"
             "RECOVERY ACTION:\n"
             "  Context was compressed. Verify that insights from before compression\n"
-            "  are persisted in docs/SCRATCHPAD.md — conversational context is now\n"
+            f"  are persisted in {cfg['docs']['scratchpad']['path']} — conversational context is now\n"
             "  reduced to a summary and details may be lost.\n"
         )
     else:
@@ -262,9 +298,10 @@ def main():
             msg += f"  {i}. {action}\n"
 
     msg += "\nSESSION CONTEXT:\n"
-    msg += f"  CURRENT PHASE: {current_phase or 'unknown — check docs/STATUS.md'}\n"
+    status_path = cfg["docs"]["status"]["path"]
+    msg += f"  CURRENT PHASE: {current_phase or f'unknown — check {status_path}'}\n"
     if scratchpad_eval["exists"]:
-        msg += f"  SCRATCHPAD: {scratchpad_eval['line_count']}/150 lines\n"
+        msg += f"  SCRATCHPAD: {scratchpad_eval['line_count']}/{scratchpad_eval['max_lines']} lines\n"
     else:
         msg += "  SCRATCHPAD: missing\n"
     if pending_tasks:
@@ -273,7 +310,7 @@ def main():
             msg += f"    - {task}\n"
 
     # Phase-specific actionable guidance
-    phase_actions = _get_phase_actions(current_phase)
+    phase_actions = _get_phase_actions(current_phase, status_path)
     if phase_actions:
         msg += "  Recommended actions for this phase:\n"
         for action in phase_actions:
@@ -290,7 +327,8 @@ def main():
 
     msg += "\nREMINDERS:\n"
     msg += "  - Update SCRATCHPAD with errors/corrections/discoveries AS THEY HAPPEN (not at the end)\n"
-    msg += "  - Run `bash scripts/validate-docs.sh` before every commit\n"
+    validate_script = cfg["validation_script"]
+    msg += f"  - Run `bash {validate_script}` before every commit\n"
     msg += "  - Update CHANGELOG-DEV.md if significant changes are made\n"
 
     # Output structured JSON — additionalContext goes directly into Claude's context

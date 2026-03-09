@@ -3,6 +3,42 @@
 All notable changes to Ignite are documented here.
 Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [2.2.0] - 2026-03-08
+
+### Added
+- **Config-driven Lorekeeper** — all hooks and `validate-docs.sh` now read paths and thresholds from `.claude/lorekeeper-config.json` instead of hardcoded values. Enables Ignite to work in projects with non-standard doc structures (research, strategy, content).
+- **`lorekeeper-config.json` generation** — Step 3.2 item 9 generates the config automatically during `/ignite`. Zero friction for greenfield projects (defaults). Mid-way projects get auto-detected structure with 1 confirmation question.
+- **Backwards compatibility** — if config missing or corrupt, all hooks and validate-docs.sh fall back to hardcoded defaults. Existing projects work unchanged.
+
+### Changed
+- **Hook version bumped to 2.2.0** — all 3 Lorekeeper hooks (`session-gate`, `commit-gate`, `session-end`) refactored with `_load_config()` helper. ~25 hardcoded path/threshold references replaced with config lookups.
+- **`validate-docs.sh` config-aware** — reads config via Python one-liner at startup. All 11 checks use config variables.
+- **`Lorekeeper.template.md`** — references `.claude/lorekeeper-config.json` as source of truth for paths.
+- **`CLAUDE.template.md`** — hooks section notes config file dependency.
+- **`file-map.md`** — added `lorekeeper-config.json` entry; corrected item number references in Step 3.5.
+
+### Adoption
+To adopt v2.2.0 on existing projects: re-run `/ignite`. Hooks auto-update (Cat B). Projects without `lorekeeper-config.json` continue working with defaults.
+
+## [2.1.0] - 2026-03-08
+
+### Added
+- **Profile-aware welcome message** — phase list in welcome (Step 0.1) adapts to PROJECT_PROFILE. Quick profile shows only Phase 0 + Phase N (2 phases). Standard/Enterprise show full 7-phase workflow with profile-specific notes.
+- **Complexity-scaled plan hardening** — Phase 4B now scales with project complexity for Standard profile: abbreviated hardening (coverage check only) for projects with ≤2 specs and single stack. Enterprise always gets full hardening.
+- **Phase 1 External Research (1.0.5)** — conditional web research to enrich FOUNDATION.md for greenfield projects with knowledge gaps. Profile-scaled: Standard 1-2 searches, Enterprise 2-3 searches.
+- **Phase 1 top-3 stack comparison** — formalized comparison matrices for major stack decisions documented in DECISIONS.md.
+- **Phase 4B Plan Hardening** — stress-test architecture specs before development: requirement coverage, dependency conflicts, error handling review, Plan Integrity Report.
+- **FOUNDATION.md lifecycle** — enrichable via appendix (Phase 1) and updatable with user confirmation (Phase 3).
+
+### Changed
+- **Phase count: 8 → 7** — Phase 5 (Team Assembly) absorbed into Phase N as sub-step N.0. Reduces transition overhead without losing functionality.
+- **Phase 3 renamed** "Strategic Review" → "Intelligence-Enriched Review" — now includes FOUNDATION.md review with installed tool intelligence.
+- **README updated** — 7-phase workflow table, profile paths (no Phase 5 in Enterprise), acknowledgments corrected.
+- **Template fixes** — README.template.md (7-row phase table), DECISIONS.template.md (Phase 3 reference fix), workflow-guide display text updated.
+
+### Adoption
+To adopt v2.1.0 on existing projects: re-run `/ignite`. Hooks auto-update (Cat B). README template regenerates with correct phase table.
+
 ## [2.0.0] - 2026-02-28
 
 ### Added

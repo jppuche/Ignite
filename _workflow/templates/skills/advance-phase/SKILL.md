@@ -4,7 +4,7 @@ description: 'Advance the project to the next workflow phase. Validates exit con
 license: MIT
 metadata:
   author: jppuche
-  version: "2.0.0"
+  version: "2.2.0"
 disable-model-invocation: true
 ---
 
@@ -31,12 +31,11 @@ Check the conditions for the current phase. Report each condition as PASS or FAI
 | Phase | Exit conditions |
 |-------|----------------|
 | 0: Foundation | CLAUDE.md exists AND .claude/hooks/ has at least 1 hook AND .claude/quality-gate.json exists AND docs/FOUNDATION.md exists AND Project Profile determined in STATUS.md |
-| 1: Technical Landscape | >= 5 decisions in DECISIONS.md main table AND ## Stack section in CLAUDE.md is populated (not placeholder) |
+| 1: Technical Landscape | >= 5 decisions in DECISIONS.md main table AND comparison matrices for major stack decisions AND ## Stack section in CLAUDE.md is populated (not placeholder) |
 | 2: Tooling & Security | Candidate Ecosystem Catalog section in DECISIONS.md has entries AND every candidate has a Status (APPROVED/REJECTED/DEFERRED/SKIP) |
-| 3: Strategic Review | Strategic Assessment section in DECISIONS.md is populated AND Architecture Directives subsection exists |
-| 4: Architecture Blueprint | >= 1 spec file in docs/specs/ (not counting spec-template.md) AND security review documented (in docs/reviews/ or DECISIONS.md) |
-| 5: Team Assembly | >= 1 agent file in .claude/agents/ AND AGENT-COORDINATION.md Section 13 has entries (not just placeholder comments) |
-| N: Development | Read the current block's spec file — check its specific exit conditions section. If no spec identified: ask user which block. |
+| 3: Intelligence-Enriched Review | Strategic Assessment section in DECISIONS.md is populated AND Architecture Directives subsection exists AND FOUNDATION.md review completed (updated or noted as "no changes needed") |
+| 4: Architecture Blueprint | >= 1 spec file in docs/specs/ (not counting spec-template.md) AND security review documented (in docs/reviews/ or DECISIONS.md) AND Plan Integrity Report in DECISIONS.md |
+| N: Development (N.0 Team Assembly) | **N.0:** >= 1 agent file in .claude/agents/ AND (AGENT-COORDINATION.md Section 13 has entries OR Agent Teams disabled). **N.1+:** Read the current block's spec file — check its specific exit conditions section. If no spec identified: ask user which block. |
 | Final: Hardening | All pending items in STATUS.md are checked [x] AND docs/SCRATCHPAD.md has no unresolved open questions |
 
 **If ANY condition is FAIL:**
@@ -67,9 +66,11 @@ Determine the next active phase based on the project profile:
 |---------|--------------|
 | Quick | 0, N |
 | Standard | 0, 1, 2, 3 (fast-path), 4, N, Final |
-| Enterprise | All (0, 1, 2, 3, 4, 5, N, Final) |
+| Enterprise | 0, 1, 2, 3, 4, N, Final |
 
 > **Standard Phase 3 fast-path:** Auto-skip if: no Candidate Ecosystem Catalog entries in DECISIONS.md AND single stack AND agent pre-selection is "Generalistas" or "Lorekeeper only". Otherwise, Phase 3 runs normally.
+
+> **Phase N includes Team Assembly (N.0):** Agent installation, skill assignment, and consistency checks happen at the start of Phase N before the first development block. For Quick profile, N.0 is skipped (Lorekeeper only). For Standard, N.0 runs without AGENT-COORDINATION.md. For Enterprise, full N.0.
 
 Do these steps in order:
 
@@ -114,10 +115,9 @@ Standard order (adapt if project uses custom phases):
 Phase 0: Foundation
 Phase 1: Technical Landscape
 Phase 2: Tooling & Security
-Phase 3: Strategic Review
+Phase 3: Intelligence-Enriched Review
 Phase 4: Architecture Blueprint
-Phase 5: Team Assembly
-Phase N: Development Blocks
+Phase N: Development Blocks (N.0: Team Assembly, N.1+: per-spec blocks)
 Phase Final: Hardening
 ```
 

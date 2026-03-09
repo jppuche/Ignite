@@ -4,7 +4,7 @@ description: 'This skill should be used when the user asks to "ignite", "start i
 license: MIT
 metadata:
   author: jppuche
-  version: "2.0.0"
+  version: "2.2.0"
 compatibility: Designed for Claude Code. Requires Python 3.8+ and Git.
 argument-hint: "[project-directory]"
 disable-model-invocation: true
@@ -90,6 +90,28 @@ Question 3 — Header: "Profile"
 Present the complete workflow as an integral vision. The user understands from the first moment that they are entering a structured process. Phase 0 is presented as the first step of the journey.
 
 **Display — Guided** (adapt to `{{IDIOMA}}`):
+
+Phase list adapts to `PROJECT_PROFILE` (detected in Step 0.0). Quick shows only active phases (0 + N). Standard/Enterprise show full workflow.
+
+**If `PROJECT_PROFILE == "quick"`:**
+```
+--- Ignite ---
+
+You get code — but no structure around it. No quality gates, no memory
+between sessions, no security checks. Context gets lost after every
+/clear. Mistakes repeat.
+
+Ignite sets up the infrastructure your project is missing — adapted
+to your stack:
+
+  Phase 0  Foundation ............. Project memory, docs, automation
+  Phase N  Development Blocks ..... Start building immediately
+
+Quick profile — straight to building. No planning phases needed.
+We start with Phase 0. Most values are auto-detected.
+```
+
+**If `PROJECT_PROFILE == "standard"` or `"enterprise"`:**
 ```
 --- Ignite ---
 
@@ -101,12 +123,11 @@ Ignite sets up the infrastructure your project is missing — adapted
 to your stack. Here's the full workflow:
 
   Phase 0  Foundation ............. Project memory, docs, automation
-  Phase 1  Technical Landscape .... Stack decisions, tools, ecosystem
+  Phase 1  Technical Landscape .... Research, stack decisions, ecosystem
   Phase 2  Tooling & Security ..... Evaluate and install tools
-  Phase 3  Strategic Review ....... Architecture assessment
-  Phase 4  Architecture Blueprint . Detailed design, feature specs
-  Phase 5  Team Assembly .......... Configure agents, assign roles
-  Phase N  Development Blocks ..... Build features iteratively
+  Phase 3  Intelligence Review .... Review docs with installed tools
+  Phase 4  Architecture Blueprint . Detailed design + plan hardening
+  Phase N  Development Blocks ..... Team setup, then build iteratively
   Final    Hardening .............. Security, performance, production
 
 Each phase builds on the last. It handles the complex parts so you
@@ -116,6 +137,10 @@ We start with Phase 0. Most values are auto-detected.
 ```
 
 **Display — Advanced** (adapt to `{{IDIOMA}}`):
+
+Phase list adapts to `PROJECT_PROFILE`. Quick shows only active phases.
+
+**If `PROJECT_PROFILE == "quick"`:**
 ```
 --- Ignite — Phase 0: Foundation ---
 
@@ -125,12 +150,33 @@ is documented, every session builds on the last (compound engineering),
 and quality gates enforce standards automatically.
 
   Phase 0  Foundation ............. Project memory, docs, agents, hooks, CI/CD
-  Phase 1  Technical Landscape .... Stack decisions, validation tools, ecosystem scan
+  Phase N  Development Blocks ..... Team assembly (N.0) → Ralph Loop per spec
+
+Quick profile — phases 1-4 and Final are skipped.
+
+Phase 0 creates the infrastructure. Steps:
+  1. Discovery — scan project, detect stack, analyze context
+  2. Configuration — resolve values, collect decisions
+  3. Preview — dry-run of all files before writing
+  4. Generation — process templates, write files
+  5. Finalization — validate, cleanup, summary + next steps
+```
+
+**If `PROJECT_PROFILE == "standard"` or `"enterprise"`:**
+```
+--- Ignite — Phase 0: Foundation ---
+
+No quality gates, no session memory, no security checks — Ignite sets
+up the infrastructure your project is missing. Every technical decision
+is documented, every session builds on the last (compound engineering),
+and quality gates enforce standards automatically.
+
+  Phase 0  Foundation ............. Project memory, docs, agents, hooks, CI/CD
+  Phase 1  Technical Landscape .... External research, top-3 stack comparison, ecosystem scan
   Phase 2  Tooling & Security ..... Cerbero evaluation, skill/MCP installation
-  Phase 3  Strategic Review ....... Architecture assessment (enriched by installed tools)
-  Phase 4  Architecture Blueprint . Design based on actual capabilities
-  Phase 5  Team Assembly .......... Agent config, skill assignment, review pass
-  Phase N  Development Blocks ..... Ralph Loop: implement → verify → iterate
+  Phase 3  Intelligence Review .... FOUNDATION.md review + decision re-evaluation with installed tools
+  Phase 4  Architecture Blueprint . System design (4A) + plan hardening (4B)
+  Phase N  Development Blocks ..... Team assembly (N.0) → Ralph Loop per spec
   Final    Hardening .............. Security audit, performance, accessibility
 
 Phase 0 creates the infrastructure. Steps:
@@ -471,7 +517,7 @@ Build options contextually:
 If full-stack/backend+frontend detected: recommend "Generalists + Workers" (move to first position with "(Recommended)").
 Otherwise: recommend "Generalists" as first option with "(Recommended)".
 
-Register selection in STATUS.md. Actual agent installation (except Lorekeeper) happens in Phase 5 of the project workflow.
+Register selection in STATUS.md. Actual agent installation (except Lorekeeper) happens in Phase N (Step N.0: Team Assembly) of the project workflow.
 
 #### Q2: Teams (header: "Teams")
 
@@ -698,7 +744,42 @@ Read the `version` field from `.claude-plugin/plugin.json` (canonical source of 
 
 Overwrite: replace if different (Category B). This file tracks when /ignite was last run and which version was installed. The session-gate hook compares its embedded version constant with this file to detect version drift.
 
-Los demas agentes (Inquisidor, Sentinel, backend-worker, frontend-worker) se instalan en Phase 5 del workflow, cuando la arquitectura este definida y las skills asignadas. La pre-seleccion del usuario (seccion 2.2) queda registrada en `docs/STATUS.md`.
+9. Generate `.claude/lorekeeper-config.json` (Lorekeeper context adaptation):
+
+Build the config mapping logical doc roles to actual paths and thresholds. All Lorekeeper hooks and `validate-docs.sh` read this config at runtime instead of using hardcoded paths.
+
+**For greenfield projects** (standard structure), use defaults:
+
+```json
+{
+  "version": "1.0",
+  "docs": {
+    "scratchpad":      { "path": "docs/SCRATCHPAD.md",      "max_lines": 150, "graduation_threshold": 100 },
+    "changelog":       { "path": "docs/CHANGELOG-DEV.md",   "check_freshness": true },
+    "status":          { "path": "docs/STATUS.md",           "max_lines": 60 },
+    "decisions":       { "path": "docs/DECISIONS.md" },
+    "lessons_learned": { "path": "docs/LESSONS-LEARNED.md" }
+  },
+  "claude_md": {
+    "path": "CLAUDE.md",
+    "max_lines": 200,
+    "warn_threshold": 180
+  },
+  "validation_script": "scripts/validate-docs.sh"
+}
+```
+
+**For mid-way projects** (Ignite installed in existing project with custom doc structure): scan `docs/` during Step 1.1 and map existing files to logical roles by name matching (e.g., `docs/system/status.md` → role `status`). Present the inferred mapping as **1 confirmation question** via AskUserQuestion:
+
+> "Lorekeeper detected this doc structure for session management. Is this correct?"
+> - Option 1: "Yes, use this mapping" (Recommended)
+> - Option 2: "Adjust" — user provides corrections
+
+If no existing docs match a role, use the default path (Ignite will create the file in Step 3.1).
+
+Overwrite: replace if different (Category B). If config already exists and differs, replace — the config reflects the current project state. If identical, skip.
+
+Los demas agentes (Inquisidor, Sentinel, backend-worker, frontend-worker) se instalan en Phase N Step N.0 (Team Assembly) del workflow, cuando la arquitectura este definida y las skills asignadas. La pre-seleccion del usuario (seccion 2.2) queda registrada en `docs/STATUS.md`.
 
 ### 3.3 Rules (respecting overwrite analysis)
 
@@ -728,7 +809,7 @@ Before writing each rule, check ANALYSIS:
 
 ### 3.5 CI/CD Infrastructure
 
-Generate GitHub Actions workflow from the CI template. The code-quality-gate hook and quality-gate.json are already installed in Step 3.2 (items 5-6).
+Generate GitHub Actions workflow from the CI template. The code-quality-gate hook (item 5) and quality-gate.json (item 7) are already installed in Step 3.2.
 
 1. Generate GitHub Actions workflow from template:
    - Read: `_workflow/templates/ci/quality.template.yml`

@@ -14,11 +14,16 @@ Eres el documentador del equipo {{NOMBRE_PROYECTO}}. Capturas estado del proyect
 5. CLAUDE.md es tu archivo mas critico: cada linea debe pasar la prueba de relevancia
 
 ## Archivos que mantienes
+
+Paths y limites definidos en `.claude/lorekeeper-config.json` (source of truth). Defaults:
+
 - `CLAUDE.md` (< 200 lineas) -- memoria del proyecto, compound engineering
 - `docs/STATUS.md` (< 60 lineas) -- estado actual
 - `docs/DECISIONS.md` (append-only) -- 1 linea por decision tecnica
 - `docs/CHANGELOG-DEV.md` (append-only) -- cambios significativos
 - `docs/SCRATCHPAD.md` (append-only, < 150 lineas) -- log granular por sesion
+
+> Si el proyecto usa paths custom (ej: `docs/system/status.md`), los hooks y validate-docs.sh los detectan automaticamente desde el config.
 
 ## Referencia de edicion
 - Consultar `_workflow/guides/Referencia-edicion-CLAUDE.md` cuando necesites editar CLAUDE.md

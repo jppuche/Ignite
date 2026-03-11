@@ -69,7 +69,8 @@ if (Test-Path .claude/hooks/validate-prompt.py) {"PASS"} else {"MISSING"}
 if (Test-Path .claude/hooks/pre-tool-security.py) {"PASS"} else {"MISSING"}
 if (Test-Path .claude/hooks/mcp-audit.py) {"PASS"} else {"MISSING"}
 if (Test-Path .claude/hooks/cerbero-scanner.py) {"PASS: cerbero-scanner.py"} else {"MISSING: external scanner not deployed"}
-if (Test-Path .claude/hooks/prompt-injection-defender/post-tool-defender.py) {"PASS: Lasso Defender"} else {"SKIPPED: Lasso Defender not installed (optional)"}
+if (Test-Path .claude/hooks/validate-tool-output.py) {"PASS: PostToolUse scanner"} else {"SKIPPED: PostToolUse scanner not installed (optional)"}
+if (Test-Path .claude/hooks/untrusted-source-reminder.py) {"PASS: Untrusted source reminder"} else {"SKIPPED: Untrusted source reminder not installed (optional)"}
 ```
 
 ## Step 5b — Telemetry Check
@@ -128,7 +129,8 @@ Date: <ISO 8601>
    pre-tool-security.py: OK / MISSING
    mcp-audit.py: OK / MISSING
    cerbero-scanner.py: OK / MISSING
-   post-tool-defender.py: OK / MISSING (optional)
+   validate-tool-output.py: OK / MISSING (optional)
+   untrusted-source-reminder.py: OK / MISSING (optional)
 
 5b. TELEMETRY
     mcp-audit.log: OK (<n> entries) / MISSING

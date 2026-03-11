@@ -160,20 +160,19 @@ Add to `.claude/settings.local.json`:
     ],
     "PostToolUse": [
       {
-        "matcher": "*",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "python .claude/hooks/prompt-injection-defender/post-tool-defender.py"
-          }
-        ]
+        "matcher": "WebFetch",
+        "hooks": [{ "type": "command", "command": "python .claude/hooks/validate-tool-output.py" }]
+      },
+      {
+        "matcher": "mcp__*",
+        "hooks": [{ "type": "command", "command": "python .claude/hooks/validate-tool-output.py" }]
       }
     ]
   }
 }
 ```
 
-> **NOTE:** The PostToolUse hook for Lasso Defender is optional. If not installed, remove or comment out that section. Hook exit codes: 0 = allow, 1 = error, 2 = block operation.
+> **NOTE:** The PostToolUse hook scans external tool outputs (WebFetch, MCP) for format injection tags and base64-obfuscated payloads. It warns via additionalContext — never blocks. Also add `untrusted-source-reminder.py` as a PreToolUse hook on the same matchers to reinforce Claude's safety training before processing external content.
 
 ## A.4b — Install Cerbero Hook Scripts
 
@@ -275,5 +274,5 @@ Before installing any MCP server or Skill, execute Cerbero evaluation.
 - [ ] `.claude/settings.local.json` has permissions and hooks
 - [ ] `CLAUDE.md` references Cerbero
 - [ ] Claude Code is latest stable version
-- [ ] (Optional) Lasso Defender PostToolUse hook installed and code audited
+- [ ] (Optional) PostToolUse indirect injection scanner (`validate-tool-output.py`) + PreToolUse reminder (`untrusted-source-reminder.py`) installed
 - [ ] (Optional) Proximity, Cisco Scanner, or sandbox-runtime for additional coverage

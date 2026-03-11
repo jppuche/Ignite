@@ -3,6 +3,24 @@
 All notable changes to Ignite are documented here.
 Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [2.2.1] - 2026-03-11
+
+### Added
+- **PostToolUse indirect injection defense** — two new Cerbero hooks for external content:
+  - `untrusted-source-reminder.py` (PreToolUse): injects safety reminder before WebFetch/MCP calls
+  - `validate-tool-output.py` (PostToolUse): detects format injection tags (`<system>`, `[INST]`), conversation splicing, and base64-obfuscated payloads in tool outputs
+- **Upgraded `validate-prompt.py`** — normalize-then-detect pipeline replacing naive substring matching. Adds NFKC normalization, Cyrillic homoglyph table, flexible whitespace, token proximity detection, base64 decode-and-rescan.
+
+### Changed
+- **Cerbero setup-guide.md** — replaced Lasso Defender (external dependency) with native PostToolUse hooks
+- **Cerbero op-full-audit.md** — audit checks updated for new hook filenames
+- **Hook count** — 7 → 9 (added `untrusted-source-reminder.py` + `validate-tool-output.py`)
+- **Hook version bumped to 2.2.1**
+
+### Security
+- Closes [Issue #1](https://github.com/jppuche/Ignite/issues/1): validate-prompt.py normalize-then-detect upgrade
+- Closes [Issue #2](https://github.com/jppuche/Ignite/issues/2): PostToolUse hook for indirect prompt injection detection
+
 ## [2.2.0] - 2026-03-08
 
 ### Added

@@ -11,7 +11,7 @@ import os
 import re
 from datetime import date
 
-HOOK_VERSION = "2.2.0"
+HOOK_VERSION = "2.2.1"
 
 
 def _load_config(cwd):

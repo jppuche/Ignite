@@ -168,6 +168,8 @@ Resolution: All `{{DOMAIN_*}}`, `{{TEST_*}}`, `{{STYLING_*}}`, `{{CRITICAL_RULES
 | `_workflow/templates/skills/cerbero/hooks/pre-tool-security.py` | `./.claude/hooks/pre-tool-security.py` | B |
 | `_workflow/templates/skills/cerbero/hooks/mcp-audit.py` | `./.claude/hooks/mcp-audit.py` | B |
 | `_workflow/templates/skills/cerbero/hooks/cerbero-scanner.py` | `./.claude/hooks/cerbero-scanner.py` | B |
+| `_workflow/templates/hooks/untrusted-source-reminder.py` | `./.claude/hooks/untrusted-source-reminder.py` | B |
+| `_workflow/templates/hooks/validate-tool-output.py` | `./.claude/hooks/validate-tool-output.py` | B |
 
 ### Optional Skills (conditional)
 

@@ -95,6 +95,7 @@ Ignite/
 1. Create `.py` file in `_workflow/templates/hooks/`
 2. Follow existing patterns:
    - Read input from `sys.stdin` (JSON with tool_input, cwd, etc.)
+   - Supported hook events: `PreToolUse` (before execution, can block), `PostToolUse` (after execution, warn only), `UserPromptSubmit`, `SessionStart`, `SessionEnd`
    - Fail open: if config missing, warn and `sys.exit(0)` (allow)
    - Fail closed on validation errors: output JSON with `{"decision": "block", "reason": "..."}`
    - Cross-platform: use `os.path.join()`, handle Windows paths

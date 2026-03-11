@@ -4,7 +4,7 @@ description: 'This skill should be used when the user asks to "ignite", "start i
 license: MIT
 metadata:
   author: jppuche
-  version: "2.2.0"
+  version: "2.2.1"
 compatibility: Designed for Claude Code. Requires Python 3.8+ and Git.
 argument-hint: "[project-directory]"
 disable-model-invocation: true

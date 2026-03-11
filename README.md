@@ -5,7 +5,7 @@
 <!-- GitHub About: Complete development infrastructure for Claude Code projects. Foundational Discovery, project profiles, session memory, quality gates, security screening, CI/CD — auto-adapted to any stack and complexity. Works on new and existing codebases. -->
 <!-- Topics: claude-code, agent-skills, workflow-methodology, development-workflow, compound-engineering, security, multi-stack, automation -->
 
-![Version](https://img.shields.io/badge/version-2.2.0-blue)
+![Version](https://img.shields.io/badge/version-2.2.1-blue)
 ![License](https://img.shields.io/badge/license-MIT-green)
 ![Python](https://img.shields.io/badge/python-3.8%2B-yellow)
 ![Platforms](https://img.shields.io/badge/platforms-Windows%20%7C%20macOS%20%7C%20Linux-lightgrey)
@@ -136,7 +136,9 @@ your-project/
 │   │   ├── lorekeeper-commit-gate.py     # PreToolUse: blocks commits without docs
 │   │   ├── lorekeeper-session-end.py     # SessionEnd: checkpoint + graduation
 │   │   ├── code-quality-gate.py          # PreToolUse: typecheck + lint + test
-│   │   └── env-protection.py             # PreToolUse: blocks .env/secrets/credentials
+│   │   ├── env-protection.py             # PreToolUse: blocks .env/secrets/credentials
+│   │   ├── untrusted-source-reminder.py  # PreToolUse: safety reminder for WebFetch/MCP (Cerbero)
+│   │   └── validate-tool-output.py       # PostToolUse: indirect injection scanner (Cerbero)
 │   ├── security/
 │   │   └── user-profile.json # Experience level + profile persistence
 │   ├── skills/
@@ -301,8 +303,8 @@ English, Spanish, Portuguese, and French for all generated documentation and int
 
 Cerbero is a **screening layer, not a security guarantee**. It catches common attacks but has real limits:
 
-- **Detects:** known CVEs, obvious prompt injection phrases, dangerous shell commands, typosquatting, baseline changes in installed MCPs
-- **Does NOT detect:** sophisticated prompt injection (synonyms/obfuscation bypass regex), zero-day vulnerabilities (24-48hr CVE database lag), silent data exfiltration, post-approval behavioral changes
+- **Detects:** known CVEs, prompt injection (normalize-then-detect pipeline with homoglyph/proximity/base64 coverage), dangerous shell commands, typosquatting, baseline changes in installed MCPs, format injection tags in external tool outputs (PostToolUse)
+- **Does NOT detect:** novel prompt injection via creative paraphrasing, zero-day vulnerabilities (24-48hr CVE database lag), silent data exfiltration, post-approval behavioral changes, indirect injection in local file reads (by design — Claude's Tier 1 handles these)
 - **mcp-scan integration is strongly recommended** — without it, you lose Snyk's tool poisoning detection and rely on regex alone
 
 > [!CAUTION]
@@ -351,7 +353,7 @@ The skill follows a **delegation pattern**: `SKILL.md` orchestrates the steps, w
 | **Code quality gates** | PreToolUse hook enforcing typecheck + lint + test before commits |
 | **CI/CD generation** | GitHub Actions workflow template adapted per stack profile |
 | **Phase transitions** | `/advance-phase` skill automates validation, STATUS.md updates, and profile-aware phase skipping |
-| **Hook-based enforcement** | 8 automated hooks: session lifecycle + commit gates + quality + security |
+| **Hook-based enforcement** | 9 automated hooks: session lifecycle + commit gates + quality + security + indirect injection defense |
 | **Multi-language** | English, Spanish, Portuguese, French + free text |
 | **Adaptive UX** | 2 levels (Guided/Advanced) x 3 profiles (Quick/Standard/Enterprise): adapts questions, defaults, depth |
 | **Dry-run preview** | Preview all generated files before writing — cancel, adjust, or confirm |

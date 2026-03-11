@@ -7,7 +7,7 @@ import subprocess
 from collections import defaultdict
 from datetime import date, datetime, timezone
 
-HOOK_VERSION = "2.2.0"
+HOOK_VERSION = "2.2.1"
 
 
 def _load_config(cwd):

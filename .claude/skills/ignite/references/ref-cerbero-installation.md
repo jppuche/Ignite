@@ -126,7 +126,8 @@ Read existing `.claude/settings.local.json` (created in Step 3.2 with Lorekeeper
 Merge Cerbero hooks into the existing `hooks` object:
 
 - Add `UserPromptSubmit` array: validate-prompt.py entry (Cerbero validates every prompt). Nota: `UserPromptSubmit` no soporta matchers — omitir `matcher`.
-- Append to `PreToolUse` array: pre-tool-security.py (matcher: Bash) and mcp-audit.py (matcher: mcp__*)
+- Append to `PreToolUse` array: pre-tool-security.py (matcher: Bash), mcp-audit.py (matcher: mcp__*), and untrusted-source-reminder.py (matchers: WebFetch, mcp__*)
+- Add `PostToolUse` array: validate-tool-output.py (matchers: WebFetch, mcp__*)
 
 Result after merge (paths relativos, PYTHON_CMD from Step 1.0):
 
@@ -156,6 +157,24 @@ Result after merge (paths relativos, PYTHON_CMD from Step 1.0):
       {
         "matcher": "mcp__*",
         "hooks": [{ "type": "command", "command": "{PYTHON_CMD} .claude/hooks/mcp-audit.py" }]
+      },
+      {
+        "matcher": "WebFetch",
+        "hooks": [{ "type": "command", "command": "{PYTHON_CMD} .claude/hooks/untrusted-source-reminder.py" }]
+      },
+      {
+        "matcher": "mcp__*",
+        "hooks": [{ "type": "command", "command": "{PYTHON_CMD} .claude/hooks/untrusted-source-reminder.py" }]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "WebFetch",
+        "hooks": [{ "type": "command", "command": "{PYTHON_CMD} .claude/hooks/validate-tool-output.py" }]
+      },
+      {
+        "matcher": "mcp__*",
+        "hooks": [{ "type": "command", "command": "{PYTHON_CMD} .claude/hooks/validate-tool-output.py" }]
       }
     ],
     "SessionEnd": [

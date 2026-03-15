@@ -11,11 +11,14 @@ import subprocess
 import os
 from datetime import date
 
-HOOK_VERSION = "2.2.1"
+HOOK_VERSION = "2.3.1"
 
 
 def _load_config(cwd):
-    """Load lorekeeper config. Returns defaults if not found/corrupt."""
+    """Load lorekeeper config. Returns defaults if not found/corrupt.
+
+    NOTE (M-QUAL-001): Shared with session-gate and session-end — keep in sync.
+    """
     config_path = os.path.join(cwd, ".claude", "lorekeeper-config.json")
     DEFAULTS = {
         "docs": {
@@ -77,7 +80,10 @@ def _check_freshness(cwd, cfg):
 
 
 def main():
-    data = json.load(sys.stdin)
+    try:
+        data = json.load(sys.stdin)
+    except (json.JSONDecodeError, ValueError):
+        sys.exit(0)
     command = data.get("tool_input", {}).get("command", "")
     cwd = data.get("cwd", ".")
 

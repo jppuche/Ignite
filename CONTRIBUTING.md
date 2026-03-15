@@ -36,8 +36,8 @@ Ignite/
 │   │   ├── agents/           # 5 agent templates
 │   │   ├── ci/               # GitHub Actions template
 │   │   ├── docs/             # 8 doc templates (STATUS, DECISIONS, LESSONS-LEARNED, etc.)
-│   │   ├── hooks/            # Python hooks (Lorekeeper + code quality)
-│   │   ├── rules/            # 5 rule templates (incl. debugging methodology)
+│   │   ├── hooks/            # Python hooks (Lorekeeper + quality + security)
+│   │   ├── rules/            # 6 rule templates (incl. debugging methodology + hooks inventory)
 │   │   ├── scripts/          # Validation scripts
 │   │   ├── skills/cerbero/   # Cerbero security framework
 │   │   └── CLAUDE.template.md
@@ -206,5 +206,8 @@ Ignite uses semantic versioning tracked in `CHANGELOG.md` and `.claude-plugin/pl
 | 3 | `README.md` | badge `version-X.Y.Z-blue` | Display only |
 | 4 | `CHANGELOG.md` | new `## [X.Y.Z]` section | Document changes |
 | 5 | `_workflow/templates/hooks/lorekeeper/lorekeeper-session-gate.py` | `HOOK_VERSION` constant | Compared against installed project's ignite-version.json |
+| 6 | `_workflow/templates/skills/advance-phase/SKILL.md` | frontmatter `version:` | Must match plugin.json |
+| 7 | `_workflow/templates/hooks/lorekeeper/lorekeeper-commit-gate.py` | `HOOK_VERSION` constant | Consistency with session-gate |
+| 8 | `_workflow/templates/hooks/lorekeeper/lorekeeper-session-end.py` | `HOOK_VERSION` constant | Consistency with session-gate |
 
 Note: SKILL.md Step 3.2 reads the version dynamically from plugin.json when generating `ignite-version.json`, so it does NOT need a separate bump for the inline JSON.

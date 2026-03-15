@@ -55,7 +55,27 @@ try:
     print(f'DOC_CLAUDE_MD_WARN={cm.get(\"warn_threshold\", 180)}')
 except Exception:
     sys.exit(1)
-" 2>/dev/null) && eval "$_CONFIG_VARS" || {
+" 2>/dev/null) && {
+    # Safe parsing — no eval (M-SEC-003)
+    while IFS='=' read -r _key _val; do
+        # Strip surrounding quotes
+        _val="${_val%\"}"
+        _val="${_val#\"}"
+        case "$_key" in
+            DOC_SCRATCHPAD)      DOC_SCRATCHPAD="$_val" ;;
+            DOC_SCRATCHPAD_MAX)  DOC_SCRATCHPAD_MAX="$_val" ;;
+            DOC_SCRATCHPAD_GRAD) DOC_SCRATCHPAD_GRAD="$_val" ;;
+            DOC_CHANGELOG)       DOC_CHANGELOG="$_val" ;;
+            DOC_STATUS)          DOC_STATUS="$_val" ;;
+            DOC_STATUS_MAX)      DOC_STATUS_MAX="$_val" ;;
+            DOC_DECISIONS)       DOC_DECISIONS="$_val" ;;
+            DOC_LESSONS)         DOC_LESSONS="$_val" ;;
+            DOC_CLAUDE_MD)       DOC_CLAUDE_MD="$_val" ;;
+            DOC_CLAUDE_MD_MAX)   DOC_CLAUDE_MD_MAX="$_val" ;;
+            DOC_CLAUDE_MD_WARN)  DOC_CLAUDE_MD_WARN="$_val" ;;
+        esac
+    done <<< "$_CONFIG_VARS"
+} || {
     # Python parsing failed — use defaults
     DOC_SCRATCHPAD="docs/SCRATCHPAD.md"
     DOC_SCRATCHPAD_MAX=150

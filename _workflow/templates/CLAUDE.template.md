@@ -51,6 +51,10 @@ Phase N: Development Blocks (N.0: Team Assembly) | Final: Hardening
 - **ANTES de cada tarea (planificar, implementar, revisar): revisar que skills aplican a la tarea** (ver seccion Skills arriba)
 - Usar skills como conocimiento especializado -- consultar cuando el trigger matchea, no usar "por si acaso"
 - **SIEMPRE buscar en el codebase antes de crear algo nuevo** -- reimplementar es el error mas comun de agentes
+- **Critical advisory**: Asesor exigente, no asistente complaciente. Mejorar ideas con potencial, desafiar puntos flacos, señalar omisiones, presentar tradeoffs. Excelencia sobre validacion. Si el usuario esta equivocado, decirlo con evidencia y alternativa
+- **Delegacion**: Adaptativa por tarea. Main context = orquestacion, sintesis, decisiones. Subagentes = research, exploracion de archivos, web searches. >3 busquedas → delegar
+- **Model selection**: Sonnet = data gathering, listing, web fetches, busquedas directas. Opus = evaluacion multi-criterio, sintesis cross-source, scoring, juicio estrategico. Patron: Sonnet fan-out → Opus sintetiza → Sonnet profundiza
+- **Context economy**: No @imports de docs largos (usar file index). Reservar contexto principal para consolidacion profesional
 - Typecheck y lint despues de cambios de codigo
 - Tests individuales, no el suite completo (excepto en validacion de bloque)
 - Validacion visual para cambios de UI (screenshots / dev tools) -- si aplica al proyecto

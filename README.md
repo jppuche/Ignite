@@ -5,7 +5,7 @@
 <!-- GitHub About: Complete development infrastructure for Claude Code projects. Foundational Discovery, project profiles, session memory, quality gates, security screening, CI/CD — auto-adapted to any stack and complexity. Works on new and existing codebases. -->
 <!-- Topics: claude-code, agent-skills, workflow-methodology, development-workflow, compound-engineering, security, multi-stack, automation -->
 
-![Version](https://img.shields.io/badge/version-2.2.1-blue)
+![Version](https://img.shields.io/badge/version-2.3.1-blue)
 ![License](https://img.shields.io/badge/license-MIT-green)
 ![Python](https://img.shields.io/badge/python-3.8%2B-yellow)
 ![Platforms](https://img.shields.io/badge/platforms-Windows%20%7C%20macOS%20%7C%20Linux-lightgrey)
@@ -129,6 +129,7 @@ your-project/
 │   │   ├── compound-engineering.md
 │   │   ├── debugging.md      # Prediction Protocol methodology
 │   │   ├── documentation.md
+│   │   ├── hooks.md          # Hooks inventory and configuration reference
 │   │   ├── testing.md
 │   │   └── styling.md       # Conditional: only if frontend UI detected
 │   ├── hooks/               # Automation hooks (always generated)
@@ -415,4 +416,4 @@ This workflow builds on ideas and practices from:
 
 ---
 
-Made by [Juan Puche](https://github.com/jppuche) — building tools that solve real problems and make complex things simpler.
+Made by [Juan Puche](https://github.com/jppuche) — building tools that solve real problems.

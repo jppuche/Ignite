@@ -4,7 +4,7 @@ description: 'This skill should be used when the user asks to "ignite", "start i
 license: MIT
 metadata:
   author: jppuche
-  version: "2.2.1"
+  version: "2.3.1"
 compatibility: Designed for Claude Code. Requires Python 3.8+ and Git.
 argument-hint: "[project-directory]"
 disable-model-invocation: true
@@ -676,9 +676,9 @@ Lorekeeper se instala siempre en Step 3 (Phase 0). Es el unico agente necesario 
     "deny": [
       "Bash(rm -rf /)",
       "Bash(rm -rf ~)",
-      "Bash(:(){ :|:& };:)",
-      "Bash(*curl*|*sh*)",
-      "Bash(*wget*|*bash*)"
+      "Bash(rm -rf *)",
+      "Bash(*curl*|*sh)",
+      "Bash(*wget*|*bash)"
     ]
   }
 }
@@ -800,6 +800,7 @@ Before writing each rule, check ANALYSIS:
      - If "Yes": generate normally.
 4. `compound-engineering.template.md` → `./.claude/rules/compound-engineering.md` (no placeholders)
 5. `debugging.template.md` → `./.claude/rules/debugging.md` (no placeholders)
+6. `hooks.template.md` → `./.claude/rules/hooks.md` (no placeholders)
 
 ### 3.4 Agent Coordination (if Agent Teams enabled, Category A)
 

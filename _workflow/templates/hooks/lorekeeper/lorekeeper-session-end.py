@@ -7,11 +7,14 @@ import subprocess
 from collections import defaultdict
 from datetime import date, datetime, timezone
 
-HOOK_VERSION = "2.2.1"
+HOOK_VERSION = "2.3.1"
 
 
 def _load_config(cwd):
-    """Load lorekeeper config. Returns defaults if not found/corrupt."""
+    """Load lorekeeper config. Returns defaults if not found/corrupt.
+
+    NOTE (M-QUAL-001): Shared with session-gate and commit-gate — keep in sync.
+    """
     config_path = os.path.join(cwd, ".claude", "lorekeeper-config.json")
     DEFAULTS = {
         "docs": {
@@ -96,7 +99,10 @@ def analyze_graduation_candidates(scratchpad_path):
 
 
 def main():
-    data = json.load(sys.stdin)
+    try:
+        data = json.load(sys.stdin)
+    except (json.JSONDecodeError, ValueError):
+        sys.exit(0)
     cwd = data.get("cwd", ".")
 
     # Cleanup session marker (used by session-gate to detect post-compression)

@@ -25,14 +25,24 @@ ZW_WARN_THRESHOLD = 5
 
 # Cyrillic→Latin confusables (visually identical characters)
 CONFUSABLES = str.maketrans({
+    # Cyrillic lowercase
     "\u0430": "a", "\u0435": "e", "\u043e": "o", "\u0440": "p",
     "\u0441": "c", "\u0443": "y", "\u0445": "x", "\u04bb": "h",
     "\u0456": "i", "\u0458": "j", "\u043a": "k", "\u043c": "m",
     "\u043d": "n", "\u0442": "t", "\u0432": "v", "\u0437": "z",
+    # Cyrillic uppercase
     "\u0410": "A", "\u0415": "E", "\u041e": "O", "\u0420": "P",
     "\u0421": "C", "\u0423": "Y", "\u0425": "X", "\u0406": "I",
     "\u041a": "K", "\u041c": "M", "\u041d": "N", "\u0422": "T",
     "\u0412": "V",
+    # Greek lowercase (M-SEC-002)
+    "\u03B1": "a", "\u03BF": "o", "\u03B5": "e", "\u03B9": "i",
+    "\u03C1": "p",
+    # Greek uppercase (M-SEC-002)
+    "\u0391": "A", "\u0392": "B", "\u0395": "E", "\u0397": "H",
+    "\u0399": "I", "\u039A": "K", "\u039C": "M", "\u039D": "N",
+    "\u039F": "O", "\u03A1": "P", "\u03A4": "T", "\u03A5": "Y",
+    "\u03A7": "X",
 })
 
 # ---------------------------------------------------------------------------
@@ -110,7 +120,10 @@ for _p in FORMAT_INJECTION:
 # Token proximity detection — catches paraphrases without exact phrases
 # ---------------------------------------------------------------------------
 
-PROXIMITY_WINDOW = 5
+PROXIMITY_WINDOW = 7
+
+# H-SEC-001: prefix matching for morphological variants (forgetting, overriding, etc.)
+CRITICAL_PREFIXES = ("forget", "ignor", "bypass", "overrid", "discard", "disregard", "skip")
 
 SUSPICIOUS_PAIRS = [
     (
@@ -153,6 +166,10 @@ BIDI_OVERRIDE_PATTERN = re.compile(
 # Comment extraction — scan for injection hidden in comments
 # ---------------------------------------------------------------------------
 
+# Known limitation (L-SEC-001): Non-greedy match means nested comments like
+# <!-- <!-- injection --> --> extract up to the first -->. The inner injection
+# text IS captured (with extra <!-- prefix as noise), so injection patterns
+# still match against the extracted content. Accepted edge case.
 COMMENT_PATTERN = re.compile(
     r"<!--.*?-->|/\*.*?\*/",
     re.DOTALL,
@@ -188,8 +205,8 @@ def _extract_comment_content(text):
     return " ".join(stripped).lower()
 
 
-def _check_patterns(text, label=""):
-    """Check INJECTION_PATTERNS against text. Returns (matched, pattern, category) or None."""
+def _check_patterns(text):
+    """Check INJECTION_PATTERNS against text. Returns (pattern, category) or None."""
     for pattern in INJECTION_PATTERNS:
         if re.search(pattern, text):
             category = _PATTERN_CATEGORY.get(pattern, "injection")
@@ -198,15 +215,26 @@ def _check_patterns(text, label=""):
 
 
 def _check_proximity(words):
-    """Sliding window check for suspicious word pairs."""
+    """Sliding window check for suspicious word pairs.
+
+    Matches exact words in set_a/set_b, plus morphological variants via
+    CRITICAL_PREFIXES (e.g., 'forgetting' matches prefix 'forget').
+    """
     for i in range(len(words)):
         window = words[i:i + PROXIMITY_WINDOW]
         window_set = set(window)
         for set_a, set_b in SUSPICIOUS_PAIRS:
-            if window_set & set_a and window_set & set_b:
-                a_word = (window_set & set_a).pop()
-                b_word = (window_set & set_b).pop()
-                return a_word, b_word
+            # Exact matches
+            matched_a = window_set & set_a
+            matched_b = window_set & set_b
+            # Prefix matches for set_a (H-SEC-001)
+            if not matched_a:
+                for w in window:
+                    if any(w.startswith(p) for p in CRITICAL_PREFIXES):
+                        matched_a = {w}
+                        break
+            if matched_a and matched_b:
+                return matched_a.pop(), matched_b.pop()
     return None
 
 

@@ -9,6 +9,7 @@
 #   3. Per-template placeholder inventory
 
 set -euo pipefail
+trap 'rm -f "$DECLARED_FILE" "$USED_FILE" 2>/dev/null' EXIT
 
 ROOT="${1:-.}"
 FILEMAP="$ROOT/.claude/skills/ignite/references/file-map.md"

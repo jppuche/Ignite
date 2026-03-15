@@ -3,6 +3,67 @@
 All notable changes to Ignite are documented here.
 Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [2.3.1] - 2026-03-14
+
+### Changed
+- **I-SEC-002:** untrusted-source-reminder.py — message shortened from 3 lines (~150 tokens) to 1 line (~30 tokens) to reduce context waste and warning fatigue
+- **Audit closure:** SENTINEL-HOOKS-AUDIT.md updated with Implementation Status section (17/22 resolved, 5 accepted as known limitations with documented rationale)
+
+### Documentation
+- **M-QUAL-001:** Added sync comments to `_load_config` across 3 Lorekeeper hooks (dedup via shared module rejected — CC hooks are standalone scripts)
+- **M-RES-001:** Documented TOCTOU race as accepted limitation in mcp-audit.py (theoretical race, counter ±1 impact)
+- **L-SEC-001:** Documented nested comment edge case in validate-prompt.py (current regex already captures injection text)
+- Coverage matrix updated: 14 of 18 attack vectors now rated Strong (was 8)
+
+## [2.3.0] - 2026-03-14
+
+### Security Hardening (Sentinel Audit Remediation)
+- **C-SEC-001 [CRITICAL]:** pre-tool-security.py — added eval/base64/source bypass patterns (5 new dangerous patterns)
+- **C-SEC-002 [CRITICAL]:** env-protection.py — protected `.claude/security/` audit logs from tampering
+- **C-SEC-003 [CRITICAL]:** env-protection.py — added Write/Edit tool handlers to block .env modification
+- **H-SEC-003 [CRITICAL]:** cerbero-scanner.py — removed exploitable suppression annotations, now flags them as evasion attempts
+- **H-SEC-001 [HIGH]:** validate-prompt.py — improved proximity detection with prefix matching + window 5→7
+- **H-SEC-002 [HIGH]:** validate-tool-output.py — increased scan limit 50KB→200KB + head+tail scanning
+- **H-SEC-004 [HIGH]:** env-protection.py — protected quality-gate.json from config poisoning
+- **H-SEC-005 [HIGH]:** lorekeeper-session-gate.py — added SHA-256 hook integrity verification at session start
+- **M-SEC-001:** env-protection.py — expanded sensitive patterns (Kubernetes, Docker, SSH keys, PEM)
+- **M-SEC-002:** validate-prompt.py — added Greek confusables (lowercase + uppercase)
+- **M-SEC-003:** validate-docs.sh — replaced eval with safe read-based config parsing
+- **M-SEC-004:** pre-tool-security.py — warning patterns now emit JSON additionalContext (not just stderr)
+
+### Added
+- `generate-hook-baseline.py` — utility script for SHA-256 hook integrity baselines
+- 28 new test cases in test-hooks.py (57 total, up from 29)
+- cerbero-scanner test infrastructure (run_scanner helper + 4 scanner tests)
+
+### Fixed
+- **BUG:** validate-tool-output.py `[INST]` tag detection silently broken (uppercase pattern vs lowercased string)
+- **BUG:** pre-tool-security.py unguarded `tool_input.get()` could crash on None
+- validate-prompt.py removed dead `label` parameter
+- lorekeeper-session-gate.py bare `open()` replaced with context manager
+- validate-placeholders.sh missing trap for temp file cleanup
+- Stale marker threshold reduced from 24h to 4h
+
+### Changed
+- cerbero-scanner.py bumped to v1.1
+- Session marker now stores full ISO datetime (not date-only)
+
+## [2.2.2] - 2026-03-14
+
+### Fixed
+- **BUG-1 [CRITICAL]: Fork bomb deny rule breaks CLI** — `Bash(:(){ :|:& };:)` contained empty `()` that CLI permission parser rejects. Removed (pre-tool-security.py already blocks fork bombs via regex). Added `Bash(rm -rf *)` to deny list. Fixed trailing wildcard in `*sh*`/`*bash*` patterns.
+- **BUG-2 [CRITICAL]: env-protection.py non-functional** — used `{"decision": "block"}` instead of `hookSpecificOutput` protocol. Blocks were silently ignored. Rewritten to use `permissionDecision: "deny"` with proper `hookSpecificOutput` wrapper.
+- **GAP-1: untrusted-source-reminder.py not registered** — hook file was generated but never added to `settings.local.json`. Now registered for both WebFetch and mcp__* matchers.
+- **GAP-2: validate-tool-output.py not registered** — PostToolUse section missing from `settings.local.json`. Added with WebFetch and mcp__* matchers.
+- **GAP-3: Inconsistent error handling** — 6 hook templates had bare `json.load(sys.stdin)` without try/except. Malformed input caused crashes (exit 1) instead of fail-open (exit 0). All hooks now wrapped with `except (json.JSONDecodeError, ValueError): sys.exit(0)`.
+
+### Added
+- **hooks.md rule template** — documents all 11 hooks grouped by subsystem (Lorekeeper, Quality, Security, Standalone). Generated as `.claude/rules/hooks.md` in Step 3.3.
+
+### Changed
+- **Version bump checklist expanded** — CONTRIBUTING.md now lists 8 files (was 5). Added advance-phase/SKILL.md, lorekeeper-commit-gate.py, lorekeeper-session-end.py.
+- **HOOK_VERSION bumped to 2.2.2**
+
 ## [2.2.1] - 2026-03-11
 
 ### Added

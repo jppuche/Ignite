@@ -33,7 +33,10 @@ def _command_exists(cmd):
 
 
 def main():
-    data = json.load(sys.stdin)
+    try:
+        data = json.load(sys.stdin)
+    except (json.JSONDecodeError, ValueError):
+        sys.exit(0)
     command = data.get("tool_input", {}).get("command", "")
     cwd = data.get("cwd", ".")
 

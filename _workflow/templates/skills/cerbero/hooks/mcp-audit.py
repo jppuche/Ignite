@@ -1,4 +1,10 @@
-"""Cerbero hook: PreToolUse — audit trail for MCP tool invocations."""
+"""Cerbero hook: PreToolUse — audit trail for MCP tool invocations.
+
+Known limitation (M-RES-001): No file locking on concurrent writes. The counter
+read-increment-write has a theoretical TOCTOU race if CC fires parallel PreToolUse
+hooks. Impact: counter off by ±1 (used only for reminder threshold). Log append via
+open('a') is effectively atomic for entries < 4KB on POSIX/NTFS. Accepted risk.
+"""
 import sys
 import json
 import os
@@ -6,7 +12,10 @@ from datetime import datetime, timezone
 
 
 def main():
-    data = json.load(sys.stdin)
+    try:
+        data = json.load(sys.stdin)
+    except (json.JSONDecodeError, ValueError):
+        sys.exit(0)
     tool_name = data.get("tool_name", "unknown")
     tool_input = data.get("tool_input", {})
     cwd = data.get("cwd", ".")

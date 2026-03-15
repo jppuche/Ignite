@@ -16,6 +16,12 @@ DANGEROUS_PATTERNS = [
     (r"Invoke-WebRequest.*\|.*iex", "PowerShell remote execution"),
     (r"iex\s*\(", "PowerShell Invoke-Expression"),
     (r"Start-Process.*-NoNewWindow", "hidden process execution"),
+    # C-SEC-001: eval/base64/source bypass patterns
+    (r"\beval\s+", "eval command execution"),
+    (r"\beval\$", "eval with subshell"),
+    (r"\$\(.*base64\s+(-d|--decode)", "base64 decode in subshell"),
+    (r"source\s+/dev/stdin", "stdin source execution"),
+    (r"`[^`]*base64\s+(-d|--decode)[^`]*`", "base64 decode in backtick subshell"),
 ]
 
 WARNING_PATTERNS = [
@@ -28,8 +34,12 @@ WARNING_PATTERNS = [
 
 
 def main():
-    data = json.load(sys.stdin)
-    command = data.get("tool_input", {}).get("command", "")
+    try:
+        data = json.load(sys.stdin)
+    except (json.JSONDecodeError, ValueError):
+        sys.exit(0)
+    tool_input = data.get("tool_input") or {}
+    command = tool_input.get("command", "") if isinstance(tool_input, dict) else ""
 
     for pattern, desc in DANGEROUS_PATTERNS:
         if re.search(pattern, command, re.IGNORECASE):
@@ -44,7 +54,17 @@ def main():
 
     for pattern, desc in WARNING_PATTERNS:
         if re.search(pattern, command, re.IGNORECASE):
-            print(f"Cerbero WARNING: detected {desc}. Verify download source and destination.", file=sys.stderr)
+            json.dump({
+                "hookSpecificOutput": {
+                    "hookEventName": "PreToolUse",
+                    "permissionDecision": "allow",
+                    "additionalContext": (
+                        f"Cerbero WARNING: detected {desc}. "
+                        "Verify download source and destination."
+                    ),
+                }
+            }, sys.stdout)
+            sys.exit(0)
 
     sys.exit(0)
 

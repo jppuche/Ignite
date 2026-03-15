@@ -34,21 +34,27 @@ CONVERSATION_SPLICE = re.compile(
 BASE64_PATTERN = re.compile(r"(?<!\w)[A-Za-z0-9+/]{20,}={0,2}(?!\w)")
 BASE64_MAX_DEPTH = 2
 
-# Truncation guard
-MAX_SCAN_BYTES = 50_000
+# Truncation guard (H-SEC-002: increased from 50KB to 200KB)
+MAX_SCAN_BYTES = 200_000
+TAIL_SCAN_BYTES = 10_000
 
 
 def _extract_text(tool_name, tool_response):
-    """Extract scannable text from tool_response."""
+    """Extract scannable text from tool_response, recursing into nested structures."""
     if not tool_response:
         return ""
     if isinstance(tool_response, str):
         return tool_response
+    if isinstance(tool_response, list):
+        parts = [_extract_text(tool_name, item) for item in tool_response[:20]]
+        return " ".join(p for p in parts if p)
     if isinstance(tool_response, dict):
         for key in ("content", "body", "text", "result"):
             val = tool_response.get(key)
             if isinstance(val, str) and val:
                 return val
+            if isinstance(val, (dict, list)):
+                return _extract_text(tool_name, val)
         try:
             return json.dumps(tool_response)
         except (TypeError, ValueError):
@@ -58,9 +64,8 @@ def _extract_text(tool_name, tool_response):
 
 def _check_format_tags(text):
     """Check for format injection tags. Returns matched tag or None."""
-    lower = text.lower()
     for pattern in FORMAT_TAGS:
-        match = re.search(pattern, lower)
+        match = re.search(pattern, text, re.IGNORECASE)
         if match:
             return match.group(0).strip()
     return None
@@ -124,7 +129,9 @@ def main():
     if not text or len(text.strip()) < 10:
         sys.exit(0)
 
-    text = text[:MAX_SCAN_BYTES]
+    # H-SEC-002: scan head + tail to prevent truncation bypass
+    if len(text) > MAX_SCAN_BYTES:
+        text = text[:MAX_SCAN_BYTES] + "\n\n" + text[-TAIL_SCAN_BYTES:]
 
     findings = []
 

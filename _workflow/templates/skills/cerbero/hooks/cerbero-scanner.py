@@ -16,26 +16,30 @@ import argparse
 import os
 from datetime import datetime, timezone
 
-SCANNER_VERSION = "1.0"
+SCANNER_VERSION = "1.1"
 
-# --- Suppression annotations ---
-# Lines following a cerbero:ignore-next-line annotation are excluded from findings.
-# Supports: # cerbero:ignore-next-line, // cerbero:ignore-next-line,
-#           <!-- cerbero:ignore-next-line -->
+# --- Suppression annotation detection (H-SEC-003) ---
+# Suppression annotations in scanned content are treated as evasion attempts.
+# The scanner evaluates UNTRUSTED content — self-suppression is a bypass vector.
 
-SUPPRESS_PATTERN = re.compile(
+_SUPPRESS_ANNOTATION = re.compile(
     r"(?:#|//|<!--)\s*cerbero:ignore-next-line\s*(?:-->)?\s*$"
 )
 
 
-def find_suppressed_lines(text):
-    """Find line numbers suppressed by cerbero:ignore-next-line annotations."""
-    suppressed = set()
+def scan_suppression_annotations(text):
+    """Flag suppression annotations as scanner evasion attempts."""
+    findings = []
     for i, line in enumerate(text.splitlines(), 1):
-        if SUPPRESS_PATTERN.search(line.strip()):
-            suppressed.add(i)      # the annotation line itself
-            suppressed.add(i + 1)  # the next line
-    return suppressed
+        if _SUPPRESS_ANNOTATION.search(line.strip()):
+            findings.append({
+                "check": "suppression_attempt",
+                "severity": "CRITICAL",
+                "detail": "Scanner evasion: suppression annotation in scanned content",
+                "line": i,
+                "context": line.strip()[:80],
+            })
+    return findings
 
 
 # --- Tier 1: Injection phrase patterns ---
@@ -376,9 +380,8 @@ def compute_verdict(findings):
 
 def run_scan(text, target_name):
     """Run all scanner checks and produce JSON report."""
-    suppressed = find_suppressed_lines(text)
-
     all_findings = []
+    all_findings.extend(scan_suppression_annotations(text))
     all_findings.extend(scan_injection_phrases(text))
     all_findings.extend(scan_base64_payloads(text))
     all_findings.extend(scan_zero_width_chars(text))
@@ -387,9 +390,6 @@ def run_scan(text, target_name):
     all_findings.extend(scan_encoding_red_flags(text))
     all_findings.extend(scan_tool_schema_red_flags(text))
     all_findings.extend(scan_data_acquisition(text))
-
-    suppressed_count = sum(1 for f in all_findings if f.get("line") in suppressed)
-    all_findings = [f for f in all_findings if f.get("line") not in suppressed]
 
     critical = sum(1 for f in all_findings if f["severity"] == "CRITICAL")
     high = sum(1 for f in all_findings if f["severity"] == "HIGH")
@@ -405,7 +405,6 @@ def run_scan(text, target_name):
             "critical": critical,
             "high": high,
             "medium": medium,
-            "suppressed": suppressed_count,
             "verdict": compute_verdict(all_findings),
         },
     }

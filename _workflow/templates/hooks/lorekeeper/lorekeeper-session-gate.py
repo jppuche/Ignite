@@ -9,13 +9,19 @@ import sys
 import json
 import os
 import re
-from datetime import date
+import hashlib
+from datetime import date, datetime, timezone
 
-HOOK_VERSION = "2.2.1"
+HOOK_VERSION = "2.3.1"
 
 
 def _load_config(cwd):
-    """Load lorekeeper config. Returns defaults if not found/corrupt."""
+    """Load lorekeeper config. Returns defaults if not found/corrupt.
+
+    NOTE (M-QUAL-001): Shared with commit-gate and session-end — keep in sync.
+    Dedup via shared module rejected: CC hooks are standalone scripts with no
+    guaranteed sys.path. Copy-paste is the correct pattern here.
+    """
     config_path = os.path.join(cwd, ".claude", "lorekeeper-config.json")
     DEFAULTS = {
         "docs": {
@@ -62,6 +68,36 @@ def _read_file_safe(path):
         return None, str(e)
     except UnicodeDecodeError:
         return None, "encoding error (not UTF-8)"
+
+
+def _verify_hook_integrity(cwd):
+    """Compare deployed hooks against SHA-256 baseline. Returns list of warnings."""
+    baseline_path = os.path.join(cwd, ".claude", "hook-integrity.json")
+    if not os.path.exists(baseline_path):
+        return []  # No baseline — skip (first run or pre-integrity)
+    try:
+        with open(baseline_path, "r", encoding="utf-8") as f:
+            baseline = json.load(f)
+    except (OSError, json.JSONDecodeError):
+        return []  # Unreadable baseline — fail open
+    warnings = []
+    claude_dir = os.path.join(cwd, ".claude")
+    for rel_path, expected_hash in baseline.items():
+        full_path = os.path.join(claude_dir, rel_path)
+        if not os.path.exists(full_path):
+            warnings.append(f"HOOK INTEGRITY: {rel_path} is missing (was in baseline)")
+            continue
+        try:
+            with open(full_path, "rb") as f:
+                actual_hash = hashlib.sha256(f.read()).hexdigest()
+            if actual_hash != expected_hash:
+                warnings.append(
+                    f"HOOK INTEGRITY: {rel_path} has been modified since deployment. "
+                    "Verify the change is intentional."
+                )
+        except OSError:
+            warnings.append(f"HOOK INTEGRITY: {rel_path} is unreadable")
+    return warnings
 
 
 def _evaluate_scratchpad(cwd, today, scratchpad_cfg):
@@ -186,7 +222,10 @@ def _get_phase_actions(phase_str, status_path="docs/STATUS.md"):
 
 
 def main():
-    data = json.load(sys.stdin)
+    try:
+        data = json.load(sys.stdin)
+    except (json.JSONDecodeError, ValueError):
+        sys.exit(0)
     cwd = data.get("cwd", ".")
 
     # Detect if this is a post-compression re-injection
@@ -194,21 +233,31 @@ def main():
     marker_path = os.path.join(cwd, ".claude", "lorekeeper-session-active.marker")
     is_post_compression = False
     if os.path.exists(marker_path):
-        # Check marker age — stale markers (>24h) indicate a crash, not compression
+        # Check marker age — stale markers (>4h) indicate a crash, not compression
         try:
-            marker_age = (date.today() - date.fromisoformat(
-                open(marker_path, "r").read().strip()[:10]
-            )).days
-            is_post_compression = marker_age < 1
+            with open(marker_path, "r") as _mf:
+                marker_content = _mf.read().strip()
+            # Try ISO datetime first (new format), fall back to date-only (legacy)
+            try:
+                marker_time = datetime.fromisoformat(marker_content)
+                if marker_time.tzinfo is None:
+                    marker_time = marker_time.replace(tzinfo=timezone.utc)
+            except ValueError:
+                marker_time = datetime.combine(
+                    date.fromisoformat(marker_content[:10]),
+                    datetime.min.time(), tzinfo=timezone.utc,
+                )
+            age_hours = (datetime.now(timezone.utc) - marker_time).total_seconds() / 3600
+            is_post_compression = age_hours < 4  # L-RES-001: reduced from 24h to 4h
         except (ValueError, OSError):
             is_post_compression = False  # Unreadable marker — treat as stale
 
     if not is_post_compression:
-        # First invocation this session — create marker with timestamp
+        # First invocation this session — create marker with full timestamp
         try:
             os.makedirs(os.path.dirname(marker_path), exist_ok=True)
             with open(marker_path, "w") as f:
-                f.write(date.today().isoformat())
+                f.write(datetime.now(timezone.utc).isoformat())
         except OSError as e:
             print(f"Lorekeeper: marker creation failed at {marker_path}: {e}", file=sys.stderr)
 
@@ -268,8 +317,14 @@ def main():
     current_phase = _extract_current_phase(cwd, cfg["docs"]["status"])
     pending_tasks = _extract_pending_tasks(cwd, cfg["docs"]["status"])
 
+    # --- Hook integrity verification (H-SEC-005) ---
+    integrity_warnings = _verify_hook_integrity(cwd)
+
     # Build REQUIRED ACTIONS (prioritized)
     required_actions = []
+    # Priority 0: Hook integrity (most critical — possible compromise)
+    for warning in integrity_warnings:
+        required_actions.append(warning)
     # Priority 1: Pending items from previous session
     for item in pending_items[:5]:
         required_actions.append(item)

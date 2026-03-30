@@ -4,7 +4,7 @@ description: 'This skill should be used when the user asks to "ignite", "start i
 license: MIT
 metadata:
   author: jppuche
-  version: "2.3.1"
+  version: "2.4.0"
 compatibility: Designed for Claude Code. Requires Python 3.8+ and Git.
 argument-hint: "[project-directory]"
 disable-model-invocation: true
@@ -644,6 +644,18 @@ Lorekeeper se instala siempre en Step 3 (Phase 0). Es el unico agente necesario 
         "hooks": [{ "type": "command", "command": "{PYTHON_CMD} .claude/hooks/env-protection.py" }]
       },
       {
+        "matcher": "Write",
+        "hooks": [{ "type": "command", "command": "{PYTHON_CMD} .claude/hooks/env-protection.py" }]
+      },
+      {
+        "matcher": "Edit",
+        "hooks": [{ "type": "command", "command": "{PYTHON_CMD} .claude/hooks/env-protection.py" }]
+      },
+      {
+        "matcher": "Grep",
+        "hooks": [{ "type": "command", "command": "{PYTHON_CMD} .claude/hooks/env-protection.py" }]
+      },
+      {
         "matcher": "Bash",
         "hooks": [
           { "type": "command", "command": "{PYTHON_CMD} .claude/hooks/lorekeeper-commit-gate.py" },
@@ -678,7 +690,9 @@ Lorekeeper se instala siempre en Step 3 (Phase 0). Es el unico agente necesario 
       "Bash(rm -rf ~)",
       "Bash(rm -rf *)",
       "Bash(*curl*|*sh)",
-      "Bash(*wget*|*bash)"
+      "Bash(*wget*|*bash)",
+      "Read(**/.env*)",
+      "Grep(**/.env*)"
     ]
   }
 }
@@ -695,12 +709,24 @@ Lorekeeper se instala siempre en Step 3 (Phase 0). Es el unico agente necesario 
    - From: `_workflow/templates/hooks/env-protection.py`
    - To: `./.claude/hooks/env-protection.py`
    - If not exists: copy. If exists and identical: skip. If different: replace.
-   - Register in `settings.local.json` with **two specific matchers** (Read + Bash):
+   - Register in `settings.local.json` with **five specific matchers** (Read + Write + Edit + Grep + Bash):
    ```json
    {
      "PreToolUse": [
        {
          "matcher": "Read",
+         "hooks": [{ "type": "command", "command": "{PYTHON_CMD} .claude/hooks/env-protection.py" }]
+       },
+       {
+         "matcher": "Write",
+         "hooks": [{ "type": "command", "command": "{PYTHON_CMD} .claude/hooks/env-protection.py" }]
+       },
+       {
+         "matcher": "Edit",
+         "hooks": [{ "type": "command", "command": "{PYTHON_CMD} .claude/hooks/env-protection.py" }]
+       },
+       {
+         "matcher": "Grep",
          "hooks": [{ "type": "command", "command": "{PYTHON_CMD} .claude/hooks/env-protection.py" }]
        },
        {
@@ -710,8 +736,7 @@ Lorekeeper se instala siempre en Step 3 (Phase 0). Es el unico agente necesario 
      ]
    }
    ```
-   > **Note:** Grep tool has no PreToolUse matcher in CC. Grep access to .env is lower risk (returns content matches, not full file contents). This limitation is documented.
-   > **Behavior:** Read → **block** (deny + reason). Bash → **warn** (allow + additionalContext).
+   > **Behavior:** Read → **block** (deny + reason). Write/Edit → **block** if path targets sensitive file. Grep → **block** if path targets sensitive location (when path is empty, defense relies on `permissions.deny` with `Grep(**/.env*)`). Bash → **warn** (allow + additionalContext).
 
 7. Generate `.claude/quality-gate.json` with resolved commands from Step 2.1:
 

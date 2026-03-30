@@ -11,7 +11,7 @@ import subprocess
 import os
 from datetime import date
 
-HOOK_VERSION = "2.3.1"
+HOOK_VERSION = "2.4.0"
 
 
 def _load_config(cwd):

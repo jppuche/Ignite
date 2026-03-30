@@ -21,3 +21,9 @@ paths:
 - No bypasear con --no-verify salvo instruccion explicita del usuario
 - Modo estricto (pre-merge): `bash scripts/validate-docs.sh --strict`
 - Lorekeeper es responsable de que TODAS las verificaciones pasen al cerrar bloque
+
+## Lorekeeper Protocol (MANDATORY)
+
+**Start:** (1) Read and ACT on SessionStart hook REQUIRED ACTIONS. (2) If SCRATCHPAD > 100 lines: graduate patterns. (3) If no entry today: create section.
+**During:** (4) Update SCRATCHPAD with discoveries as they happen. (5) Run validate-docs before commits.
+**Close:** (6) Verify SCRATCHPAD entry with [agent-name] tag. (7) Update CHANGELOG-DEV if significant changes. (8) Run validate-docs — 0 errors mandatory.

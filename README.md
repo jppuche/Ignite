@@ -5,7 +5,7 @@
 <!-- GitHub About: Complete development infrastructure for Claude Code projects. Foundational Discovery, project profiles, session memory, quality gates, security screening, CI/CD — auto-adapted to any stack and complexity. Works on new and existing codebases. -->
 <!-- Topics: claude-code, agent-skills, workflow-methodology, development-workflow, compound-engineering, security, multi-stack, automation -->
 
-![Version](https://img.shields.io/badge/version-2.3.1-blue)
+![Version](https://img.shields.io/badge/version-2.4.0-blue)
 ![License](https://img.shields.io/badge/license-MIT-green)
 ![Python](https://img.shields.io/badge/python-3.8%2B-yellow)
 ![Platforms](https://img.shields.io/badge/platforms-Windows%20%7C%20macOS%20%7C%20Linux-lightgrey)
@@ -61,10 +61,11 @@ The skill auto-detects your OS, stack, and existing configuration. You answer a 
 
 - **Project Discovery** — Structured Q&A builds `FOUNDATION.md` before any technical decisions. Your project's vision, constraints, and architecture documented once, referenced by every agent downstream
 - **Full infrastructure** — CLAUDE.md, docs, 5 specialized agents, context-aware rules, CI/CD pipeline — all adapted to your detected stack. 30+ placeholders resolved automatically from your project config
-- **Session memory** — Mistakes are recorded and patterns graduate to permanent memory. Claude Code gets better every session instead of starting from zero
+- **Session memory that compounds** — Every error, correction, and discovery is captured in SCRATCHPAD. When a pattern repeats 3+ times, it graduates to permanent rules in CLAUDE.md. Hooks enforce this pipeline: commits are blocked if SCRATCHPAD is stale, session-end checks identify graduation candidates. Context survives `/clear` through structured handoffs. The result: Claude Code gets measurably better at your project every session — not from retraining, from structured accumulation
 - **Living documentation** — Hooks enforce that project docs stay current. Commits are blocked if documentation validation fails. Session start checks freshness of STATUS, CHANGELOG, and SCRATCHPAD. The AI writes — automation ensures it never skips
+- **Strategic reflection** — `/cerebrate` mines your session for explicit knowledge and implicit insights. Four-lens analysis (confirms, challenges, opens, windows) with coherence scanning across your docs. Curated persistence, not bulk filing — the intelligence brief shows you what matters before anything is written
 - **Quality enforcement** — Typecheck + lint + test gates before every commit. CI/CD pipeline generated for your stack. Doc validation on every session close
-- **Security layers** — Environment protection blocks AI access to `.env`, secrets, and credentials. Cerbero screens Skills and MCP servers for known CVEs, prompt injection, and supply-chain attacks
+- **Security layers** — Environment protection blocks AI access to `.env`, secrets, and credentials. Cerbero screens Skills and MCP servers for prompt injection, supply-chain attacks, and typosquatting via a structured evaluation process (also available standalone: [Cerbero](https://github.com/jppuche/Cerbero))
 - **Adapts to you** — Experience level (Guided/Advanced) controls interaction style. Project profile (Quick/Standard/Enterprise) controls workflow depth. A weekend script and a production API get different treatment
 
 > [!NOTE]
@@ -90,7 +91,7 @@ Enterprise: Phase 0 → 1 → 2 → 3 → 4 ───────────> P
 
 **Quick** for scripts, POCs, and hobby projects — infrastructure + Discovery, then start building. **Standard** for apps, APIs, and libraries — streamlined planning before development. **Enterprise** for complex systems and multi-team projects — all phases at full depth.
 
-Ignite suggests a profile based on your project's complexity. You confirm or override.
+Most users start with **Quick** profile — full infrastructure in one command, then start building immediately. Standard and Enterprise add planning phases for larger projects. Ignite suggests a profile based on your project's complexity. You confirm or override.
 
 ## The Development Workflow
 
@@ -145,6 +146,7 @@ your-project/
 │   ├── skills/
 │   │   ├── cerbero/          # Security framework (optional)
 │   │   └── advance-phase/    # Phase transition automation (advanced users)
+│   │   # Also available: cerebrate/ (install from _workflow/templates/skills/)
 │   ├── quality-gate.json    # Stack-specific quality commands
 │   ├── ignite-version.json  # Version tracking for auto-update
 │   └── settings.local.json  # Hook configuration (gitignored)
@@ -245,9 +247,10 @@ Most project scaffolders generate files and leave. Ignite works differently:
 - **Adapts to complexity** — Three project profiles gate which phases run and how many questions you answer. A weekend script doesn't get the same treatment as a production API
 - **Protects existing work** — 3-category overwrite system (merge docs, replace code, ask for rules/agents). Re-run `/ignite` without losing customizations. Mid-way integration detects existing CI/CD and conventions
 - **Enforces quality automatically** — PreToolUse hooks block commits that fail typecheck, lint, or tests. Not advisory — enforced
-- **Learns across sessions** — Compound engineering: mistakes recorded in SCRATCHPAD, patterns graduate to CLAUDE.md, session handoffs preserve context across `/clear`. Every session builds on the last
+- **Learns across sessions** — Compound engineering is the core differentiator. Errors flow into SCRATCHPAD, repeating patterns are detected and graduate to permanent CLAUDE.md rules, session handoffs preserve context across `/clear`. This isn't advisory — hooks enforce the entire pipeline. Every session Claude works on your project, it gets better. Not from retraining — from structured accumulation of what works and what doesn't
+- **Reflects, not just records** — Most tools log what happened. `/cerebrate` analyzes what it means: what confirms your assumptions, what challenges them, what new opportunities appeared, and what's time-sensitive. Coherence scanning catches when updating one document makes another stale
 - **Keeps documentation alive** — Hooks check doc freshness at session start and block commits when validation fails. STATUS, CHANGELOG, SCRATCHPAD, and DECISIONS stay current because the system won't let them go stale
-- **Security by default** — Environment protection hooks block `.env`/secrets/credentials access. Cerbero screens Skills and MCP servers for known CVEs, prompt injection, and supply-chain attacks
+- **Security by default** — Environment protection hooks block `.env`/secrets/credentials access. Cerbero screens Skills and MCP servers for prompt injection, supply-chain attacks, and typosquatting via structured evaluation checklists
 - **Works everywhere** — Windows, macOS, Linux. 12 stack profiles. 4 languages + free text. New projects and existing codebases
 
 ## FAQ
@@ -283,7 +286,7 @@ Ignite generates all components but each serves an independent purpose. You can 
 <details>
 <summary>Does it work without internet access?</summary>
 
-Phase 0 (Foundation) works fully offline — all templates are local. Phase 1's ecosystem scan and Phase 2's Cerbero CVE checks require internet access.
+Phase 0 (Foundation) works fully offline — all templates are local. Phase 1's ecosystem scan and Phase 2's Cerbero web research (CVE lookups, publisher reputation) require internet access.
 
 </details>
 
@@ -304,12 +307,12 @@ English, Spanish, Portuguese, and French for all generated documentation and int
 
 Cerbero is a **screening layer, not a security guarantee**. It catches common attacks but has real limits:
 
-- **Detects:** known CVEs, prompt injection (normalize-then-detect pipeline with homoglyph/proximity/base64 coverage), dangerous shell commands, typosquatting, baseline changes in installed MCPs, format injection tags in external tool outputs (PostToolUse)
-- **Does NOT detect:** novel prompt injection via creative paraphrasing, zero-day vulnerabilities (24-48hr CVE database lag), silent data exfiltration, post-approval behavioral changes, indirect injection in local file reads (by design — Claude's Tier 1 handles these)
-- **mcp-scan integration is strongly recommended** — without it, you lose Snyk's tool poisoning detection and rely on regex alone
+- **Detects:** prompt injection (normalize-then-detect pipeline with homoglyph/proximity/base64 coverage), dangerous shell commands, typosquatting, baseline changes in installed MCPs, format injection tags in external tool outputs (PostToolUse)
+- **Does NOT detect:** novel prompt injection via creative paraphrasing, zero-day vulnerabilities, malware signatures (without external scanner), silent data exfiltration, post-approval behavioral changes, indirect injection in local file reads (by design — Claude's Tier 1 handles these)
+- **CVE detection** is web-search-based (manual research during evaluation), not an automated database scan. For malware signature detection, install `cisco-ai-mcp-scanner` (YARA-only mode, 100% offline). Recommended for teams evaluating 5+ MCP servers or from untrusted publishers.
 
 > [!CAUTION]
-> For high-stakes environments, use Cerbero as one layer in a defense-in-depth approach, not your only protection.
+> For high-stakes environments, use Cerbero as one layer in a defense-in-depth approach, not your only protection. For standalone security screening without the full Ignite workflow, see [Cerbero](https://github.com/jppuche/Cerbero).
 
 ## Deep Dive
 
@@ -349,7 +352,7 @@ The skill follows a **delegation pattern**: `SKILL.md` orchestrates the steps, w
 | **Mid-way integration** | Detects existing code, CI/CD, conventions — integrates without overwriting |
 | **Overwrite protection** | 3-category system: A (merge docs), B (replace code), C (ask user) |
 | **Compound engineering** | SCRATCHPAD graduation pipeline + cross-session persistence via hooks |
-| **Cerbero security** | Supply-chain screening, known CVE detection, prompt injection patterns, rug pull baselines |
+| **Cerbero security** | Supply-chain screening, prompt injection patterns, rug pull baselines, structured evaluation process |
 | **Environment protection** | PreToolUse hook blocking AI access to .env, secrets, and credentials (Read blocks, Bash warns) |
 | **Code quality gates** | PreToolUse hook enforcing typecheck + lint + test before commits |
 | **CI/CD generation** | GitHub Actions workflow template adapted per stack profile |

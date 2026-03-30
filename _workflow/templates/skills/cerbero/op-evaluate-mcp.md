@@ -93,28 +93,27 @@ npm audit signatures
 
 ## Step 4 — Automated Scan (recommended, not required)
 
-### 4a. Check mcp-scan availability
+### 4a. Check external scanner availability
 
 ```powershell
-uvx mcp-scan@latest --version 2>&1
+mcp-scanner --version 2>&1
 ```
 
-**If mcp-scan is NOT installed:**
-- Inform user: "mcp-scan no esta disponible. Este paso se omite. mcp-scan (Snyk) detecta tool poisoning, prompt injection, rug pulls y cross-origin escalation. Considerar instalarlo: ver setup-guide.md seccion A.1."
-- Record: `mcp-scan: SKIPPED (not available)`
+**If cisco-ai-mcp-scanner is NOT installed:**
+- Inform user: "cisco-ai-mcp-scanner no esta disponible. Este paso se omite. Agrega deteccion de malware signatures via YARA rules. Para instalarlo: `uv tool install --python 3.13 cisco-ai-mcp-scanner` (ver setup-guide.md)."
+- Record: `external-scanner: SKIPPED (not available)`
 - Continue to Step 4b.
 
-**If mcp-scan IS available:**
-- Inform user via AskUserQuestion: "mcp-scan envia nombres y descripciones de tools a la API de Snyk por defecto. Opciones:"
-  - (1) Ejecutar con --opt-out (sin telemetria, recomendado)
-  - (2) Ejecutar con telemetria (datos enviados a Snyk)
-  - (3) Omitir este paso
-- Execute based on choice:
-  - (1): `uvx mcp-scan@latest scan --opt-out`
-  - (2): `uvx mcp-scan@latest scan`
-  - (3): Record `mcp-scan: SKIPPED (user choice)` and continue.
+**If cisco-ai-mcp-scanner IS available:**
+- Execute in YARA-only mode (100% offline, zero data transmission):
+  ```powershell
+  mcp-scanner --scan-yara
+  ```
+- Do NOT use API mode or LLM mode (requires Cisco AI Defense account + cloud transmission).
 
-Any detection of tool poisoning, toxic flows, prompt injection, or cross-origin escalation: FLAG for review.
+Any YARA detection: FLAG for review. YARA findings complement but do not replace Cerbero T0-T3 analysis.
+
+> **Note:** mcp-scan (Snyk) is deprecated. v0.3.0 is unmaintained (9+ months no patches). v0.4+ requires Snyk account + mandatory cloud data transmission. Replaced by cisco-ai-mcp-scanner as of 2026-03.
 
 ## Step 4b — Cerbero Automated + Semantic Analysis
 
@@ -152,6 +151,8 @@ Using ONLY pre-processed content from 4b.2:
 Classify per the Risk Classification table in SKILL.md. Record the risk level and required mitigations.
 
 ## Step 6 — Verdict
+
+**MANDATORY PRE-VERDICT CHECK (I-1):** Before producing a verdict, list ALL steps (1-7) with status (COMPLETED/SKIPPED). For each SKIPPED step, state the reason. Do not produce a verdict if any step was skipped without documented justification.
 
 Apply multi-scanner trigger logic (see SKILL.md):
 

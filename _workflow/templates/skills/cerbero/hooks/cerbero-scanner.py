@@ -225,8 +225,13 @@ def scan_html_comments(text):
     return findings
 
 
-def scan_css_hiding(text):
-    """Tier 1: Detect CSS techniques for hiding content."""
+def scan_css_hiding(text, file_path=""):
+    """Tier 1: Detect CSS techniques for hiding content.
+    M-1: Skips actual stylesheets where these patterns are expected."""
+    if file_path:
+        ext = os.path.splitext(file_path)[1].lower()
+        if ext in (".css", ".html", ".htm", ".scss", ".sass", ".less", ".svelte", ".vue"):
+            return []
     findings = []
     for i, line in enumerate(text.splitlines(), 1):
         for pattern, desc in CSS_HIDING_PATTERNS:

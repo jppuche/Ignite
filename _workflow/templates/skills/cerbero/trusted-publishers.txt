@@ -1,2 +1,7 @@
 anthropic
+vercel
+microsoft
+supabase
 trailofbits
+nicepkg
+cisco

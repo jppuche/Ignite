@@ -12,7 +12,7 @@ import re
 import hashlib
 from datetime import date, datetime, timezone
 
-HOOK_VERSION = "2.3.1"
+HOOK_VERSION = "2.4.0"
 
 
 def _load_config(cwd):

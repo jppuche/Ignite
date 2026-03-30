@@ -60,7 +60,7 @@ Copy entire `_workflow/templates/skills/cerbero/` directory to `./.claude/skills
 - op-evaluate-mcp.md, op-evaluate-skill.md, op-verify-existing.md, op-full-audit.md
 - setup-guide.md
 - trusted-publishers.txt
-- hooks/ (validate-prompt.py, pre-tool-security.py, mcp-audit.py)
+- hooks/ (validate-prompt.py, pre-tool-security.py, mcp-audit.py, cerbero-scanner.py, untrusted-source-reminder.py, validate-tool-output.py)
 
 For each file in the skill directory:
 - If not exists at destination: copy.
@@ -110,6 +110,8 @@ Copy hook scripts to `./.claude/hooks/`:
 - `pre-tool-security.py`
 - `mcp-audit.py`
 - `cerbero-scanner.py`
+- `untrusted-source-reminder.py`
+- `validate-tool-output.py`
 
 For each hook:
 - If not exists: copy.
@@ -195,3 +197,5 @@ Add to the Skills section of the generated CLAUDE.md:
 ```
 - `Cerbero` -- Evaluar skills/MCPs antes de instalar, auditar existentes, verificar rug pulls
 ```
+
+> **Alternative:** For standalone security screening without the full Ignite workflow, see [Cerbero](https://github.com/jppuche/Cerbero).

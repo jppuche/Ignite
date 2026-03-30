@@ -4,7 +4,7 @@ description: 'Advance the project to the next workflow phase. Validates exit con
 license: MIT
 metadata:
   author: jppuche
-  version: "2.3.1"
+  version: "2.4.0"
 disable-model-invocation: true
 ---
 

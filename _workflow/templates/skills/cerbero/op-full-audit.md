@@ -23,28 +23,26 @@ Execute [op-verify-existing.md](op-verify-existing.md) in full. Include its repo
 
 ## Step 3 — Re-scan All Components (recommended)
 
-### 3a. Check mcp-scan availability
+### 3a. Check external scanner availability
 
 ```powershell
-uvx mcp-scan@latest --version 2>&1
+mcp-scanner --version 2>&1
 ```
 
-**If mcp-scan is NOT installed:**
-- Inform user: "mcp-scan no esta disponible. Este paso se omite. mcp-scan (Snyk) detecta tool poisoning, prompt injection, rug pulls y cross-origin escalation. Considerar instalarlo: ver setup-guide.md seccion A.1."
-- Record: `mcp-scan: SKIPPED (not available)`
+**If cisco-ai-mcp-scanner is NOT installed:**
+- Record: `external-scanner: SKIPPED (not available)`
 - Continue to Step 4.
 
-**If mcp-scan IS available:**
-- Inform user via AskUserQuestion: "mcp-scan envia nombres y descripciones de tools a la API de Snyk por defecto. Opciones:"
-  - (1) Ejecutar con --opt-out (sin telemetria, recomendado)
-  - (2) Ejecutar con telemetria (datos enviados a Snyk)
-  - (3) Omitir este paso
-- Execute based on choice:
-  - (1): `uvx mcp-scan@latest scan --opt-out` and `uvx mcp-scan@latest scan --opt-out --skills .claude/skills/`
-  - (2): `uvx mcp-scan@latest scan` and `uvx mcp-scan@latest scan --skills .claude/skills/`
-  - (3): Record `mcp-scan: SKIPPED (user choice)` and continue.
+**If cisco-ai-mcp-scanner IS available:**
+- Execute in YARA-only mode (100% offline):
+  ```powershell
+  mcp-scanner --scan-yara
+  ```
+- Do NOT use API mode or LLM mode.
 
 Record all findings.
+
+> **Note:** mcp-scan (Snyk) is deprecated as of 2026-03. See op-evaluate-mcp.md Step 4 for details.
 
 ## Step 4 — Configuration Integrity
 
@@ -98,6 +96,8 @@ Cap: 1 query per server. For projects with more than 5 MCP servers, prioritize H
 
 ## Step 7 — Audit Report
 
+**MANDATORY PRE-REPORT CHECK (I-1):** Before producing the report, list ALL steps (1-6) with status (COMPLETED/SKIPPED). For each SKIPPED step, state the reason. Do not produce a report if any step was skipped without documented justification.
+
 ```
 CERBERO — SECURITY AUDIT REPORT
 ==================================
@@ -112,7 +112,7 @@ Date: <ISO 8601>
    [Include op-verify-existing report if CHANGED]
 
 3. COMPONENT SCAN
-   mcp-scan: PASS / <n> findings / SKIPPED
+   external-scanner (cisco-ai-mcp-scanner): PASS / <n> findings / SKIPPED
    Skills scan: PASS / <n> findings / SKIPPED
    Details: <findings if any>
 

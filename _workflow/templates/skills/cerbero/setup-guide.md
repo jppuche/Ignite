@@ -9,54 +9,35 @@ This document is for human configuration. Do not load in agent context.
 - uv: https://docs.astral.sh/uv/ (for uvx commands)
 - Claude Code updated to latest stable (`/status` to check)
 
-## A.1 — Install Primary Security Tooling
+## A.1 — Install External Scanner (recommended for 5+ MCPs)
 
-### mcp-scan (Invariant Labs / Snyk)
+### Cisco MCP Scanner (YARA-only mode)
 
-The most established MCP security scanner (~1.1K stars). Scans tool descriptions against prompt injection, tool poisoning, rug pulls, and cross-origin escalation.
+Malware signature detection via 35+ curated YARA rules. 100% offline in YARA-only mode — zero network calls, zero data transmission. Complements Cerbero's regex-based detection with known-bad binary/behavioral signatures.
 
 ```powershell
-# Verify it runs (no global install needed, uvx runs it on demand)
-uvx mcp-scan@latest scan --help
+# Install via uv (requires Python 3.11-3.13, NOT 3.14)
+uv tool install --python 3.13 cisco-ai-mcp-scanner
+# Verify
+mcp-scanner --version
 ```
 
-> **PRIVACY NOTE:** By default, mcp-scan sends tool names and descriptions to Invariant Labs/Snyk API for analysis. Options:
-> - `--opt-out` — Disable telemetry (recommended default)
-> - `--local-only` — Fully local analysis (requires `OPENAI_API_KEY`, less precise results)
+> **IMPORTANT:** Use YARA-only mode (`--scan-yara`). Do NOT use API mode or LLM mode — these require a Cisco AI Defense account and transmit data to Cisco's cloud.
 >
-> **NOTE:** Invariant Labs was acquired by Snyk (Jan 2026). The mcp-scan repo remains active but monitor its continuity.
+> **When to install:** Recommended if you evaluate 5+ MCP servers or install from untrusted/emerging publishers. For 1-3 MCPs from known publishers, Cerbero's local tiers (T0-T3) provide sufficient coverage.
 
-### Optional: Lasso Prompt Injection Defender
+### Deprecated: mcp-scan (Snyk)
 
-PostToolUse hook that scans tool outputs against 50+ detection patterns before Claude processes results. Injects warnings into context instead of blocking (avoids false positives).
+mcp-scan (Invariant Labs) was acquired by Snyk in June 2025. v0.3.0 is unmaintained (9+ months, no security patches). v0.4+ requires Snyk account + mandatory cloud data transmission. **Do not use.** Replaced by cisco-ai-mcp-scanner.
 
-> **STATUS:** Low community adoption (~30 stars). Legitimate company (Lasso Security) with solid technical blog on indirect prompt injection. **Audit the code before installing** — this is exactly what Cerbero would recommend for any hook.
+## A.1b — Other Complementary Tools
 
-```powershell
-git clone https://github.com/lasso-security/claude-hooks.git
-Set-Location claude-hooks
-# Review code before running install
-# Follow install instructions for your project
-```
+| Tool | Author | Strength | Status |
+|------|--------|----------|--------|
+| **Trail of Bits mcp-context-protector** | Trail of Bits | Runtime TOFU pinning + ANSI exploit protection | No stable release yet. Monitor for v1.0. |
+| **Anthropic Sandbox** | Anthropic | OS-level filesystem/network enforcement | `claude --sandbox` (beta) |
 
-## A.1b — Alternative / Complementary Tools
-
-These tools can complement or replace mcp-scan depending on your needs:
-
-| Tool | Author | Strength | Install |
-|------|--------|----------|---------|
-| **Proximity** | Thomas Roccia | NOVA rule engine for prompt injection/jailbreak detection. Open-source. Covered by Help Net Security. | `github.com/fr0gger/proximity` |
-| **MCPGuard** | Virtue AI | Scanned 700+ MCP servers. First MCP Security Leaderboard. 45 vulnerabilities responsibly disclosed. | `virtueai.com` |
-| **Cisco MCP Scanner** | Cisco | AST + dataflow analysis. Offline mode for CI/CD. Custom YARA rules. | `github.com/cisco-ai-defense/mcp-scanner` |
-| **MCPShield** | — | Typosquat detection, SHA-512 hashing, namespace validation, zero-config. | `mcpshield.vercel.app` |
-
-### Anthropic Sandbox Runtime (beta)
-
-OS-level sandboxing for Claude Code. Restricts filesystem and network access per session.
-
-```powershell
-claude --sandbox
-```
+> **Note:** For most users, Cerbero local tiers + cisco-ai-mcp-scanner (if needed) provide comprehensive coverage. Additional tools add defense-in-depth for high-security environments.
 
 > Recommended for first session with any HIGH-risk MCP server.
 
@@ -184,6 +165,9 @@ New-Item -ItemType Directory -Force .claude/hooks
 Copy-Item ~/.claude/skills/cerbero/hooks/validate-prompt.py .claude/hooks/
 Copy-Item ~/.claude/skills/cerbero/hooks/pre-tool-security.py .claude/hooks/
 Copy-Item ~/.claude/skills/cerbero/hooks/mcp-audit.py .claude/hooks/
+Copy-Item ~/.claude/skills/cerbero/hooks/cerbero-scanner.py .claude/hooks/
+Copy-Item ~/.claude/skills/cerbero/hooks/untrusted-source-reminder.py .claude/hooks/
+Copy-Item ~/.claude/skills/cerbero/hooks/validate-tool-output.py .claude/hooks/
 ```
 
 **If skill is per-project (.claude/skills/cerbero/):**
@@ -192,6 +176,9 @@ New-Item -ItemType Directory -Force .claude/hooks
 Copy-Item .claude/skills/cerbero/hooks/validate-prompt.py .claude/hooks/
 Copy-Item .claude/skills/cerbero/hooks/pre-tool-security.py .claude/hooks/
 Copy-Item .claude/skills/cerbero/hooks/mcp-audit.py .claude/hooks/
+Copy-Item .claude/skills/cerbero/hooks/cerbero-scanner.py .claude/hooks/
+Copy-Item .claude/skills/cerbero/hooks/untrusted-source-reminder.py .claude/hooks/
+Copy-Item .claude/skills/cerbero/hooks/validate-tool-output.py .claude/hooks/
 ```
 
 Verify they run correctly:
@@ -264,8 +251,8 @@ Before installing any MCP server or Skill, execute Cerbero evaluation.
 
 ## A.8 — Verification Checklist
 
-- [ ] `uv` installed (for `uvx` commands)
-- [ ] `mcp-scan` accessible via `uvx mcp-scan@latest scan --help`
+- [ ] `uv` installed (for tool management)
+- [ ] (Recommended for 5+ MCPs) `cisco-ai-mcp-scanner` installed via `uv tool install --python 3.13 cisco-ai-mcp-scanner`
 - [ ] Cerbero skill installed (`~/.claude/skills/cerbero/` or `.claude/skills/cerbero/`)
 - [ ] `.claude/security/` directory created
 - [ ] `.claude/security/trusted-publishers.txt` exists
@@ -274,5 +261,5 @@ Before installing any MCP server or Skill, execute Cerbero evaluation.
 - [ ] `.claude/settings.local.json` has permissions and hooks
 - [ ] `CLAUDE.md` references Cerbero
 - [ ] Claude Code is latest stable version
-- [ ] (Optional) PostToolUse indirect injection scanner (`validate-tool-output.py`) + PreToolUse reminder (`untrusted-source-reminder.py`) installed
-- [ ] (Optional) Proximity, Cisco Scanner, or sandbox-runtime for additional coverage
+- [ ] PostToolUse indirect injection scanner (`validate-tool-output.py`) + PreToolUse reminder (`untrusted-source-reminder.py`) installed (deployed by default)
+- [ ] (Optional) Additional external scanners or sandbox-runtime for defense-in-depth

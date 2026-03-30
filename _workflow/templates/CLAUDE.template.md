@@ -99,7 +99,7 @@ Lorekeeper hooks leen paths y umbrales de `.claude/lorekeeper-config.json` (si f
 - `lorekeeper-session-gate.py` (SessionStart) — evalua SCRATCHPAD/CHANGELOG/STATUS en tiempo real, genera REQUIRED ACTIONS priorizadas, version check (tambien post-compresion)
 - `lorekeeper-commit-gate.py` (PreToolUse:Bash) — bloquea git commit si docs validation falla. Warnings (validation + freshness) se inyectan como additionalContext
 - `lorekeeper-session-end.py` (SessionEnd) — checkpoint completo (SCRATCHPAD, CHANGELOG-DEV, CLAUDE.md), graduation candidates, pending items numerados para siguiente sesion
-- `env-protection.py` (PreToolUse:Read+Bash) — bloquea lectura de .env/secrets/credentials. Read→block, Bash→warn
+- `env-protection.py` (PreToolUse:Read+Write+Edit+Grep+Bash) — protege .env/secrets/credentials. Read/Write/Edit/Grep→block, Bash→warn
 
 > **Phases 0-3:** Quality gate hooks skip checks when tools aren't installed yet.
 > This is expected — tools are installed during development blocks.

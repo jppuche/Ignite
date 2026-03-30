@@ -44,6 +44,7 @@ def main():
     with open(log_path, "a", encoding="utf-8") as f:
         f.write(json.dumps(entry) + "\n")
 
+    # M-5: Atomic counter update (tempfile + os.replace on same volume)
     counter_path = os.path.join(log_dir, "invocation-counter.txt")
     count = 0
     if os.path.exists(counter_path):
@@ -52,8 +53,16 @@ def main():
         except (ValueError, OSError):
             count = 0
     count += 1
-    with open(counter_path, "w", encoding="utf-8") as cf:
-        cf.write(str(count))
+    try:
+        import tempfile
+        fd, tmp_path = tempfile.mkstemp(dir=log_dir)
+        with os.fdopen(fd, "w") as cf:
+            cf.write(str(count))
+        os.replace(tmp_path, counter_path)
+    except OSError:
+        # Fallback: direct write (non-atomic but functional)
+        with open(counter_path, "w", encoding="utf-8") as cf:
+            cf.write(str(count))
     if count % 50 == 0:
         print(f"Cerbero: {count} MCP invocations since last reset. Consider running /cerbero verify.", file=sys.stderr)
 

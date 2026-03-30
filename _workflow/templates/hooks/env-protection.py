@@ -1,13 +1,12 @@
 """Env protection hook: PreToolUse — blocks access to sensitive files (.env, secrets, credentials).
 
-Matcher: Read, Write, Edit, Bash (registered separately in settings.local.json).
+Matcher: Read, Write, Edit, Grep, Bash (registered separately in settings.local.json).
 - Read tool: blocks if file_path matches sensitive patterns.
 - Write tool: blocks if file_path matches sensitive patterns.
 - Edit tool: blocks if file_path matches sensitive patterns.
+- Grep tool: blocks if path targets a sensitive location. When path is empty (cwd),
+  defense relies on permissions.deny with Grep(**/.env*) — hook cannot block all greps.
 - Bash tool: warns (additionalContext) if command accesses sensitive files.
-Grep tool has no PreToolUse matcher in CC (platform limitation). Grep access to
-sensitive files is lower risk (returns content matches, not full file). Documented
-as known limitation.
 
 Fail-open: errors → allow + warn (consistent with all Ignite hooks).
 """
@@ -102,6 +101,45 @@ def main():
                 }
             }, sys.stdout)
             sys.exit(0)
+
+    elif tool_name == "Grep":
+        # Block if path explicitly targets a sensitive location.
+        # When path is empty (default=cwd), we cannot block without blocking ALL greps.
+        # Defense for that case: permissions.deny with Grep(**/.env*) in settings.json.
+        grep_path = tool_input.get("path", "")
+        if grep_path:
+            matched, desc = _check_path(grep_path)
+            if matched:
+                json.dump({
+                    "hookSpecificOutput": {
+                        "hookEventName": "PreToolUse",
+                        "permissionDecision": "deny",
+                        "permissionDecisionReason": (
+                            f"Blocked: grep targeting {desc} ({os.path.basename(grep_path)}). "
+                            "Grep returns matching lines including secret values. "
+                            "If you need values from sensitive files, ask the user directly."
+                        ),
+                    }
+                }, sys.stdout)
+                sys.exit(0)
+        # Also check glob parameter which can target sensitive files
+        # Strip glob wildcards before matching (*.env* → .env, .env* → .env)
+        grep_glob = tool_input.get("glob", "")
+        if grep_glob:
+            deglobbed = re.sub(r"[*?]", "", grep_glob)
+            matched, desc = _check_path(deglobbed)
+            if matched:
+                json.dump({
+                    "hookSpecificOutput": {
+                        "hookEventName": "PreToolUse",
+                        "permissionDecision": "deny",
+                        "permissionDecisionReason": (
+                            f"Blocked: grep with glob targeting {desc}. "
+                            "Grep returns matching lines including secret values."
+                        ),
+                    }
+                }, sys.stdout)
+                sys.exit(0)
 
     elif tool_name == "Bash":
         command = tool_input.get("command", "")

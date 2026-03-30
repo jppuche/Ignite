@@ -3,6 +3,24 @@
 All notable changes to Ignite are documented here.
 Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [2.4.0] - 2026-03-30
+
+### Added
+- **Cerebrate visible in README** — `/cerebrate` now appears in "What Ignite Does", "What Makes Ignite Different", and the generated file tree
+- **Cerbero standalone link** — README links to github.com/jppuche/Cerbero in security bullet and Limitations section
+- **Lorekeeper Protocol** in documentation.template.md — numbered 8-step mandatory protocol for session management
+- **Ignite reference doc** — `docs/reference/ignite-reference.md` for quick architecture lookup
+
+### Changed
+- **Compound learning as hero feature** — Expanded session memory bullets in README to communicate full graduation pipeline (SCRATCHPAD → pattern detection → CLAUDE.md rules) with hook enforcement
+- **Quick profile first impression** — Added note in "Your Experience" guiding newcomers toward Quick profile
+- **hooks.template.md** — Converted from list to condensed table format, added Grep matcher for env-protection.py
+- **ref-cerbero-installation.md** — Added standalone Cerbero alternative link
+
+### Documentation
+- **Cerebrate spec closed** — Template v2 (150 lines) verified against all 8 spec checkboxes
+- **CC Upgrades evaluated** — 5 Claude Code features assessed: 2 actionable (InstructionsLoaded, context:fork), 1 monitor (Agent Teams), 2 discarded (CLAUDE_SKILL_DIR, hooks frontmatter)
+
 ## [2.3.1] - 2026-03-14
 
 ### Changed

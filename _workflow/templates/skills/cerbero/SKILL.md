@@ -91,7 +91,10 @@ Cerbero uses a tiered detection system. All tiers run locally — no external AP
 - Always for Skill evaluation (op-evaluate-skill 3a) and MCP semantic analysis (op-evaluate-mcp 4b.1)
 - `--strip-only` mode: removes comments/strings for safer Tier 3 analysis
 
-External tools (mcp-scan, Proximity, Cisco Scanner) are **recommended complements**, not requirements.
+External scanners are **recommended complements**, not requirements. Tiered recommendation:
+- **Casual (1-3 MCPs, known publishers):** Cerbero local tiers (T0-T3) are sufficient.
+- **Active (5+ MCPs, mix of publishers):** Install `cisco-ai-mcp-scanner` in YARA-only mode (`uv tool install --python 3.13 cisco-ai-mcp-scanner`). Adds malware signature detection not covered by regex patterns.
+- **Power user (10+ MCPs, experimental):** Cisco YARA-only + consider Trail of Bits `mcp-context-protector` for runtime TOFU enforcement when it reaches stable releases.
 
 ### Multi-scanner trigger logic
 
@@ -99,6 +102,11 @@ To reduce false positives (inspired by Vigil):
 - 1 Tier 1+2 check fails → SUSPICIOUS (continue evaluation, do not auto-reject)
 - 2+ Tier 1+2 checks fail → REJECT or REQUIRES HUMAN REVIEW (by severity)
 - Exception: direct injection phrases always → REJECT (one match suffices)
+
+### Known limitations (I-3)
+
+- Pattern-based detection does not catch creative paraphrasing of injection attempts. Claude's built-in safety training is the primary defense against semantic attacks; Cerbero's regex layer is supplementary, catching known patterns and encoded variants.
+- Pre-tool-security normalization (shlex) catches static evasion (quotes, backslashes) but not dynamic evasion (variable expansion, aliases). For OS-level enforcement, use Claude Code's sandbox mode.
 
 ## Risk Classification
 

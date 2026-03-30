@@ -8,6 +8,14 @@ Defense pipeline: normalize-then-detect
   5. Token proximity detection (defeat paraphrase attacks)
   6. Comment extraction + rescan (defeat HTML/code comment smuggling)
   7. Base64 decode-and-rescan (defeat encoding bypasses)
+
+Language coverage (M-2):
+  - EN: full patterns (identity hijack, instruction override, proximity pairs)
+  - ES: full patterns (identity hijack, instruction override, proximity pairs)
+  - PT: proximity pairs only
+  - FR: proximity pairs only
+  - DE/IT/other: no coverage
+  To add a language: add patterns to IDENTITY_HIJACK + INSTRUCTION_OVERRIDE + SUSPICIOUS_PAIRS
 """
 import sys
 import json

@@ -6,12 +6,11 @@ description: >-
   a Skill, verifying existing MCP servers for rug pulls, running security
   audits, or when the user mentions "check my MCPs", "verify", "audit",
   or "security check".
-allowed-tools: Read, Bash, Glob, Grep, WebSearch, WebFetch
 ---
 
 # Cerbero — Security Framework for Skills and MCP Servers
 
-Version: 1.0
+Version: 1.1.0
 
 ## Skill Structure
 
@@ -23,8 +22,17 @@ cerbero/
   op-verify-existing.md    <-- read when: checking for rug pulls or running routine verification
   op-full-audit.md         <-- read when: user requests audit or monthly scheduled audit
   setup-guide.md           <-- reference: human one-time setup (do not load in agent context)
-  trusted-publishers.txt   <-- reference: default trusted publishers list
-  hooks/                   <-- hook script templates (deploy to .claude/hooks/)
+```
+
+Hook scripts (deploy to `.claude/hooks/`):
+```
+hooks/
+  cerbero-scanner.py             <-- Tier 0 pre-context scanner
+  validate-prompt.py             <-- prompt injection defense
+  pre-tool-security.py           <-- dangerous command blocking
+  mcp-audit.py                   <-- MCP invocation audit trail
+  untrusted-source-reminder.py   <-- pre-tool safety reminder
+  validate-tool-output.py        <-- post-tool indirect injection scanner
 ```
 
 Runtime artifacts (generated, live in project's `.claude/security/`):
@@ -189,7 +197,12 @@ ROT13:             Flag if near "decode" / "decipher" / "rot13"
 ### Invisible characters
 
 ```
-U+200B U+200C U+200D U+FEFF U+00AD U+2060 U+180E
+Zero-width:          U+200B U+200C U+200D U+FEFF U+00AD U+2060 U+180E
+Tag characters:      U+E0020-U+E007F  (100% ASR for smuggling — Rehberger 2024)
+Variation Selectors: U+FE00-U+FE0F, U+E0100-U+E01EF  (Glassworm campaign 2026)
+Sneaky Bits:         U+2062 U+2064  (binary encoding — Rehberger 2025)
+Bidi overrides:      U+202A-U+202E, U+2066-U+2069  (misleading text rendering)
+Confusables:         Cyrillic/Greek lookalikes (а→a, е→e, о→o, etc.)
 ```
 
 ### Dangerous shell commands (PreToolUse hook reference)

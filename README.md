@@ -5,7 +5,7 @@
 <!-- GitHub About: Complete development infrastructure for Claude Code projects. Foundational Discovery, project profiles, session memory, quality gates, security screening, CI/CD — auto-adapted to any stack and complexity. Works on new and existing codebases. -->
 <!-- Topics: claude-code, agent-skills, workflow-methodology, development-workflow, compound-engineering, security, multi-stack, automation -->
 
-![Version](https://img.shields.io/badge/version-2.4.0-blue)
+![Version](https://img.shields.io/badge/version-2.5.0-blue)
 ![License](https://img.shields.io/badge/license-MIT-green)
 ![Python](https://img.shields.io/badge/python-3.8%2B-yellow)
 ![Platforms](https://img.shields.io/badge/platforms-Windows%20%7C%20macOS%20%7C%20Linux-lightgrey)
@@ -64,6 +64,7 @@ The skill auto-detects your OS, stack, and existing configuration. You answer a 
 - **Session memory that compounds** — Every error, correction, and discovery is captured in SCRATCHPAD. When a pattern repeats 3+ times, it graduates to permanent rules in CLAUDE.md. Hooks enforce this pipeline: commits are blocked if SCRATCHPAD is stale, session-end checks identify graduation candidates. Context survives `/clear` through structured handoffs. The result: Claude Code gets measurably better at your project every session — not from retraining, from structured accumulation
 - **Living documentation** — Hooks enforce that project docs stay current. Commits are blocked if documentation validation fails. Session start checks freshness of STATUS, CHANGELOG, and SCRATCHPAD. The AI writes — automation ensures it never skips
 - **Strategic reflection** — `/cerebrate` mines your session for explicit knowledge and implicit insights. Four-lens analysis (confirms, challenges, opens, windows) with coherence scanning across your docs. Curated persistence, not bulk filing — the intelligence brief shows you what matters before anything is written
+- **Memory health** — `/antialzheimer` detects cognitive drift before it causes problems. Stale memories, contradictions between memory files and CLAUDE.md rules, zombie project references, instruction budget bloat. Three modes: quick health check (read-only scan), full consolidation (7-phase overhaul with backup), and post-session review (triage new knowledge). The AI equivalent of keeping your filing system from becoming a junk drawer
 - **Quality enforcement** — Typecheck + lint + test gates before every commit. CI/CD pipeline generated for your stack. Doc validation on every session close
 - **Security layers** — Environment protection blocks AI access to `.env`, secrets, and credentials. Cerbero screens Skills and MCP servers for prompt injection, supply-chain attacks, and typosquatting via a structured evaluation process (also available standalone: [Cerbero](https://github.com/jppuche/Cerbero))
 - **Adapts to you** — Experience level (Guided/Advanced) controls interaction style. Project profile (Quick/Standard/Enterprise) controls workflow depth. A weekend script and a production API get different treatment
@@ -145,6 +146,7 @@ your-project/
 │   │   └── user-profile.json # Experience level + profile persistence
 │   ├── skills/
 │   │   ├── cerbero/          # Security framework (optional)
+│   │   ├── antialzheimer/    # Memory health & cognitive architecture maintenance
 │   │   └── advance-phase/    # Phase transition automation (advanced users)
 │   │   # Also available: cerebrate/ (install from _workflow/templates/skills/)
 │   ├── quality-gate.json    # Stack-specific quality commands
@@ -249,6 +251,7 @@ Most project scaffolders generate files and leave. Ignite works differently:
 - **Enforces quality automatically** — PreToolUse hooks block commits that fail typecheck, lint, or tests. Not advisory — enforced
 - **Learns across sessions** — Compound engineering is the core differentiator. Errors flow into SCRATCHPAD, repeating patterns are detected and graduate to permanent CLAUDE.md rules, session handoffs preserve context across `/clear`. This isn't advisory — hooks enforce the entire pipeline. Every session Claude works on your project, it gets better. Not from retraining — from structured accumulation of what works and what doesn't
 - **Reflects, not just records** — Most tools log what happened. `/cerebrate` analyzes what it means: what confirms your assumptions, what challenges them, what new opportunities appeared, and what's time-sensitive. Coherence scanning catches when updating one document makes another stale
+- **Memory that stays healthy** — Session memory accumulates. Rules evolve. Projects complete. Without maintenance, your AI develops what we call "partial personality" — confident advice based on incomplete or contradictory context. `/antialzheimer` runs periodic health checks: detects contradictions between memory and rules, flags zombie memories from completed projects, verifies cross-references, and audits instruction budget. Three modes from quick scan to full 7-phase consolidation
 - **Keeps documentation alive** — Hooks check doc freshness at session start and block commits when validation fails. STATUS, CHANGELOG, SCRATCHPAD, and DECISIONS stay current because the system won't let them go stale
 - **Security by default** — Environment protection hooks block `.env`/secrets/credentials access. Cerbero screens Skills and MCP servers for prompt injection, supply-chain attacks, and typosquatting via structured evaluation checklists
 - **Works everywhere** — Windows, macOS, Linux. 12 stack profiles. 4 languages + free text. New projects and existing codebases
@@ -367,6 +370,7 @@ The skill follows a **delegation pattern**: `SKILL.md` orchestrates the steps, w
 | **Post-mortem tracking** | Structured LESSONS-LEARNED.md with incident timeline and root cause analysis |
 | **Auto-update notification** | Session-start version check with drift and age detection |
 | **Graduation automation** | Automated detection of repeating SCRATCHPAD patterns across sessions |
+| **Memory health** | Anti-Alzheimer: 3-mode cognitive architecture maintenance (health check, full consolidation, post-session). Detects contradictions, zombies, orphans, budget overruns, graduation candidates |
 | **Plugin manifest** | .claude-plugin/plugin.json — standard Claude Code plugin structure |
 
 </details>

@@ -6,7 +6,6 @@ description: >-
   Opens, Windows), presents intelligence brief, then persists premium documentation.
   Use when: end of session, after research, after strategy conversations, or
   when user says "cerebrate", "consolidate", "reflect", "update docs".
-allowed-tools: Read, Edit, Write, Bash, Grep, Glob, Agent
 model: opus
 disable-model-invocation: true
 ---

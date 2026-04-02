@@ -7,7 +7,7 @@ import subprocess
 from collections import defaultdict
 from datetime import date, datetime, timezone
 
-HOOK_VERSION = "2.4.0"
+HOOK_VERSION = "3.0.0"
 
 
 def _load_config(cwd):
@@ -26,6 +26,7 @@ def _load_config(cwd):
         },
         "claude_md": {"path": "CLAUDE.md", "max_lines": 200, "warn_threshold": 180},
         "validation_script": "scripts/validate-docs.sh",
+        "validation_summary_keyword": "RESULTADO:",
     }
     try:
         with open(config_path, "r", encoding="utf-8") as f:
@@ -38,7 +39,8 @@ def _load_config(cwd):
                     cfg["docs"][role].setdefault(k, v)
         for k, v in DEFAULTS["claude_md"].items():
             cfg.setdefault("claude_md", {}).setdefault(k, v)
-        cfg.setdefault("validation_script", DEFAULTS["validation_script"])
+        for scalar in ("validation_script", "validation_summary_keyword"):
+            cfg.setdefault(scalar, DEFAULTS[scalar])
         return cfg
     except (OSError, json.JSONDecodeError, ValueError):
         return DEFAULTS
@@ -102,6 +104,7 @@ def main():
     try:
         data = json.load(sys.stdin)
     except (json.JSONDecodeError, ValueError):
+        print("Lorekeeper: could not parse hook input - failing open", file=sys.stderr)
         sys.exit(0)
     cwd = data.get("cwd", ".")
 
@@ -197,8 +200,9 @@ def main():
                 timeout=30,
                 cwd=cwd,
             )
+            keyword = cfg.get("validation_summary_keyword", "RESULTADO:")
             for line in result.stdout.splitlines():
-                if "RESULTADO:" in line:
+                if keyword in line:
                     validation_summary = line.strip()
                     break
             if result.returncode != 0:

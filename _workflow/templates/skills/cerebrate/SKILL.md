@@ -8,6 +8,9 @@ description: >-
   when user says "cerebrate", "consolidate", "reflect", "update docs".
 model: opus
 disable-model-invocation: true
+metadata:
+  version: "2.0.0"
+  author: jppuche
 ---
 
 # Cerebrate - Intelligent Session Reflection

@@ -11,7 +11,7 @@ import subprocess
 import os
 from datetime import date
 
-HOOK_VERSION = "2.4.0"
+HOOK_VERSION = "3.0.0"
 
 
 def _load_config(cwd):
@@ -30,6 +30,8 @@ def _load_config(cwd):
         },
         "claude_md": {"path": "CLAUDE.md", "max_lines": 200, "warn_threshold": 180},
         "validation_script": "scripts/validate-docs.sh",
+        "validation_summary_keyword": "RESULTADO:",
+        "sync_hooks_check": False,
     }
     try:
         with open(config_path, "r", encoding="utf-8") as f:
@@ -42,7 +44,9 @@ def _load_config(cwd):
                     cfg["docs"][role].setdefault(k, v)
         for k, v in DEFAULTS["claude_md"].items():
             cfg.setdefault("claude_md", {}).setdefault(k, v)
-        cfg.setdefault("validation_script", DEFAULTS["validation_script"])
+        for scalar in ("validation_script", "validation_summary_keyword",
+                        "sync_hooks_check"):
+            cfg.setdefault(scalar, DEFAULTS[scalar])
         return cfg
     except (OSError, json.JSONDecodeError, ValueError):
         return DEFAULTS
@@ -83,6 +87,7 @@ def main():
     try:
         data = json.load(sys.stdin)
     except (json.JSONDecodeError, ValueError):
+        print("Lorekeeper: could not parse hook input - failing open", file=sys.stderr)
         sys.exit(0)
     command = data.get("tool_input", {}).get("command", "")
     cwd = data.get("cwd", ".")
@@ -100,6 +105,36 @@ def main():
         sys.exit(0)
 
     cfg = _load_config(cwd)
+
+    # --- Optional: sync-hooks.sh --check (gated by config) ---
+    if cfg.get("sync_hooks_check", False):
+        sync_script = os.path.join(cwd, "scripts", "sync-hooks.sh")
+        if os.path.isfile(sync_script):
+            try:
+                bash_cmd = os.environ.get("CLAUDE_CODE_GIT_BASH_PATH", "bash")
+                sync_result = subprocess.run(
+                    [bash_cmd, sync_script, "--check"],
+                    capture_output=True, text=True, timeout=15, cwd=cwd,
+                )
+                if sync_result.returncode != 0:
+                    reason = "Lorekeeper: hook copies are out of sync. Fix before committing:\n"
+                    for line in sync_result.stdout.splitlines():
+                        if "[FAIL]" in line:
+                            reason += f"  {line}\n"
+                    reason += "Run: bash scripts/sync-hooks.sh --sync"
+                    json.dump(
+                        {
+                            "hookSpecificOutput": {
+                                "hookEventName": "PreToolUse",
+                                "permissionDecision": "deny",
+                                "permissionDecisionReason": reason,
+                            }
+                        },
+                        sys.stdout,
+                    )
+                    sys.exit(0)
+            except (subprocess.TimeoutExpired, FileNotFoundError):
+                print("Lorekeeper WARNING: sync-hooks.sh check failed, skipping.", file=sys.stderr)
 
     # Run validate-docs.sh
     script_path = os.path.join(cwd, cfg["validation_script"])

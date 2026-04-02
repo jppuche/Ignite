@@ -12,7 +12,7 @@ import re
 import hashlib
 from datetime import date, datetime, timezone
 
-HOOK_VERSION = "2.4.0"
+HOOK_VERSION = "3.0.0"
 
 
 def _load_config(cwd):
@@ -33,6 +33,10 @@ def _load_config(cwd):
         },
         "claude_md": {"path": "CLAUDE.md", "max_lines": 200, "warn_threshold": 180},
         "validation_script": "scripts/validate-docs.sh",
+        "validation_summary_keyword": "RESULTADO:",
+        "phase_transition_reminders": False,
+        "hook_integrity_check": True,
+        "phase_actions": {},  # empty = use built-in _PHASE_ACTIONS
     }
     try:
         with open(config_path, "r", encoding="utf-8") as f:
@@ -45,7 +49,10 @@ def _load_config(cwd):
                     cfg["docs"][role].setdefault(k, v)
         for k, v in DEFAULTS["claude_md"].items():
             cfg.setdefault("claude_md", {}).setdefault(k, v)
-        cfg.setdefault("validation_script", DEFAULTS["validation_script"])
+        for scalar in ("validation_script", "validation_summary_keyword",
+                        "phase_transition_reminders", "hook_integrity_check",
+                        "phase_actions"):
+            cfg.setdefault(scalar, DEFAULTS[scalar])
         return cfg
     except (OSError, json.JSONDecodeError, ValueError):
         return DEFAULTS
@@ -210,12 +217,16 @@ _PHASE_ACTIONS = {
 }
 
 
-def _get_phase_actions(phase_str, status_path="docs/STATUS.md"):
-    """Return actionable guidance for the current phase. Empty list if no match."""
+def _get_phase_actions(phase_str, status_path="docs/STATUS.md", cfg_override=None):
+    """Return actionable guidance for the current phase. Empty list if no match.
+
+    If cfg_override is a non-empty dict, use it instead of built-in _PHASE_ACTIONS.
+    """
+    actions_table = cfg_override if cfg_override else _PHASE_ACTIONS
     if not phase_str:
         return [f"Read {status_path} to determine current phase"]
     phase_lower = phase_str.lower()
-    for key, actions in _PHASE_ACTIONS.items():
+    for key, actions in actions_table.items():
         if key in phase_lower:
             return actions
     return []
@@ -225,6 +236,7 @@ def main():
     try:
         data = json.load(sys.stdin)
     except (json.JSONDecodeError, ValueError):
+        print("Lorekeeper: could not parse hook input - failing open", file=sys.stderr)
         sys.exit(0)
     cwd = data.get("cwd", ".")
 
@@ -317,8 +329,10 @@ def main():
     current_phase = _extract_current_phase(cwd, cfg["docs"]["status"])
     pending_tasks = _extract_pending_tasks(cwd, cfg["docs"]["status"])
 
-    # --- Hook integrity verification (H-SEC-005) ---
-    integrity_warnings = _verify_hook_integrity(cwd)
+    # --- Hook integrity verification (H-SEC-005, gated by config) ---
+    integrity_warnings = []
+    if cfg.get("hook_integrity_check", True):
+        integrity_warnings = _verify_hook_integrity(cwd)
 
     # Build REQUIRED ACTIONS (prioritized)
     required_actions = []
@@ -365,7 +379,9 @@ def main():
             msg += f"    - {task}\n"
 
     # Phase-specific actionable guidance
-    phase_actions = _get_phase_actions(current_phase, status_path)
+    phase_actions = _get_phase_actions(
+        current_phase, status_path, cfg_override=cfg.get("phase_actions") or None
+    )
     if phase_actions:
         msg += "  Recommended actions for this phase:\n"
         for action in phase_actions:
@@ -376,6 +392,26 @@ def main():
     if handoff:
         msg += f"\n  SESSION HANDOFF (from previous session):\n"
         msg += f"    {handoff}\n"
+
+    # Phase transition reminder (optional, gated by config)
+    if cfg.get("phase_transition_reminders", False):
+        status_content, _ = _read_file_safe(os.path.join(cwd, status_path))
+        if status_content:
+            phase_0_done = re.search(
+                r"(Phase 0|Fase 0|Foundation|Fundamentos).*?"
+                r"(completad|complete|done|\[x\])",
+                status_content, re.IGNORECASE,
+            )
+            phase_1_active = re.search(
+                r"(Phase 1|Fase 1|Technical Landscape|Panorama).*?"
+                r"(completad|complete|done|in.progress|en.curso|\[x\])",
+                status_content, re.IGNORECASE,
+            )
+            if phase_0_done and not phase_1_active:
+                msg += (
+                    "\n  PHASE TRANSITION: Phase 0 complete but Phase 1 not started.\n"
+                    "  Review _workflow/guides/workflow-guide.md for next steps.\n"
+                )
 
     if version_msg:
         msg += f"\n  {version_msg}\n"
